@@ -1,0 +1,4 @@
+MailDecon is a Linux based anti-spam/anti-virus email appliance that sits in front of a primary email server.
+
+
+http://code.google.com/p/emda/
