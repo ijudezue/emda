@@ -24,15 +24,3 @@
 *Milestone-Release-1.0 = This release marks a direct replacement to ESVA 2.0.6.0 in an installable ISO format with a new OS
 
 *Milestone-Release-2.0 = EMDA with a new GUI, new functionality, and finished branding.
-
-= Introduction =
-
-Add your content here.
-
-
-= Details =
-
-Add your content here.  Format your content with:
-  * Text in *bold* or _italic_
-  * Headings, paragraphs, and lists
-  * Automatic links to other wiki pages
