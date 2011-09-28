@@ -1,2 +1,2 @@
-     * EMDA
+     * EntMail
      * RoadMap
