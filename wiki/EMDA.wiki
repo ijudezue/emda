@@ -1,0 +1,3 @@
+===EMDA===
+
+*E*-nterprise *M*-ail *D*-elivery *A*-ppliance is an E-Mail scanning appliance that will scan for SPAM, Virus, and other forms of dangerous infected E-Mails.
