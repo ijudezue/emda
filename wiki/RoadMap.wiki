@@ -1,0 +1,38 @@
+#labels roadmap,emda
+#Pseudo RoadMap for EMDA
+
+*Milestone-Release-.01 = Initial concepts of what ESVA should be, and if we should allow database transfers from old ESVA systems
+
+*Milestone-Release-.02 = Distribution, new name, packaging, branding, logos, and high level items will be decided on
+
+*Milestone-Release-.03 = Build environment for the basic OS will be made, and checked into repository
+
+*Milestone-Release-.04 = OS with all required packages and dependencies for ESVA will be installed
+
+*Milestone-Release-.05 = Integration of ESVA configurations into new EMDA
+
+*Milestone-Release-.06 = Integration of ESVA GUI into new EMDA
+
+*Milestone-Release-.07 = Testing of a new installation of EMDA
+
+*Milestone-Release-.08 = Development of transfer system of old ESVA databases to new EMDA
+
+*Milestone-Release-.09 = Testing a full transfer of old ESVA database to new EMDA, and final debugging
+
+*Milestone-Release-.1 = First alpha release of the new EMDA
+
+*Milestone-Release-1.0 = This release marks a direct replacement to ESVA 2.0.6.0 in an installable ISO format with a new OS
+
+*Milestone-Release-2.0 = EMDA with a new GUI, new functionality, and finished branding.
+
+= Introduction =
+
+Add your content here.
+
+
+= Details =
+
+Add your content here.  Format your content with:
+  * Text in *bold* or _italic_
+  * Headings, paragraphs, and lists
+  * Automatic links to other wiki pages
