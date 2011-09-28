@@ -21,7 +21,7 @@ The following is a rough draft roadmap for the future of EDMA, formerly called E
 
      * Milestone-Release-.09 = Testing a full transfer of old ESVA database to new EMDA, and final debugging
 
-     * Milestone-Release-.1 = First alpha release of the new EMDA
+     * Milestone-Release-.10 = First alpha release of the new EMDA
 
      * Milestone-Release-1.0 = This release marks a direct replacement to ESVA 2.0.6.0 in an installable ISO format with a new OS
 
