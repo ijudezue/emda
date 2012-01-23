@@ -2,6 +2,7 @@
 
 emdaVer="`cat /home/emda/workspace/src/trunk/version`"
 echo $emdaVer > /home/emda/workspace/src/trunk/emda_install.img/emda/etc/emdaVersion
+#create these symlinks since eclipse/svn doesn't like keeping symlinks 
 ls -sf /home/emda/workspace/src/trunk/emda_install.img/emda/var/www/fpdf152 /home/emda/workspace/src/trunk/emda_install.img/emda/var/www/fpdf
 ls -sf /home/emda/workspace/src/trunk/emda_install.img/emda/var/www/jpgraph-1.12.1 /home/emda/workspace/src/trunk/emda_install.img/emda/var/www/jpgraph 
 
