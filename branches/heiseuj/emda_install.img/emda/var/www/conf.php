@@ -96,7 +96,7 @@ define('RECORD_DAYS_TO_KEEP', 60);
 // but requires that you use the quarantine_manager.php in place of
 // the clean.quarantine script provided with MailScanner.
 define('QUARANTINE_USE_FLAG', false);
-define('QUARANTINE_DAYS_TO_KEEP', 30);
+define('QUARANTINE_DAYS_TO_KEEP', 60);
 define('QUARANTINE_MAIL_HOST', '127.0.0.1');
 define('QUARANTINE_FROM_ADDR', 'postmaster');
 define('QUARANTINE_REPORT_FROM_NAME', 'MailWatch for MailScanner');
