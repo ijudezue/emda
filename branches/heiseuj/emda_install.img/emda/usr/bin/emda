@@ -185,7 +185,7 @@ func_genKeyTLS(){
 
 #questions on how the user wants emda to be configured
 func_mailscannerSetup(){
-	signClean=$(whiptail --title "Sign Clean Emails?" --yesno "Do you want clean [non-spam] emails to have a signature placed at the bottom of the email?\n(If the email was not marked as spam, the user can click the link in the signature for EMDA to learn it as spam)" 10 75 --yes-button "Yes" --no-button "No"
+	signClean=$(whiptail --title "Sign Clean Emails?" --yesno "Do you want clean [non-spam] emails to have a signature placed at the bottom of the email?\n\(If the email was not marked as spam, the user can click the link in the signature for EMDA to learn it as spam\)" 10 75 --yes-button "Yes" --no-button "No" 3>&1 1>&2 2>&3)
 	if [ $? = 0 ]
 	then
 		sed -i "/^Sign Clean Messages = no/ c\Sign Clean Messages = yes" /etc/MailScanner/MailScanner.conf
@@ -228,6 +228,12 @@ func_confMailScanner(){
 	sed -i "/^Unscanned Header Value =/ c\Unscanned Header Value = Please contact $orgLongName for details" /etc/MailScanner/MailScanner.conf
 }
 
+#clears emda first boot from booting on next boot
+func_removeFirstBoot(){
+	sed -i "/^exec /sbin/mingetty --autologin root tty1/ c\exec /sbin/mingetty $TTY" /etc/init/tty.conf
+	sed -i '/usr/bin/emda -setup/d' /etc/bashrc
+}
+
 func_showHelp(){
 	echo " "
 	echo "Usage: emda [-OPTION]"
@@ -259,18 +265,18 @@ main(){
 			func_checkPriorSetup
 			func_hostname
 			func_addEmailDomains
-			func_checkInput
+			#func_checkInput
 			func_sysAdminEmail $rootEmail
 			func_webSite
 			func_mailscannerSetup
 			clear
 			func_startMYSQL
 			func_mysqlRootPW
-			func_checkpassword
+			#func_checkpassword
 			func_mailwatchDBSetup
-			func_checkpassword
+			#func_checkpassword
 			func_mailwatchpw
-			func_checkpassword
+			#func_checkpassword
 			func_createdb
 			func_confTransport
 			func_rootEmail $rootEmail
@@ -283,7 +289,7 @@ main(){
 			func_startMAILSCAN
 			func_startMAILGRAPH
 			func_startSQLGREY
-			rm -fr /etc/rc.d/rc3.d/S01emdasetup
+			func_removeFirstBoot
 			whiptail --title "EMDA Wizard Finished" --msgbox "This concludes the setup of EMDA. Press OK to reboot." 20 75
 			clear
 			echo "Rebooting in three seconds..."
