@@ -1,4 +1,5 @@
-#!/bin/sh
+#!/bin/bash
+
 emdaVer="`cat /etc/emdaVersion`"
 #emda-configure
 #this is the initial configure script that will initialize a brand new EMDA installation
@@ -93,7 +94,7 @@ func_mailwatchDBSetup(){
 	#mysql must be started first before this
 	$mailwatchDBPW=$(whiptail --title "MailWatch Database Password" --passwordbox "Please enter the password for the MailWatch Database:" 10 75 3>&1 1>&2 2>&3)
 	sed -i "/^GRANT ALL ON emdadb.* TO emdadb@localhost IDENTIFIED BY '<password>';/ c\GRANT ALL ON emdadb.* TO emdadb@localhost IDENTIFIED BY '$mailwatchDBPW';" /root/mailwatch_user.sql
-	sed -i "/^define('DB_PASS', '');/ c\define('DB_PASS', '$mailwatchDBPW');" /var/www/conf.php
+	sed -i "/^define('DB_PASS', '');/ c\define('DB_PASS', '$mailwatchDBPW');" /var/www/html/conf.php
 	sed -i "/^my($db_pass) = '';/ c\my($db_pass) = '$mailwatchDBPW';" /usr/lib/MailScanner/MailScanner/CustomFunctions/SQLBlackWhiteList.pm
 }
 
