@@ -108,7 +108,7 @@ func_mailwatchpw(){
 #create the mailwatch db and user
 func_createdb(){
 	mysql -u root -p$mysqlRootPW < /root/mailwatch_create.sql
-	mysql -u emdadb -p$mailwatchDBPW emdadb < /root/mailwatch_user.sql
+	mysql -u root -p$mysqlRootPW emdadb < /root/mailwatch_user.sql
 }
 
 #check for existing configuration
@@ -219,10 +219,13 @@ func_rootEmail(){
 
 #configure MailScanner
 func_confMailScanner(){
+	chown postfix:root /var/spool/postfix/outgoing
+	chmod 734 /var/spool/postfix/incoming /var/spool/postfix/outgoing
+	chown postfix /var/spool/MailScanner/spamassassin
 	sed -i "/^%org-name% =/ c\%org-name% = $orgShortName" /etc/MailScanner/MailScanner.conf
 	sed -i "/^%org-long-name% =/ c\%org-long-name% = $orgLongName" /etc/MailScanner/MailScanner.conf
 	sed -i "/^%web-site% =/ c\%web-site% = $webSite" /etc/MailScanner/MailScanner.conf
-	#guide is 5 children per cpu
+	#recommended 5 children per cpu
 	sed -i "/^Max Children =/ c\Max Children = $maxMailScannerChild" /etc/MailScanner/MailScanner.conf
 	sed -i "/^Watermark Secret =/ c\Watermark Secret = $watermarkSecret" /etc/MailScanner/MailScanner.conf
 	sed -i "/^Unscanned Header Value =/ c\Unscanned Header Value = Please contact $orgLongName for details" /etc/MailScanner/MailScanner.conf
@@ -230,8 +233,8 @@ func_confMailScanner(){
 
 #clears emda first boot from booting on next boot
 func_removeFirstBoot(){
-	sed -i "/^exec /sbin/mingetty --autologin root tty1/ c\exec /sbin/mingetty $TTY" /etc/init/tty.conf
-	sed -i '/usr/bin/emda -setup/d' /etc/bashrc
+	sed -i "/^exec \/sbin\/mingetty --autologin root tty1/ c\exec /sbin/mingetty $TTY" /etc/init/tty.conf
+	sed -i "/\/usr\/bin\/emda -setup/d" /etc/bashrc
 }
 
 func_showHelp(){
