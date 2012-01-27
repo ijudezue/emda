@@ -1,40 +1,4 @@
 #labels roadmap,emda
 ==Pseudo RoadMap for EMDA==
 
-The following is a rough draft roadmap for the future of EDMA, formerly called ESVA.
-
-     * Milestone-Release-0.0.01 = Initial concepts of what ESVA should be, and if we should allow database transfers from old ESVA systems
-
-     * Milestone-Release-0.0.02 = Distribution, new name, packaging, branding, logos, and high level items will be decided on
-
-     * Milestone-Release-0.0.03 = Figure out what items need to be checked into svn, and configure Eclipse to upload those.
-
-     * Milestone-Release-0.0.04 = Configuration of MailScanner Default Settings
-
-     * Milestone-Release-0.0.05 = Configuration of PHP Default Settings
-
-     * Milestone-Release-0.0.06 = Configuration of Apache Default Settings
-
-     * Milestone-Release-0.0.07 = Configuration of MySQL Default Settings
-
-     * Milestone-Release-0.0.08 = Development of EMDA Wizard for initial installations
-
-     * Milestone-Release-0.0.09 = Testing of a first time installation of EMDA
-
-     * Milestone-Release-0.0.10 = Bug fixes for first time installation
-
-     * Milestone-Release-0.0.11 = Final testing for first time installation of EMDA
-
-     * Milestone-Release-0.0.12 = Development of EMDA Wizard importing from an ESVA 2.0.6.1
-
-     * Milestone-Release-0.0.13 = Testing of a EMDA Wizard for importing ESVA 2.0.6.1
-
-     * Milestone-Release-0.0.14 = Bug fixes for EMDA import Wizard
-
-     * Milestone-Release-0.0.15 = Final testing for EMDA import Wizard
-
-     * Milestone-Release-0.1.00 = Rebranding MailWatch with EMDA logos
-
-     * Milestone-Release-0.#.## = Miscellaneous task yet to be determined
-
-     * Milestone-Release-1.0.00 = This release marks a direct replacement to ESVA 2.0.6.0 in an installable ISO format with a new OS
+For the most current and accurate roadmap for EMDA, please visit the EMDA community: http://www.emda.pro/viewtopic.php?f=7&t=6
