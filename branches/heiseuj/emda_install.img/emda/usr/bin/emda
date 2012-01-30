@@ -42,49 +42,56 @@ func_welcome(){
 func_startMYSQL(){
 	service mysqld start
 	chkconfig mysqld --add
-	chkconfig mysqld on --level 3
+	chkconfig mysqld on --level 2345
+	sleep 2
+}
+
+func_startPOSTFIX(){
+	service postfix start
+	chkconfig postfix --add
+	chkconfig postfix on --level 2345
 }
 
 func_startHTTPD(){
 	service httpd start
 	chkconfig httpd --add
-	chkconfig httpd on --level 3
+	chkconfig httpd on --level 2345
 }
 
 func_startCLAMD(){
 	service clamd start
 	chkconfig clamd --add
-	chkconfig clamd on --level 3
+	chkconfig clamd on --level 2345
 }
 
 func_startSPAM(){
 	service spamassassin start
 	chkconfig spamassassin --add
-	chkconfig spamassassin on --level 3
+	chkconfig spamassassin on --level 2345
 }
 
 func_startMAILSCAN(){
 	service mailscanner start
 	chkconfig mailscanner --add
-	chkconfig mailscanner on --level 3
+	chkconfig mailscanner on --level 2345
 }
 
 func_startMAILGRAPH(){
 	service mailgraph start
 	chkconfig mailgraph --add
-	chkconfig mailgraph on --level 3
+	chkconfig mailgraph on --level 2345
 }
 
 func_startSQLGREY(){
 	service sqlgrey start
 	chkconfig sqlgrey --add
-	chkconfig sqlgrey on --level 3
+	chkconfig sqlgrey on --level 2345
 }
 
 #sets the root password for mysql
 func_mysqlRootPW(){
 	#mysql must be started first before this
-	$mysqlRootPW=$(whiptail --title "MySQL root Password" --passwordbox "Please enter the password for the MySQL root account:" 10 75 3>&1 1>&2 2>&3)
+	mysqlRootPW=$(whiptail --title "MySQL root Password" --passwordbox "Please enter the password for the MySQL root account:" 10 75 3>&1 1>&2 2>&3)
 	mysqladmin -u root password $mysqlRootPW
 }
 
@@ -92,17 +99,17 @@ func_mysqlRootPW(){
 func_mailwatchDBSetup(){
 	#emdadb
 	#mysql must be started first before this
-	$mailwatchDBPW=$(whiptail --title "MailWatch Database Password" --passwordbox "Please enter the password for the MailWatch Database:" 10 75 3>&1 1>&2 2>&3)
-	sed -i "/^GRANT ALL ON emdadb.* TO emdadb@localhost IDENTIFIED BY '<password>';/ c\GRANT ALL ON emdadb.* TO emdadb@localhost IDENTIFIED BY '$mailwatchDBPW';" /root/mailwatch_user.sql
-	sed -i "/^define('DB_PASS', '');/ c\define('DB_PASS', '$mailwatchDBPW');" /var/www/html/conf.php
-	sed -i "/^my($db_pass) = '';/ c\my($db_pass) = '$mailwatchDBPW';" /usr/lib/MailScanner/MailScanner/CustomFunctions/SQLBlackWhiteList.pm
+	mailwatchDBPW=$(whiptail --title "MailWatch Database Password" --passwordbox "Please enter the password for the MailWatch Database:" 10 75 3>&1 1>&2 2>&3)
+	sed -i "/^GRANT ALL ON emdadb.* TO emdadb@localhost IDENTIFIED BY '<password>';/ c\GRANT ALL ON emdadb.* TO emdadb@localhost IDENTIFIED BY \'$mailwatchDBPW\';" /root/mailwatch_user.sql
+	sed -i "/^define('DB_PASS', '');/ c\define('DB_PASS', \'$mailwatchDBPW\');" /var/www/html/conf.php
+	sed -i "/^  my(\$db_pass) = '';/ c\  my(\$db_pass) = \'$mailwatchDBPW\';" /usr/lib/MailScanner/MailScanner/CustomFunctions/SQLBlackWhiteList.pm
 }
 
 #sets the mailwatch password for emdadmin
-func_mailwatchpw(){
+func_mailwatchUserPW(){
 	#mysql must be started first before this
-	$mailwatchPW=$(whiptail --title "MailWatch EMDAdmin Password" --passwordbox "Please enter the password for the MailWatch web portal account: emdadmin\nThis is the password you will use to log into the web portal. Please remember it." 10 75 3>&1 1>&2 2>&3)
-	sed -i "/^INSERT INTO users SET username = 'emdadmin', password = md5('<password>'), fullname = 'EMDAdmin', type ='A'/ c\INSERT INTO users SET username = 'emdadmin', password = md5('$mailwatchPW'), fullname = 'EMDAdmin', type ='A';" /root/mailwatch_user.sql
+	mailwatchPW=$(whiptail --title "MailWatch EMDAdmin Password" --passwordbox "Please enter the password for the MailWatch web portal account: emdadmin.\nThis is the password you will use to log into the web portal, and the account name is: emdadmin. Please remember it." 10 75 3>&1 1>&2 2>&3)
+	sed -i "/^INSERT INTO users SET username = 'emdadmin', password = md5('<password>'), fullname = 'EMDAdmin', type ='A'/ c\INSERT INTO users SET username = 'emdadmin', password = md5(\'$mailwatchPW\'), fullname = 'EMDAdmin', type ='A';" /root/mailwatch_user.sql
 }
 
 #create the mailwatch db and user
@@ -168,9 +175,9 @@ func_webSite(){
 
 #Generate TLS keys for postfix
 func_genKeyTLS(){
-	$countryCode=$(whiptail --title "Two Letter Country Code" --inputbox "Please enter the two letter country code where your organization resides in: [ex: us]"  10 75 3>&1 1>&2 2>&3)
-	$stateName=$(whiptail --title "Name of State/Province" --inputbox "Please enter the name of the state/province where your organization resides in: [ex: New York]"  10 75 3>&1 1>&2 2>&3)
-	$watermarkSecret=$(whiptail --title "TLS/Watermark Password" --passwordbox "Please enter the password for the for the TLS certificate and postfix watermark secret:" 10 75 3>&1 1>&2 2>&3)
+	countryCode=$(whiptail --title "Two Letter Country Code" --inputbox "Please enter the two letter country code where your organization resides in: [ex: us]"  10 75 3>&1 1>&2 2>&3)
+	stateName=$(whiptail --title "Name of State/Province" --inputbox "Please enter the name of the state/province where your organization resides in: [ex: New York]"  10 75 3>&1 1>&2 2>&3)
+	watermarkSecret=$(whiptail --title "TLS/Watermark Password" --passwordbox "Please enter the password for the TLS certificate and postfix watermark secret:" 10 75 3>&1 1>&2 2>&3)
 
 	if [ ! -d /etc/postfix/ssl ]
 	then
@@ -185,7 +192,7 @@ func_genKeyTLS(){
 
 #questions on how the user wants emda to be configured
 func_mailscannerSetup(){
-	signClean=$(whiptail --title "Sign Clean Emails?" --yesno "Do you want clean [non-spam] emails to have a signature placed at the bottom of the email?\n\(If the email was not marked as spam, the user can click the link in the signature for EMDA to learn it as spam\)" 10 75 --yes-button "Yes" --no-button "No" 3>&1 1>&2 2>&3)
+	signClean=$(whiptail --title "Sign Clean Emails?" --yesno "Do you want clean [non-spam] emails to have a signature placed at the bottom of the email?\n(The user can click the link in the signature for EMDA to learn it as spam)" 10 75 --yes-button "Yes" --no-button "No" 3>&1 1>&2 2>&3)
 	if [ $? = 0 ]
 	then
 		sed -i "/^Sign Clean Messages = no/ c\Sign Clean Messages = yes" /etc/MailScanner/MailScanner.conf
@@ -219,9 +226,6 @@ func_rootEmail(){
 
 #configure MailScanner
 func_confMailScanner(){
-	chown postfix:root /var/spool/postfix/outgoing
-	chmod 734 /var/spool/postfix/incoming /var/spool/postfix/outgoing
-	chown postfix /var/spool/MailScanner/spamassassin
 	sed -i "/^%org-name% =/ c\%org-name% = $orgShortName" /etc/MailScanner/MailScanner.conf
 	sed -i "/^%org-long-name% =/ c\%org-long-name% = $orgLongName" /etc/MailScanner/MailScanner.conf
 	sed -i "/^%web-site% =/ c\%web-site% = $webSite" /etc/MailScanner/MailScanner.conf
@@ -230,10 +234,28 @@ func_confMailScanner(){
 	sed -i "/^Watermark Secret =/ c\Watermark Secret = $watermarkSecret" /etc/MailScanner/MailScanner.conf
 	sed -i "/^Unscanned Header Value =/ c\Unscanned Header Value = Please contact $orgLongName for details" /etc/MailScanner/MailScanner.conf
 }
+whiptail --gauge "Installing Required Applications..." 20 75 0
+func_installReqs(){
+	clear
+	whiptail --title "Installing Required Applications" --msgbox "EMDA will need to compile and install a few required applications. \n This process may take several minutes or longer depending on the speed of this system.\nWhen the installation of these applications are completed, the EMDA Wizard will continue automatically. \nPress OK to continue." 20 75
+	clear
+	#cd /root/src/perl
+	#sh Configure -des -Dprefix=/usr/; make; make install; make clean; make distclean
+	cd /root/src/MailScanner
+	./install.sh | whiptail --gauge "Installing Required Applications..." 20 75 0
+	cd /root/src/ocrad | whiptail --gauge "Installing Required Applications..." 20 75 24
+	./configure --prefix=/usr/ | whiptail --gauge "Installing Required Applications..." 20 75 25; make | whiptail --gauge "Installing Required Applications..." 20 75 30; make install | whiptail --gauge "Installing Required Applications..." 20 75 32; make clean | whiptail --gauge "Installing Required Applications..." 20 75 34; make distclean | whiptail --gauge "Installing Required Applications..." 20 75 35
+	cd /root/src/leptonica | whiptail --gauge "Installing Required Applications..." 20 75 36
+	./configure --prefix=/usr/ | whiptail --gauge "Installing Required Applications..." 20 75 37 ; make all | whiptail --gauge "Installing Required Applications..." 20 75 40; make install | whiptail --gauge "Installing Required Applications..." 20 75 45; make clean | whiptail --gauge "Installing Required Applications..." 20 75 46; make distclean | whiptail --gauge "Installing Required Applications..." 20 75 50
+	cd /root/src/tesseract | whiptail --gauge "Installing Required Applications..." 20 75 51
+	./configure --prefix=/usr/ | whiptail --gauge "Installing Required Applications..." 20 75 60; make | whiptail --gauge "Installing Required Applications..." 20 75 70; make install | whiptail --gauge "Installing Required Applications..." 20 75 80; make clean | whiptail --gauge "Installing Required Applications..." 20 75 100
+	clear
+}
 
 #clears emda first boot from booting on next boot
 func_removeFirstBoot(){
-	sed -i "/^exec \/sbin\/mingetty --autologin root tty1/ c\exec /sbin/mingetty $TTY" /etc/init/tty.conf
+	sed -i "/^instance tty1/ c\instance \$TTY" /etc/init/tty.conf
+	sed -i "/^exec \/sbin\/mingetty --autologin root tty1/ c\exec /sbin/mingetty \$TTY" /etc/init/tty.conf
 	sed -i "/\/usr\/bin\/emda -setup/d" /etc/bashrc
 }
 
@@ -278,20 +300,21 @@ main(){
 			#func_checkpassword
 			func_mailwatchDBSetup
 			#func_checkpassword
-			func_mailwatchpw
+			func_mailwatchUserPW
 			#func_checkpassword
 			func_createdb
 			func_confTransport
 			func_rootEmail $rootEmail
 			func_genKeyTLS
 			func_confMailScanner
-			clear
+			func_installReqs
+			func_startPOSTFIX
 			func_startHTTPD
 			func_startCLAMD
 			func_startSPAM
-			func_startMAILSCAN
 			func_startMAILGRAPH
 			func_startSQLGREY
+			func_startMAILSCAN
 			func_removeFirstBoot
 			whiptail --title "EMDA Wizard Finished" --msgbox "This concludes the setup of EMDA. Press OK to reboot." 20 75
 			clear
@@ -306,6 +329,7 @@ main(){
 		;;
 		'-import')
 			#cannot import if the EMDA has already been configured
+			#func_installReqs
 			whiptail --title "Import From ESVA 2.0.6.1" --msgbox "The import feature has not been implemented yet. Thank you. Press OK to exit this wizard." 20 75
 			exit 0
 		;;
