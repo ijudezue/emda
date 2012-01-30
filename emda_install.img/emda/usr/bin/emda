@@ -99,7 +99,7 @@ func_mysqlRootPW(){
 func_mailwatchDBSetup(){
 	#emdadb
 	#mysql must be started first before this
-	mailwatchDBPW=$(whiptail --title "MailWatch Database Password" --passwordbox "Please enter the password for the MailWatch Database:" 10 75 3>&1 1>&2 2>&3)
+	mailwatchDBPW=$(whiptail --title "MailWatch Database Password" --passwordbox "Please enter the password for the MailWatch Database.\nIt is advised to make a different password then the one used for the root account." 10 75 3>&1 1>&2 2>&3)
 	sed -i "/^GRANT ALL ON emdadb.* TO emdadb@localhost IDENTIFIED BY '<password>';/ c\GRANT ALL ON emdadb.* TO emdadb@localhost IDENTIFIED BY \'$mailwatchDBPW\';" /root/mailwatch_user.sql
 	sed -i "/^define('DB_PASS', '');/ c\define('DB_PASS', \'$mailwatchDBPW\');" /var/www/html/conf.php
 	sed -i "/^  my(\$db_pass) = '';/ c\  my(\$db_pass) = \'$mailwatchDBPW\';" /usr/lib/MailScanner/MailScanner/CustomFunctions/SQLBlackWhiteList.pm
@@ -150,7 +150,7 @@ func_hostname(){
 
 #add email domains
 func_addEmailDomains(){
-	primaryEmailDomain=$(whiptail --title "Primary Email Domain Name" --inputbox "Please enter the domain name for your primary email recipients: [ex: domain.com]" 10 75 3>&1 1>&2 2>&3)
+	primaryEmailDomain=$(whiptail --title "Primary Email Domain Name" --inputbox "Please enter the domain name for your primary email recipients: [ex: email.com]" 10 75 3>&1 1>&2 2>&3)
 	primaryEmailServer=$(whiptail --title "Primary Mail Hostname/IP" --inputbox "Please enter the Hostname or IP Address for the server receiving email for $primaryEmailDomain:" 10 75 3>&1 1>&2 2>&3)
 	whiptail --title "Additional Domains" --yesno "Is there an additional email domain name you would like to add?" 10 75
 	if [ $? = 0 ]
@@ -234,7 +234,7 @@ func_confMailScanner(){
 	sed -i "/^Watermark Secret =/ c\Watermark Secret = $watermarkSecret" /etc/MailScanner/MailScanner.conf
 	sed -i "/^Unscanned Header Value =/ c\Unscanned Header Value = Please contact $orgLongName for details" /etc/MailScanner/MailScanner.conf
 }
-whiptail --gauge "Installing Required Applications..." 20 75 0
+
 func_installReqs(){
 	clear
 	whiptail --title "Installing Required Applications" --msgbox "EMDA will need to compile and install a few required applications. \n This process may take several minutes or longer depending on the speed of this system.\nWhen the installation of these applications are completed, the EMDA Wizard will continue automatically. \nPress OK to continue." 20 75
@@ -248,7 +248,8 @@ func_installReqs(){
 	cd /root/src/leptonica | whiptail --gauge "Installing Required Applications..." 20 75 36
 	./configure --prefix=/usr/ | whiptail --gauge "Installing Required Applications..." 20 75 37 ; make all | whiptail --gauge "Installing Required Applications..." 20 75 40; make install | whiptail --gauge "Installing Required Applications..." 20 75 45; make clean | whiptail --gauge "Installing Required Applications..." 20 75 46; make distclean | whiptail --gauge "Installing Required Applications..." 20 75 50
 	cd /root/src/tesseract | whiptail --gauge "Installing Required Applications..." 20 75 51
-	./configure --prefix=/usr/ | whiptail --gauge "Installing Required Applications..." 20 75 60; make | whiptail --gauge "Installing Required Applications..." 20 75 70; make install | whiptail --gauge "Installing Required Applications..." 20 75 80; make clean | whiptail --gauge "Installing Required Applications..." 20 75 100
+	./configure --prefix=/usr/ | whiptail --gauge "Installing Required Applications..." 20 75 60; make | whiptail --gauge "Installing Required Applications..." 20 75 70; make install | whiptail --gauge "Installing Required Applications..." 20 75 80; make clean | whiptail --gauge "Installing Required Applications..." 20 75 95
+	sudo ldconfig | whiptail --gauge "Installing Required Applications..." 20 75 99
 	clear
 }
 
