@@ -3,7 +3,7 @@
 // File: IMGDATA_PUSHPINS.INC
 // Description: Base64 encoded images for pushpins
 // Created:  2003-03-20
-// Ver:  $Id: imgdata_pushpins.inc.php,v 1.3.2.2 2011/12/11 04:49:30 lorodoes Exp $
+// Ver:  $Id: imgdata_pushpins.inc.php,v 1.7 2011/12/14 18:21:28 lorodoes Exp $
 //
 // Copyright (c) Asial Corporation. All rights reserved.
 //========================================================================

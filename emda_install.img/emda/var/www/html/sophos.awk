@@ -20,16 +20,16 @@
 
 BEGIN {
  FS = ": ";
- print "<TABLE CLASS=\"SOPHOS\" CELLPADDING=1 CELLSPACING=1>";
- print " <THEAD>";
- print "  <TH COLSPAN=4>Sophos Information</TH>";
- print " </THEAD>";
+ print "<TABLE CLASS=\"sophos\" CELLPADDING=\"1\" CELLSPACING=\"1\">";
+ print " <TR>";
+ print "  <TH COLSPAN=\"4\">Sophos Information</TH>";
+ print " </TR>";
 }
-/Product version/||/Engine version/||/User interface system/||/Platform/||/Released/||/Total viruses/ { print " <TR><TD>"$1":</TD><TD COLSPAN=3>"$2"</TD></TR>" }
+/Product version/||/Engine version/||/User interface system/||/Platform/||/Released/||/Total viruses/ { print " <TR><TD>"$1":</TD><TD COLSPAN=\"3\">"$2"</TD></TR>" }
 
 /Total viruses/{
  print " <TR>";
- print "  <TH COLSPAN=4>IDE Information</TH>";
+ print "  <TH COLSPAN=\"4\">IDE Information</TH>";
  print " </TR>";
  print " <TR>";
  print "  <TH>Date</TH>";

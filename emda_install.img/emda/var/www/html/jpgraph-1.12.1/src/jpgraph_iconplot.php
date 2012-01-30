@@ -3,7 +3,7 @@
 // File:        JPGRAPH_ICONPLOT.PHP
 // Description: Extension module to add icons to plots
 // Created:     2004-02-18
-// Ver:         $Id: jpgraph_iconplot.php,v 1.3.2.2 2011/12/11 04:49:30 lorodoes Exp $
+// Ver:         $Id: jpgraph_iconplot.php,v 1.7 2011/12/14 19:25:53 lorodoes Exp $
 //
 // Copyright (c) Asial Corporation. All rights reserved.
 //========================================================================

@@ -64,7 +64,7 @@ class syslog_parser {
   if(preg_match('/^(\S+)\s+(\d+)\s(\d+):(\d+):(\d+)\s(\S+)\s(\S+)\[(\d+)\]:\s(.+)$/',$line,$explode)) {
    // Store raw line
    $this->raw = $explode[0];
- 
+
    // Decode the syslog time/date
    $month = $this->months[$explode[1]];
    $thismonth = date('n');

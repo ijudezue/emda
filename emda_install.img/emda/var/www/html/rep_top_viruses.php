@@ -29,17 +29,10 @@ session_start();
 require('login.function.php');
 
 // add the header information such as the logo, search, menu, ....
-html_start("Top Viruses");
+$filter = html_start("Top Viruses",0,false,true);
 
 // File name
-$filename = "images/cache/top_viruses.png.".time()."";
-
-$filter=report_start("Top Viruses");
-
-// JpGraph functions
-include_once("./jpgraph/src/jpgraph.php");
-include_once("./jpgraph/src/jpgraph_pie.php");
-include_once("./jpgraph/src/jpgraph_pie3d.php");
+$filename = "".CACHE_DIR."/top_viruses.png.".time()."";
 
 // SQL query to find all emails with a virus found
 $sql = "
@@ -53,9 +46,15 @@ AND
  report IS NOT NULL
 ".$filter->CreateSQL();
 
-##### AJOS1 NOTE #####
-### AjosNote - Must be 1 or more rows...
-##### AJOS1 NOTE #####
+// Check permissions to see if apache can actually create the file
+if(is_writable(CACHE_DIR)){
+
+// JpGraph functions
+include_once("./jpgraph/src/jpgraph.php");
+include_once("./jpgraph/src/jpgraph_pie.php");
+include_once("./jpgraph/src/jpgraph_pie3d.php");
+
+// Must be one or more rows
 $result = dbquery($sql);
 if(mysql_num_rows($result) <= 0) {
  die("Error: no rows retrieved from database...".mysql_num_rows($result)."\n");
@@ -64,13 +63,7 @@ if(mysql_num_rows($result) <= 0) {
 $virus_array = array();
 
 while($row = mysql_fetch_object($result)) {
-#x#printf("<pre>");
-#x#printf("-------\n");
-#x#printf("%s\n", VIRUS_REGEX);
-#x#printf("-------\n");
-#x#print_r($row);
-#x#printf("-------\n");
-#x#printf("</pre>");
+
  if (preg_match(VIRUS_REGEX, $row->report, $virus_report)) {
   $virus = $virus_report[2];
   $virus_array[$virus]++;
@@ -87,6 +80,7 @@ while((list($key, $val) = each($virus_array)) && $count<10) {
  $count++;
 }
 
+// Graphing code
 $graph = new PieGraph(800,385,0,false);
 $graph->SetShadow();
 $graph->img->SetAntiAliasing();
@@ -102,23 +96,32 @@ $graph->legend->Pos(0.25,0.20,center);
 
 $graph->Add($p1);
 $graph->Stroke($filename);
+}
 
 // HTML to display the graph
-echo "<TABLE BORDER=0 CELLPADDING=10 CELLSPACING=0 HEIGHT=100% WIDTH=100%>";
+echo "<TABLE BORDER=\"0\" CELLPADDING=\"10\" CELLSPACING=\"0\" WIDTH=\"100%\">";
 echo "<TR>";
-echo " <TD ALIGN=\"CENTER\"><IMG SRC=\"images/mailscannerlogo.gif\"></TD>";
+echo " <TD ALIGN=\"CENTER\"><IMG SRC=\"".IMAGES_DIR."/mailscannerlogo.gif\" ALT=\"MailScanner Logo\"></TD>";
 echo "</TR>";
 echo "<TR>";
-echo " <TD ALIGN=\"CENTER\"><IMG SRC=\"".$filename."\"></TD>";
+
+//  Check Permissions to see if the file has been written and that apache to read it.
+if(is_readable($filename)){
+echo " <TD ALIGN=\"CENTER\"><IMG SRC=\"".$filename."\" ALT=\"Graph\"></TD>";
+}else{
+echo "<TD ALIGN=\"CENTER\"> File isn't readable. Please make sure that ".CACHE_DIR." is readable and writable by Mailwatch.";
+}
+
 echo "</TR>";
 echo "<TR>";
 echo " <TD ALIGN=\"CENTER\">";
-echo "  <TABLE WIDTH=500>";
-echo "   <THEAD BGCOLOR=\"#F7CE4A\">";
+echo "  <TABLE WIDTH=\"500\">";
+echo "   <TR BGCOLOR=\"#F7CE4A\">";
 echo "    <TH>Virus</TH>";
 echo "    <TH>Count</TH>";
-echo "   </THEAD>";
+echo "   </TR>";
 
+// Write the data out
 for($i=0; $i<count($data_names); $i++) {
  echo "<TR BGCOLOR=\"#EBEBEB\">
  <TD>$data_names[$i]</TD>

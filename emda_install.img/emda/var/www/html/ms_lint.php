@@ -35,9 +35,9 @@ if(!$fp = popen('sudo /usr/sbin/MailScanner --lint 2>&1','r')) {
 }
 
 echo "<TABLE CLASS=\"mail\" BORDER=0 CELLPADDING=1 CELLSPACING=1 WIDTH=\"100%\">\n";
-echo " <THEAD>\n";
+echo " <TR>\n";
 echo "  <TH COLSPAN=2>MailScanner Lint</TH>\n";
-echo " </THEAD>\n";
+echo " </TR>\n";
 // Start timer
 $start = get_microtime();
 $last = false;
@@ -71,7 +71,7 @@ while($line = fgets($fp,2096)) {
 }
 pclose($fp);
 echo "   <TR>\n";
-echo "    <TD><B>Finish - Total Time<B></TD>\n";
+echo "    <TD><B>Finish - Total Time</B></TD>\n";
 echo "    <TD ALIGN=\"RIGHT\"><B>".round(get_microtime()-$start,5)."</B></TD>\n";
 echo "   </TR>\n";
 echo "</TABLE>\n";

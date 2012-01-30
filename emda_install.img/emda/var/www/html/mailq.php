@@ -56,7 +56,7 @@ SELECT
 FROM
  ".$queue."
 WHERE
- ".$GLOBALS['global_filter']."
+ ".$_SESSION['global_filter']."
 ORDER BY
  cdate, ctime",$display,true,true);
 

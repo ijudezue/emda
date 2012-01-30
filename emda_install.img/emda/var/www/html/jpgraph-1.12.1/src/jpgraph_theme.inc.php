@@ -3,7 +3,7 @@
 // File:        JPGRAPH_THEME.INC.PHP
 // Description: Class to define graph theme
 // Created:     2010-09-29 
-// Ver:         $Id: jpgraph_theme.inc.php,v 1.3.2.2 2011/12/11 04:49:30 lorodoes Exp $
+// Ver:         $Id: jpgraph_theme.inc.php,v 1.7 2011/12/14 19:25:53 lorodoes Exp $
 //
 // Copyright (c) Asial Corporation. All rights reserved.
 //========================================================================

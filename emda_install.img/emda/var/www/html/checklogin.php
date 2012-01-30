@@ -155,6 +155,7 @@ else {
 
 <?php }
 dbclose();
+
 html_end();
 
 ?>

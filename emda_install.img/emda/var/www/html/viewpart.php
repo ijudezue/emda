@@ -32,7 +32,7 @@ if(!isset($_GET['id'])) {
  die("No input Message ID");
 } else {
  // See if message is local
- if(!($host = @mysql_result(dbquery("SELECT hostname FROM maillog WHERE id='".mysql_escape_string($_GET['id'])."' AND ".$_SESSION["filter"].""),0))) {
+ if(!($host = @mysql_result(dbquery("SELECT hostname FROM maillog WHERE id='".mysql_escape_string($_GET['id'])."' AND ".$_SESSION["global_filter"].""),0))) {
   die("Message '".$_GET['id']."' not found\n");
  }
  if(!is_local($host) || RPC_ONLY) {
@@ -50,7 +50,7 @@ if(!isset($_GET['id'])) {
   }
   $file = base64_decode($response);
  } else {
-  $date = @mysql_result(dbquery("SELECT DATE_FORMAT(date,'%Y%m%d') FROM maillog where id='".mysql_escape_string($_GET['id'])."' AND ".$_SESSION["filter"].""),0);
+  $date = @mysql_result(dbquery("SELECT DATE_FORMAT(date,'%Y%m%d') FROM maillog where id='".mysql_escape_string($_GET['id'])."' AND ".$_SESSION["global_filter"].""),0);
   $qdir = get_conf_var('QuarantineDir');
   switch(true) {
    case (file_exists($qdir.'/'.$date.'/nonspam/'.$_GET['id'])):

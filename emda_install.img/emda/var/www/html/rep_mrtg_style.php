@@ -25,19 +25,18 @@ require_once("./functions.php");
 require_once("./filter.inc");
 
 // Authenication checking
+session_start();
 require('login.function.php');
 
 // add the header information such as the logo, search, menu, ....
-html_start("MRTG Style Mail Report");
+$filter = html_start("MRTG Style Mail Report",0,false,true);
 
 // File name
-$filename = "images/cache/rep_mrtg_style.png.".time()."";
+$filename = "".CACHE_DIR."/rep_mrtg_style.png.".time()."";
 
 list($hour_format, $minute_format, $second_format) = explode(":",TIME_FORMAT);
 
 $date_format = "'".DATE_FORMAT." ".$hour_format.":".$minute_format."'";
-
-$filter=report_start("MRTG Style Mail Report");
 
 $sql_last24hrs = "
  SELECT
@@ -59,7 +58,8 @@ $sql_last24hrs = "
   timestamp DESC
 ";
 
-//dbtable($sql_last24hrs);
+// Check permissions to see if apache can actually create the file
+if(is_writable(CACHE_DIR)){
 
 # JPGraph
 include_once("./jpgraph/src/jpgraph.php");
@@ -146,22 +146,30 @@ $graph->Add($bar2);
 $graph->Add($bar3);
 //$graph->Add($gbplot);
 $graph->Stroke($filename);
+}
 
-echo "<TABLE BORDER=0 CELLPADDING=10 CELLSPACING=0 HEIGHT=100% WIDTH=100%>\n";
-echo " <TR><TD ALIGN=\"CENTER\"><IMG SRC=\"./images/mailwatch-logo.gif\"></TD></TR>\n";
+echo "<TABLE BORDER=\"0\" CELLPADDING=\"10\" CELLSPACING=\"0\" WIDTH=\"100%\">\n";
+echo " <TD ALIGN=\"CENTER\"><IMG SRC=\"".IMAGES_DIR."/mailscannerlogo.gif\" ALT=\"MailScanner Logo\"></TD>";
 echo " <TR>\n";
-echo " <TD ALIGN=\"CENTER\"><IMG SRC=\"".$filename."\"></TD>\n";
+
+//  Check Permissions to see if the file has been written and that apache to read it.
+if(is_readable($filename)){
+echo " <TD ALIGN=\"CENTER\"><IMG SRC=\"".$filename."\" ALT=\"Graph\"></TD>";
+}else{
+echo "<TD ALIGN=\"CENTER\"> File isn't readable. Please make sure that ".CACHE_DIR." is readable and writable by Mailwatch.";
+}
+
 echo " </TR>\n";
 echo " <TR>\n";
 echo "  <TD ALIGN=\"CENTER\">\n";
-echo "<TABLE BORDER=0 WIDTH=500>\n";
-echo " <THEAD BGCOLOR=\"#F7CE4A\">\n";
+echo "<TABLE BORDER=\"0\" WIDTH=\"500\">\n";
+echo " <TR BGCOLOR=\"#F7CE4A\">\n";
 echo "  <TH>Date</TH>\n";
 echo "  <TH>Mail</TH>\n";
 echo "  <TH>Spam</TH>\n";
 echo "  <TH>Virus</TH>\n";
 echo "  <TH>Volume</TH>\n";
-echo " </THEAD>\n";
+echo " </TR>\n";
 for($i=0; $i<count($data_total_mail); $i++) {
  echo "<TR BGCOLOR=\"#EBEBEB\">\n";
  echo " <TD ALIGN=\"CENTER\">$data_labels[$i]</TD>\n";
@@ -172,6 +180,8 @@ for($i=0; $i<count($data_total_mail); $i++) {
  echo "</TR>\n";
 }
 echo "</TABLE>\n";
+echo "</TR>\n";
+echo "</TABLE>";
 
 // Add footer
 html_end();

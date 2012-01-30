@@ -26,11 +26,11 @@ require_once("./functions.php");
 session_start();
 require('login.function.php');
 
-html_start("Message Detail ($_GET[id])");
+html_start("Message Detail ($_GET[id])",0,true,false);
 ini_set("memory_limit",MEMORY_LIMIT);
 
-$yes = "<SPAN CLASS=\"YES\">&nbsp;Y&nbsp;</SPAN>";
-$no  = "<SPAN CLASS=\"NO\">&nbsp;N&nbsp;</SPAN>";
+$yes = "<SPAN CLASS=\"yes\">&nbsp;Y&nbsp;</SPAN>";
+$no  = "<SPAN CLASS=\"no\">&nbsp;N&nbsp;</SPAN>";
 
 $mta = get_conf_var('mta');
 
@@ -82,19 +82,19 @@ $result = dbquery($sql);
 
 // Check to make sure something was returned
 if(mysql_num_rows($result) == 0) {
- die("Message ID '".$_GET['id']."' not found!\n");
+ die("Message ID '".$_GET['id']."' not found!\n </TABLE>");
 } else {
  audit_log('Viewed message detail (id='.mysql_escape_string($_GET['id']).')');
 }
 
-echo "<TABLE CLASS=\"maildetail\" BORDER=0 CELLSPACING=1 CELLPADDING=1 WIDTH=100%>\n";
+echo "<TABLE CLASS=\"maildetail\" BORDER=\"0\" CELLSPACING=\"1\" CELLPADDING=\"1\" WIDTH=\"100%\">\n";
 while($row=mysql_fetch_array($result,MYSQL_BOTH)) {
- $listurl = "lists.php?host=".$row['Received from:']."&from=".$row['From:']."&to=".$row['To:'];
+ $listurl = "lists.php?host=".$row['Received from:']."&amp;from=".$row['From:']."&amp;to=".$row['To:'];
  for($f=0; $f<mysql_num_fields($result); $f++) {
   $fieldn = mysql_field_name($result,$f);
   if ($fieldn == "Received from:") {
    $output = "<table class=\"sa_rules_report\" width=\"100%\" cellspacing=0 cellpadding=0><tr><td>".$row[$f]."</td>";
-   if(LISTS) { $output .= "<td align=\"right\">[<a href=\"$listurl&type=h&list=w\">Add to Whitelist</a>&nbsp|&nbsp;<a href=\"$listurl&type=h&list=b\">Add to Blacklist</a>]</td>";
+   if(LISTS) { $output .= "<td align=\"right\">[<a href=\"$listurl&amp;type=h&amp;list=w\">Add to Whitelist</a>&nbsp|&nbsp;<a href=\"$listurl&amp;type=h&amp;list=b\">Add to Blacklist</a>]</td>";
    }
    $output .= "</tr></table>\n";
    $row[$f] = $output;
@@ -102,7 +102,7 @@ while($row=mysql_fetch_array($result,MYSQL_BOTH)) {
   if ($fieldn == "Received Via:") {
    // Start Table
    $output = "<TABLE WIDTH=\"100%\" CLASS=\"sa_rules_report\">\n";
-   $output .= " <THEAD>\n";
+   $output .= " <tr>\n";
    $output .= " <TH>IP Address</TH>\n";
    $output .= " <TH>Hostname</TH>\n";
    $output .= " <TH>Country</TH>\n";
@@ -110,7 +110,7 @@ while($row=mysql_fetch_array($result,MYSQL_BOTH)) {
    $output .= " <TH>Spam</TH>\n";
    $output .= " <TH>Virus</TH>\n";
    $output .= " <TH>All</TH>\n";
-   $output .= " </THEAD>\n";
+   $output .= " </tr>\n";
    if(is_array(($relays = get_mail_relays($row[$f])))) {
     foreach($relays as $relay) {
      $output .= " <TR>\n";
@@ -130,9 +130,9 @@ while($row=mysql_fetch_array($result,MYSQL_BOTH)) {
      // Link to RBL Lookup
      $output .= " <TD ALIGN=\"CENTER\">[<a href=\"http://www.mxtoolbox.com/SuperTool.aspx?action=blacklist:$relay\">&nbsp;&nbsp;</a>]</TD>";
      // Link to Spam Report for this relay
-     $output .= " <TD ALIGN=\"CENTER\">[<a href=\"rep_message_listing.php?relay=$relay&isspam=1\">&nbsp;&nbsp;</a>]</TD>";
+     $output .= " <TD ALIGN=\"CENTER\">[<a href=\"rep_message_listing.php?relay=$relay&amp;isspam=1\">&nbsp;&nbsp;</a>]</TD>";
      // Link to Virus Report for this relay
-     $output .= " <TD ALIGN=\"CENTER\">[<a href=\"rep_message_listing.php?relay=$relay&isvirus=1\">&nbsp;&nbsp;</a>]</TD>";
+     $output .= " <TD ALIGN=\"CENTER\">[<a href=\"rep_message_listing.php?relay=$relay&amp;isvirus=1\">&nbsp;&nbsp;</a>]</TD>";
      // Link to All Messages Report for this relay
      $output .= " <TD ALIGN=\"CENTER\">[<a href=\"rep_message_listing.php?relay=$relay\">&nbsp;&nbsp;</a>]</TD>";
      // Close table
@@ -145,25 +145,26 @@ while($row=mysql_fetch_array($result,MYSQL_BOTH)) {
    }
   }
   if ($fieldn == "Report:") {
-   $row[$f] = nl2br(str_replace(",","<BR/>",htmlentities($row[$f])));
+   $row[$f] = nl2br(str_replace(",","<BR>",htmlentities($row[$f])));
+   $row[$f] = preg_replace("/<br \/>/","<BR>",$row[$f]);
   }
   if ($fieldn == "From:") {
    $row[$f] = htmlentities($row[$f]);
    $output = "<table class=\"sa_rules_report\" width=\"100%\" cellspacing=0 cellpadding=0><tr><td>".$row[$f]."</td>";
-   if(LISTS) { $output .= "<td align=\"right\">[<a href=\"$listurl&type=f&list=w\">Add to Whitelist</a>&nbsp|&nbsp;<a href=\"$listurl&type=f&list=b\">Add to Blacklist</a>]</td>";
+   if(LISTS) { $output .= "<td align=\"right\">[<a href=\"$listurl&amp;type=f&amp;list=w\">Add to Whitelist</a>&nbsp|&nbsp;<a href=\"$listurl&amp;type=f&amp;list=b\">Add to Blacklist</a>]</td>";
    }
    $output .= "</tr></table>\n";
    $row[$f] = $output;
   }
   if ($fieldn == "To:" || $fieldn == "Subject:") {
-   $row[$f] = htmlentities($row[$f]);
+   $row[$f] = htmlspecialchars($row[$f]);
   }
   if ($fieldn == "To:") {
-   $row[$f] = str_replace(",","<BR/>",$row[$f]);
+   $row[$f] = str_replace(",","<BR>",$row[$f]);
   }
   if ($fieldn == "Subject:") {
    $row[$f] = decode_header($row[$f]);
-   //$row[$f] = htmlentities($row[$f]);
+   $row[$f] = htmlspecialchars($row[$f]);
   }
   if ($fieldn == "Spam Report:") {
    $row[$f] = format_spam_report($row[$f]);
@@ -172,7 +173,8 @@ while($row=mysql_fetch_array($result,MYSQL_BOTH)) {
    $row[$f] = format_mail_size($row[$f]);
   }
   if ($fieldn == "Message Headers:") {
-   $row[$f] = nl2br(str_replace(array("\\n","\t"),array("<BR/>","&nbsp; &nbsp; &nbsp;"),htmlentities($row[$f])));
+   $row[$f] = nl2br(str_replace(array("\\n","\t"),array("<BR>","&nbsp; &nbsp; &nbsp;"),htmlentities($row[$f])));
+   $row[$f] = preg_replace("/<br \/>/","<BR>",$row[$f]);
   }
   if ($fieldn == "SpamAssassin Autolearn:") {
    if(($autolearn = sa_autolearn($row[$f]))!==false) {
@@ -199,21 +201,23 @@ while($row=mysql_fetch_array($result,MYSQL_BOTH)) {
   // Handle dummy header fields
   if(mysql_field_name($result,$f)=='HEADER') {
    // Display header
-   echo "<TR><TD CLASS=\"heading\" ALIGN=\"CENTER\" VALIGN=\"TOP\" COLSPAN=2>".$row[$f]."</TD></TR>\n";
+   echo "<TR><TD CLASS=\"heading\" ALIGN=\"CENTER\" VALIGN=\"TOP\" COLSPAN=\"2\">".$row[$f]."</TD></TR>\n";
   } else {
    // Actual data
    if(!empty($row[$f])) {
     // Skip empty rows (notably Spam Report when SpamAssassin didn't run)
-    echo "<TR><TD CLASS=\"heading\" ALIGN=\"RIGHT\" VALIGN=\"TOP\" WIDTH=175>".mysql_field_name($result,$f)."</TD><TD CLASS=\"detail\">".$row[$f]."</TD></TR>\n";
+    echo "<TR><TD CLASS=\"heading\" ALIGN=\"RIGHT\" VALIGN=\"TOP\" WIDTH=\"175\">".mysql_field_name($result,$f)."</TD><TD CLASS=\"detail\">".$row[$f]."</TD></TR>\n";
    }
   }
  }
 }
+
 // Display the relay information only if there are matching
 // rows in the relay table (maillog.id = relay.msg_id)...
-if ($mta == 'postfix')
-{ //version for postfix
-$sql = "
+  $sqlcheck = "Show tables like 'mtalog_ids'";
+  $tablecheck = dbquery($sqlcheck);  
+if ($mta == 'postfix' && mysql_num_rows($tablecheck) > 0){ //version for postfix
+$sql1 = "
  SELECT
   DATE_FORMAT(m.timestamp,'".DATE_FORMAT." ".TIME_FORMAT."') AS 'Date/Time',
   m.host AS 'Relayed by',
@@ -229,10 +233,8 @@ $sql = "
   m.type='relay'
  ORDER BY
   m.timestamp DESC";
-}
-else
-{ //version for sendmail
-$sql = "
+}else{ //version for sendmail
+$sql1 = "
  SELECT
   DATE_FORMAT(timestamp,'".DATE_FORMAT." ".TIME_FORMAT."') AS 'Date/Time',
   host AS 'Relayed by',
@@ -248,16 +250,17 @@ $sql = "
  ORDER BY
   timestamp DESC";
 }
-$sth1 = dbquery($sql);
+
+$sth1 = dbquery($sql1);
 if(mysql_num_rows($sth1) > 0) {
  // Display the relay table entries
  echo " <TR><TD CLASS=\"heading\" ALIGN=\"RIGHT\" VALIGN=\"TOP\" WIDTH=175>Relay Information:</TD><TD CLASS=\"detail\">\n";
- echo "  <TABLE CLASS=\"sa_rules_report\" WIDTH=100%>\n";
- echo "   <THEAD>\n";
+ echo "  <TABLE CLASS=\"sa_rules_report\" WIDTH=\"100%\">\n";
+ echo "   <tr>\n";
  for($f=0;$f<mysql_num_fields($sth1);$f++) {
   echo "   <TH>".mysql_field_name($sth1, $f)."</TH>\n";
  }
- echo "   </THEAD>\n";
+ echo "   </tr>\n";
  while($row=mysql_fetch_row($sth1)) {
   echo "    <TR>\n";
   echo "     <TD CLASS=\"detail\" ALIGN=\"left\">$row[0]</TD>\n"; // Date/Time
@@ -272,7 +275,7 @@ if(mysql_num_rows($sth1) > 0) {
   echo "    </TR>\n";
  }
  echo "  </TABLE>\n";
- echo " </TD</TR>\n";
+ echo " </TD></TR>\n";
 }
 echo "</TABLE>\n";
 
@@ -305,13 +308,13 @@ if((is_array($quarantined)) && (count($quarantined)>0)) {
   if(isset($_GET['delete'])) {
    $status[] = quarantine_delete($quarantined,$_GET['delete'],RPC_ONLY);
   }
-  echo "<TABLE BORDER=0 CELLPADDING=1 CELLSPACING=1 WIDTH=\"100%\" CLASS=\"maildetail\">\n";
-  echo " <THEAD>\n";
+  echo "<TABLE BORDER=\"0\" CELLPADDING=\"1\" CELLSPACING=\"1\" WIDTH=\"100%\" CLASS=\"maildetail\">\n";
+  echo " <tr>\n";
   echo "  <TH COLSPAN=2>Quarantine Command Results</TH>\n";
-  echo " </THEAD>\n";
+  echo " </tr>\n";
   if(isset($status)) {
    echo "  <TR>\n";
-   echo "  <TD CLASS=\"heading\" WIDTH=150 ALIGN=\"RIGHT\" VALIGN=\"TOP\">Result Messages:</TD>\n";
+   echo "  <TD CLASS=\"heading\" WIDTH=\"150\" ALIGN=\"RIGHT\" VALIGN=\"TOP\">Result Messages:</TD>\n";
    echo "  <TD CLASS=\"detail\">";
    foreach($status as $key=>$val) {
     echo "  $val<BR>\n";
@@ -321,7 +324,7 @@ if((is_array($quarantined)) && (count($quarantined)>0)) {
   }
   if(isset($errors)) {
    echo " <TR>\n";
-   echo "  <TD CLASS=\"heading\" WIDTH=150 ALIGN=\"RIGHT\" VALIGN=\"TOP\">Error Messages:</TD>\n";
+   echo "  <TD CLASS=\"heading\" WIDTH=\"150\" ALIGN=\"RIGHT\" VALIGN=\"TOP\">Error Messages:</TD>\n";
    echo "  <TD CLASS=\"detail\">";
    foreach($errors as $key=>$val) {
     echo "  $val<BR>\n";
@@ -330,17 +333,17 @@ if((is_array($quarantined)) && (count($quarantined)>0)) {
    echo " <TR>\n";
   }
   echo " <TR>\n";
-  echo "  <TD CLASS=\"heading\" WIDTH=150 ALIGN=\"RIGHT\" VALIGN=\"TOP\">Error:</TD>\n";
+  echo "  <TD CLASS=\"heading\" WIDTH=\"150\" ALIGN=\"RIGHT\" VALIGN=\"TOP\">Error:</TD>\n";
   echo "  <TD CLASS=\"detail\">".($error?$yes:$no)."</TD>\n";
   echo " </TR>\n";
   echo "</TABLE>\n";
  } else {
   echo "<FORM ACTION=\"".$_SERVER['PHP_SELF']."\" NAME=\"quarantine\">\n";
-  echo "<TABLE BORDER=0 CELLPADDING=1 CELLSPACING=1 WIDTH=\"100%\" CLASS=\"mail\">\n";
-  echo " <THEAD>\n";
+  echo "<TABLE BORDER=\"0\" CELLPADDING=\"1\" CELLSPACING=\"1\" WIDTH=\"100%\" CLASS=\"mail\">\n";
+  echo " <tr>\n";
   echo "  <TH COLSPAN=7>Quarantine</TH>\n";
-  echo " </THEAD>\n";
-  echo " <THEAD>\n";
+  echo " </tr>\n";
+  echo " <tr>\n";
   echo "  <TH>Release</TH>\n";
   echo "  <TH>Delete</TH>\n";
   echo "  <TH>SA Learn</TH>\n";
@@ -348,7 +351,7 @@ if((is_array($quarantined)) && (count($quarantined)>0)) {
   echo "  <TH>Type</TH>\n";
   echo "  <TH>Path</TH>\n";
   echo "  <TH>Dangerous?</TH>\n";
-  echo " </THEAD>\n";
+  echo " </tr>\n";
   foreach($quarantined as $item) {
    echo " <TR>\n";
    // Don't allow message to be released if it is marked as 'dangerous'
@@ -370,7 +373,7 @@ if((is_array($quarantined)) && (count($quarantined)>0)) {
    echo "  <TD>".$item['type']."</TD>\n";
    // If the file is in message/rfc822 format and isn't dangerous - create a link to allow it to be viewed
    if($item['dangerous'] == "N" && preg_match('!message/rfc822!',$item['type'])) {
-    echo "  <TD><A HREF=\"viewmail.php?id=".$item['msgid']."&filename=".substr($item['path'],strlen($quarantinedir)+1)."\">".substr($item['path'],strlen($quarantinedir)+1)."</A></TD>\n";
+    echo "  <TD><A HREF=\"viewmail.php?id=".$item['msgid']."&amp;filename=".substr($item['path'],strlen($quarantinedir)+1)."\">".substr($item['path'],strlen($quarantinedir)+1)."</A></TD>\n";
    } else {
     echo "  <TD>".substr($item['path'],strlen($quarantinedir)+1)."</TD>\n";
    }
@@ -384,9 +387,9 @@ if((is_array($quarantined)) && (count($quarantined)>0)) {
   }
   echo " <TR>\n";
   if($item['dangerous'] == "Y") {
-   echo "  <TD COLSPAN=6>&nbsp</TD>\n";
+   echo "  <TD COLSPAN=\"6\">&nbsp</TD>\n";
   } else {
-   echo "  <TD COLSPAN=6><INPUT TYPE=\"checkbox\" NAME=\"alt_recpt_yn\" VALUE=\"y\">&nbsp;Alternate Recipient(s):&nbsp;<INPUT TYPE=\"TEXT\" NAME=\"alt_recpt\" SIZE=100></TD>\n";
+   echo "  <TD COLSPAN=\"6\"><INPUT TYPE=\"checkbox\" NAME=\"alt_recpt_yn\" VALUE=\"y\">&nbsp;Alternate Recipient(s):&nbsp;<INPUT TYPE=\"TEXT\" NAME=\"alt_recpt\" SIZE=\"100\"></TD>\n";
   }
   echo "  <TD ALIGN=\"RIGHT\">\n";
   echo "<INPUT TYPE=\"HIDDEN\" NAME=\"id\" VALUE=\"".$quarantined[0]['msgid']."\">\n";
@@ -398,9 +401,11 @@ if((is_array($quarantined)) && (count($quarantined)>0)) {
 } else {
  // Error??
  if(!is_array($quarantined)) {
-  echo "<br/>$quarantined\n";
+  echo "<br>$quarantined\n";
  }
 }
+// Add footer
 html_end();
+// Close any open db connections
 dbclose();
 ?>

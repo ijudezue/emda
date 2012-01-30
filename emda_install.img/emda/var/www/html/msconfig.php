@@ -32,7 +32,7 @@ else{
 html_start("Configuration");
 audit_log('Viewed MailScanner configuration');
 
-echo "<TABLE BORDER=0 CELLPADDING=1 CELLSPACING=1 CLASS=\"MAILDETAIL\" WIDTH=100%>\n";
+echo "<TABLE BORDER=\"0\" CELLPADDING=\"1\" CELLSPACING=\"1\" CLASS=\"maildetail\" WIDTH=\"100%\">\n";
 echo " <TR><TH COLSPAN=2>MailScanner Configuration</TH></TR>\n";
 $fh = fopen(MS_CONFIG_DIR.'MailScanner.conf','r');
 while (!feof($fh)) {
@@ -45,6 +45,8 @@ while (!feof($fh)) {
   if(preg_match("/%.+%/",$regs[1])) {
   	$var[$regs[1]] = $regs[2];
   }
+  $regs[1] = htmlentities($regs[1]);
+  $regs[2] = htmlentities($regs[2]);
   # expand %var% variables
   if(preg_match("/(%.+%)/",$regs[2],$match)) {
   	$regs[2] = preg_replace("/%.+%/",$var[$match[1]],$regs[2]);
@@ -53,10 +55,17 @@ while (!feof($fh)) {
   if (@is_file($regs[2]) && @is_readable($regs[2]) && !@is_executable($regs[2])) {
    $regs[2] = "<A HREF=\"msrule.php?file=$regs[2]\">$regs[2]</A>";
   }
-  echo "<TR><TD CLASS=\"HEADING\">$regs[1]</TD><TD>".nl2br(str_replace("\\n","\n",$regs[2]))."</TD></TR>\n";
+   $string = nl2br(str_replace("\\n","\n",$regs[2]));
+   $string = preg_replace("/<br \/>/","<BR>",$string);
+  echo "<TR><TD CLASS=\"heading\">$regs[1]</TD><TD>".$string."</TD></TR>\n";
  }
 }
 fclose($fh);
 
 echo "</TABLE>\n";
+
+// Add footer
+html_end();
+// Close any open db connections
+dbclose();
 }

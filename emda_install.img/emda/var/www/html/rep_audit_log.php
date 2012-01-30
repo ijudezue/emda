@@ -34,11 +34,8 @@ header("Location: index.php");
 }
 else{
 
-// Start the report
-$filter=report_start("Audit Log",false,false);
-
 // add the header information such as the logo, search, menu, ....
-html_start("Audit Log");
+$filter=html_start("Audit Log",0,false,true);
 
 // SQL query for the audit log
 $sql = "
@@ -56,8 +53,8 @@ $sql = "
   1=1
 ".$filter->CreateMtalogSQL()."
  ORDER BY timestamp DESC";
- echo "<TABLE BORDER=0 CELLPADDING=10 CELLSPACING=0 HEIGHT=100% WIDTH=100%>\n";
- echo " <TR><TD ALIGN=\"CENTER\"><IMG SRC=\"./images/mailscannerlogo.gif\"></TD></TR>\n";
+ echo "<TABLE BORDER=\"0\" CELLPADDING=\"10\" CELLSPACING=\"0\" WIDTH=\"100%\">\n";
+ echo " <TR><TD ALIGN=\"CENTER\"><IMG SRC=\"".IMAGES_DIR."/mailscannerlogo.gif\" ALT=\"MailScanner Logo\"></TD></TR>";
  echo " <TR><TD>\n";
 
  // Function to to query and display the data
@@ -65,7 +62,7 @@ $sql = "
  
  // close off the table
  echo " </TD></TR>\n";
-
+ echo "</table>";
 // Add footer
 html_end();
 // Close any open db connections

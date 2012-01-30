@@ -33,13 +33,14 @@ require('login.function.php');
 if($_SESSION['user_type'] !=A){
 header("Location: index.php");
 }
+
 else{
 
-html_start("McAfee Status");
+html_start("McAfee Status",0,false,false);
 
-echo "<TABLE CLASS=\"BOXTABLE\" WIDTH=100%>"
+echo "<TABLE CLASS=\"boxtable\" WIDTH=\"100%\">";
 echo "<TR>";
-echo "<TD ALIGN=CENTER>";
+echo "<TD ALIGN=\"CENTER\">";
 passthru(get_virus_conf('mcafee')." --version | awk -f ./mcafee.awk");
 echo "</TD>";
 echo "</TR>";

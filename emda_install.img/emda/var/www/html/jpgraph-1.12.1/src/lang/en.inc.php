@@ -3,7 +3,7 @@
 // File:     EN.INC.PHP
 // Description: English language file for error messages
 // Created:     2006-01-25
-// Ver:        $Id: en.inc.php,v 1.3.2.2 2011/12/11 04:49:34 lorodoes Exp $
+// Ver:        $Id: en.inc.php,v 1.7 2011/12/14 19:25:53 lorodoes Exp $
 //
 // Copyright (c) Asial Corporation. All rights reserved.
 //========================================================================

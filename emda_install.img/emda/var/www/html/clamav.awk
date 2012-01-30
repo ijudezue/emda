@@ -21,14 +21,14 @@
 
 BEGIN {
  FS = "/";
- print "<TABLE CLASS=\"SOPHOS\" CELLPADDING=1 CELLSPACING=1>";
- print " <THEAD>";
+ print "<TABLE CLASS=\"sophos\" CELLPADDING=\"1\" CELLSPACING=\"1\">";
+ print " <TR>";
  print "  <TH COLSPAN=4>ClamAV Status</TH>";
- print " </THEAD>";
+ print " </TR>";
 }
 { FS = "/";
-  print " <TR><TD CLASS=\"HEADING\">Version:</TD><TD>"$1"</TD></TR>";
-  print " <TR><TD CLASS=\"HEADING\">Virus Identities:</TD><TD>"$2"</TD></TR>";
-  print " <TR><TD CLASS=\"HEADING\">Database Timestamp:</TD><TD>"$3"</TD></TR>";
+  print " <TR><TD CLASS=\"heading\">Version:</TD><TD>"$1"</TD></TR>";
+  print " <TR><TD CLASS=\"heading\">Virus Identities:</TD><TD>"$2"</TD></TR>";
+  print " <TR><TD CLASS=\"heading\">Database Timestamp:</TD><TD>"$3"</TD></TR>";
 }
 END { print "</TABLE>" }

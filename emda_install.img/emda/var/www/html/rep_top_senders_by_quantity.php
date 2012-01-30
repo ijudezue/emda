@@ -29,9 +29,7 @@ session_start();
 require('login.function.php');
 
 // add the header information such as the logo, search, menu, ....
-html_start("Top Senders by Quantity");
-
-$filter=report_start("Top Senders by Quantity");
+$filter=html_start("Top Senders by Quantity",0,false,true);
 
 //Set timezone
 $timezone = "".TIME_ZONE."";
@@ -40,7 +38,7 @@ date_default_timezone_set($timezone);
 // Set Date format
 $date_format = "'".DATE_FORMAT."'";
 
-$filename = "images/cache/top_senders_by_quantity.png".time()."";
+$filename = "".CACHE_DIR."/top_senders_by_quantity.png".time()."";
 
 $sql = "
  SELECT
@@ -61,6 +59,9 @@ $sql = "
  LIMIT 10
 ";
 
+// Check permissions to see if apache can actually create the file
+if(is_writable(CACHE_DIR)){
+
 # JPGraph
 include_once("./jpgraph/src/jpgraph.php");
 include_once("./jpgraph/src/jpgraph_pie.php");
@@ -79,6 +80,7 @@ while($row=mysql_fetch_object($result)) {
 
 format_report_volume($data_size, $size_info);
 
+// Creating the Graph
 $graph = new PieGraph(800,385,0,false);
 $graph->SetShadow();
 $graph->img->SetAntiAliasing();
@@ -94,23 +96,34 @@ $graph->legend->Pos(0.25,0.20,center);
 
 $graph->Add($p1);
 $graph->Stroke($filename);
+}
 
-echo "<TABLE BORDER=0 CELLPADDING=10 CELLSPACING=0 HEIGHT=100% WIDTH=100%>";
+
+// Table to Display data
+echo "<TABLE BORDER=\"0\" CELLPADDING=\"10\" CELLSPACING=\"0\" WIDTH=\"100%\">";
 echo "<TR>";
-echo " <TD ALIGN=\"CENTER\"><IMG SRC=\"images/mailscannerlogo.gif\"></TD>";
+echo " <TD ALIGN=\"CENTER\"><IMG SRC=\"".IMAGES_DIR."/mailscannerlogo.gif\" ALT=\"MailScanner Logo\"></TD>";
 echo "</TR>";
 echo "<TR>";
-echo " <TD ALIGN=\"CENTER\"><IMG SRC=\"".$filename."\"></TD>";
+
+//  Check Permissions to see if the file has been written and that apache to read it.
+if(is_readable($filename)){
+echo " <TD ALIGN=\"CENTER\"><IMG SRC=\"".$filename."\" ALT=\"Graph\"></TD>";
+}else{
+echo "<TD ALIGN=\"CENTER\"> File isn't readable. Please make sure that ".CACHE_DIR." is readable and writable by Mailwatch.";
+}
+
 echo "</TR>";
 echo "<TR>";
 echo " <TD ALIGN=\"CENTER\">";
 echo "  <TABLE WIDTH=500>";
-echo "   <THEAD BGCOLOR=\"#F7CE4A\">";
+echo "   <TR BGCOLOR=\"#F7CE4A\">";
 echo "    <TH>E-Mail Address</TH>";
 echo "    <TH>Count</TH>";
 echo "    <TH>Size</TH>";
-echo "   </THEAD>";
+echo "   </TR>";
 
+// Parsing out the data
    for($i=0; $i<count($data); $i++) {
  echo "
    <TR BGCOLOR=\"#EBEBEB\">
@@ -124,7 +137,6 @@ echo "  </TABLE>";
 echo " </TD>";
 echo "</TR>";
 echo "</TABLE>";
-
 
 // Add footer
 html_end();

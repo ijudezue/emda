@@ -30,7 +30,7 @@ require('login.function.php');
 
 $refresh = html_start("Operation Results");
 
-echo "<TABLE BORDER=0 WIDTH=\"100%\" CLASS=\"maildetail\">\n";
+echo "<TABLE BORDER=\"0\" WIDTH=\"100%\" CLASS=\"maildetail\">\n";
 echo " <THEAD>\n";
 echo "  <TH>Spam Learn Results</TH>\n";
 echo " </THEAD>\n";
@@ -64,7 +64,7 @@ if(is_array($_POST)) {
     break;
   }
   $items = quarantine_list_items($id,RPC_ONLY);
-  echo "<TABLE WIDTH=100%>\n";
+  echo "<TABLE WIDTH=\"100%\">\n";
   if(count($items) > 0) {
     $itemnum = array($num);
    if ($type == 'release'){
@@ -76,12 +76,12 @@ if(is_array($_POST)) {
      echo "<tr><td><a href=\"detail.php?id=$id\">$id</a></td><td>$type</td><td>" . quarantine_learn($items, $itemnum, $type, RPC_ONLY) . "</td></tr>\n";
      }
    }
-  } else {
+  }
+  }else{
    echo "<tr><td colspan=3>Message $id not found in quarantine</td></tr>\n";
   }
   echo "</TABLE>\n";
- }
-}
+
 
 echo "  </TD>\n";
 echo " </TR>\n";

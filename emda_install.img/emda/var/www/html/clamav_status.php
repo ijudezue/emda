@@ -32,16 +32,16 @@ header("Location: index.php");
 }
 else{
 
-html_start("ClamAV Status");
-?>
-<TABLE CLASS="BOXTABLE" WIDTH=100%>
- <TR>
-  <TD ALIGN=CENTER>
-<?php passthru(get_virus_conf('clamav')." -V | awk -f ./clamav.awk"); ?>
-</TD>
- </TR>
-</TABLE>
-<?php
+html_start("ClamAV Status",0,false,false);
+
+echo "<TABLE CLASS=\"boxtable\" WIDTH=\"100%\">";
+echo "<TR>";
+echo "<TD ALIGN=\"CENTER\">";
+ passthru(get_virus_conf('clamav')." -V | awk -f ./clamav.awk");
+echo "</TD>";
+echo "</TR>";
+echo "</TABLE>";
+
 // Add footer
 html_end();
 // Close any open db connections

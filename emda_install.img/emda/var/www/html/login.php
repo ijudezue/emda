@@ -23,20 +23,25 @@
 if(file_exists('conf.php')){
 
 require_once('./functions.php');
+
+	echo "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">\n";
+	echo "<HTML>\n";
+	echo "<HEAD>\n";
+    echo "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">\n";
+
 ?>
 
-
-<html>
 <TITLE>MailWatch Login Page</TITLE>
+</HEAD>
 <table width="300" border="0" align="center" cellpadding="0" cellspacing="1" bgcolor="#CCCCCC">
     <TR>
 
-         <TD ALIGN="center"><IMG SRC="images/mailwatch-logo.png"></TD>
+         <TD ALIGN="center"><IMG SRC="images/mailwatch-logo.png" ALT="Mailwatch Logo"></TD>
         </TR>
 
 <tr>
-<form name="form1" method="post" action="checklogin.php">
 <td>
+<form name="form1" method="post" action="checklogin.php">
 <table width="100%" border="0" cellpadding="3" cellspacing="1" bgcolor="#FFFFFF">
 <tr>
 <td colspan="3"><strong> MailWatch Login</strong></td>
@@ -57,19 +62,25 @@ require_once('./functions.php');
 <td><input type="submit" name="Submit" value="Login"> <input type="reset" value="Reset">  <INPUT TYPE="button" VALUE="Back" onClick="history.go(-1);return true;"></td>
 </tr>
 </table>
-</td>
 </form>
+</td>
 </tr>
 </table>
 </html>
 
 <?php
-html_end();
+
 }
 else{
+
+	echo "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">\n";
+	echo "<HTML>\n";
+	echo "<HEAD>\n";
+    echo "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">\n";
 ?>
-<html>
+
 <TITLE>MailWatch Login Page</TITLE>
+</HEAD>
 <table width="300" border="0" align="center" cellpadding="0" cellspacing="1" bgcolor="#CCCCCC">
     <TR>
 
@@ -96,7 +107,6 @@ else{
 </table>
 </html>
 <?php
-html_end();
 
 }
 ?>

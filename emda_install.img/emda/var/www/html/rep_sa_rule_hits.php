@@ -29,9 +29,7 @@ session_start();
 require('login.function.php');
 
 // add the header information such as the logo, search, menu, ....
-html_start("SpamAssassin Rule Hits");
-
-$filter=report_start("SpamAssasin Rule Hits");
+$filter = html_start("SpamAssassin Rule Hits",0,false,true);
 
 $sql = "
  SELECT
@@ -90,11 +88,11 @@ while ($row = mysql_fetch_object($result)) {
 reset($sa_array);
 arsort($sa_array);
 
-echo "<TABLE BORDER=0 CELLPADDING=10 CELLSPACING=0 HEIGHT=100% WIDTH=100%>";
-echo "<TR><TD ALIGN=\"CENTER\"><IMG SRC=\"images/mailscannerlogo.gif\"></TD></TR>";
+echo "<TABLE BORDER=\"0\" CELLPADDING=\"10\" CELLSPACING=\"0\" WIDTH=\"100%\">";
+echo "<TR><TD ALIGN=\"CENTER\"><IMG SRC=\"".IMAGES_DIR."/mailscannerlogo.gif\" ALT=\"MailScanner Logo\"></TD></TR>";
 echo "<TR><TD ALIGN=\"CENTER\">";
 
-echo "<TABLE ALIGN=\"CENTER\" BORDER=0>\n";
+echo "<TABLE CLASS=\"boxtable\" ALIGN=\"CENTER\" BORDER=\"0\">\n";
 echo "
 <TR BGCOLOR=\"#F7CE4A\">
  <TH>Rule</TH>
@@ -121,9 +119,7 @@ echo "</TABLE>\n";
 
 echo "
   </TABLE>
- </TD>
-</TR>
-</TABLE>";
+";
 
 // Add footer
 html_end();

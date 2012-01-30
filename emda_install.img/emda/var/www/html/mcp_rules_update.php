@@ -25,26 +25,28 @@ require_once("./functions.php");
 session_start();
 require('login.function.php');
 
-html_start("MCP Rule Description Update");
+if($_SESSION['user_type'] != 'A'){
+header( 'Location: index.php');
+}
+else{
+html_start("MCP Rule Description Update",0,false,false);
 
-?>
-<FORM METHOD="POST" ACTION=<?php echo $_SERVER['PHP_SELF']; ?>>
-<INPUT TYPE="HIDDEN" NAME="run" VALUE="true">
-<TABLE CLASS="BOXTABLE" WIDTH="100%">
- <TR>
-  <TD>
-   This utility is used to update the SQL database with up-to-date descriptions of the MCP rules which are displayed on the Message Detail screen.<BR>
+echo "<FORM METHOD=\"POST\" ACTION=\"".$_SERVER['PHP_SELF']."\" >";
+echo "<INPUT TYPE=\"HIDDEN\" NAME=\"run\" VALUE=\"true\">";
+echo "<TABLE CLASS=\"boxtable\" WIDTH=\"100%\">";
+echo " <TR>";
+echo "  <TD>";
+echo "   This utility is used to update the SQL database with up-to-date descriptions of the MCP rules which are displayed on the Message Detail screen.<BR>
    <BR>
    This utility should generally be run after an update to your MCP rules, however it is safe to run at any time as it only replaces the existing values and inserts only new values in the table (therefore preserving descriptions from potentially deprecated or removed rules).<BR>
   </TD>
  </TR>
- <TR>
-  <TD ALIGN="CENTER"><BR><INPUT TYPE="SUBMIT" VALUE="Run Now"><BR><BR></TD>
- </TR>
-<?php
+ <TR>";
+echo "  <TD ALIGN=\"CENTER\"><BR><INPUT TYPE=\"SUBMIT\" VALUE=\"Run Now\"><BR><BR></TD>";
+echo " </TR>";
 
 if($_POST['run']) {
- echo "<TR><TD ALIGN=\"CENTER\"><TABLE CLASS=\"mail\" BORDER=0 CELLPADDING=1 CELLSPACING=1><THEAD><TH>Rule</TH><TH>Description</TH></THEAD>\n";
+ echo "<TR><TD ALIGN=\"CENTER\"><TABLE CLASS=\"mail\" BORDER=\"0\" CELLPADDING=\"1\" CELLSPACING=\"1\"><TR><TH>Rule</TH><TH>Description</TH></TR>\n";
  $mcp_prefs_file = get_conf_var('MCPSpamAssassinPrefsFile');
  $mcp_local_rules_dir = get_conf_var('MCPSpamAssassinLocalRulesDir');
  $mcp_default_rules_dir = get_conf_var('MCPSpamAssassinDefaultRulesDir');
@@ -66,10 +68,13 @@ if($_POST['run']) {
  }
  pclose($fh);
  echo "</TABLE><BR></TD></TR>\n";
+
 }
-?>
-</TABLE>
-<?php
+echo "</TABLE>\n";
+echo "</FORM>\n";
+}
+// Add footer
 html_end();
+// Close any open db connections
 dbclose();
 ?>

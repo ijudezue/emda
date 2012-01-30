@@ -132,63 +132,75 @@ if(!defined(VIRUS_REGEX)) {
 // Functions
 ///////////////////////////////////////////////////////////////////////////////
 
-
-
-
-// Reset globals
-$GLOBALS['global_filter'] = '1';
-
-function html_start($title,$refresh=0,$cacheable=true) {
- page_creation_timer();
+function html_start($title,$refresh=0,$cacheable=true,$report=false) {
  if (!$cacheable) {
   // Cache control (as per PHP website)
   header("Expires: Sat, 10 May 2003 00:00:00 GMT");
   header("Last-Modified: ".gmdate("D, M d Y H:i:s")." GMT");
   header("Cache-Control: no-store, no-cache, must-revalidate");
   header("Cache-Control: post-check=0, pre-check=0", false);
- }
-?>
-<HTML>
-<HEAD>
-<?php if(MSEE): ?>
-<TITLE>MailWatch for DefenderMX - <?php echo $title; ?></TITLE>
- <LINK REL="StyleSheet" TYPE="text/css" HREF="style_msee.css">
-<?php else: ?>
-<TITLE>Mailwatch for Mailscanner - <?php echo $title; ?></TITLE>
- <LINK REL="StyleSheet" TYPE="text/css" HREF="style.css">
-<?php endif; ?>
-<?php
+ }else{
+   // calc an offset of 24 hours
+ $offset = 3600 * 48;
+ // calc the string in GMT not localtime and add the offset
+ $expire = "Expires: " . gmdate("D, d M Y H:i:s", time() + $offset) . " GMT";
+ //output the HTTP header
+ Header($expire);
+  header("Cache-Control: store, cache, must-revalidate, post-check=0, pre-check=1");
+  header("Pragma: cache");
+  }
+   page_creation_timer();
+ 	echo "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">\n";
+	echo "<HTML>\n";
+	echo "<HEAD>\n";
+    echo "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">\n";
+ if($report){
+echo "<TITLE>MailWatch Filter Report: $title </TITLE>\n";
+echo "<LINK REL=\"StyleSheet\" TYPE=\"text/css\" HREF=\"style.css\">\n";
+	if(!isset($_SESSION["filter"])) {
+  require_once('./filter.inc');
+  $filter = new Filter;
+  $_SESSION["filter"] = $filter;
+ } else {
+  // Use existing filters
+  $filter = $_SESSION["filter"];
+  }
+   audit_log('Ran report '.$title);
+
+	}else{
+echo "<TITLE>Mailwatch for Mailscanner - $title</TITLE>";
+echo "<LINK REL=\"StyleSheet\" TYPE=\"text/css\" HREF=\"style.css\">";
+	}
+
  if ($refresh > 0) {
   echo "<META HTTP-EQUIV=\"refresh\" CONTENT=\"$refresh\">";
  }
-?>
-</HEAD>
-<BODY>
-<TABLE BORDER=0 CELLPADDING=5 WIDTH=100%>
- <TR>
-  <TD>
-   <TABLE BORDER=0 HEIGHT=140 CELLPADDING=0 CELLSPACING=0>
-    <TR>
-    <?php if(MSEE): ?>
-     <TD VALIGN="MIDDLE" ALIGN="LEFT"><IMG SRC="images/fsl_smg.gif"></TD>
-    <?php else: ?>
-     <TD ALIGN="LEFT"><IMG SRC="images/mailwatch-logo.gif"></TD>
-    <?php endif; ?>
-    </TR>
-    <TR>
-     <FORM ACTION="detail.php">
-     <TD VALIGN="BOTTOM" ALIGN="LEFT" CLASS="jump">
-      Jump to message: <INPUT TYPE="TEXT" NAME="id" VALUE="<?php echo $_GET['id']; ?>"> <br /><br />
-      Welcome <?php echo $_SESSION['fullname']?>.
-    </TD>
-     </FORM>
-    </TR>
-   </TABLE>
-  </TD>
-  <TD ALIGN="RIGHT" VALIGN="TOP">
-<?php
-echo "   <TABLE BORDER=0 CELLPADDING=1 CELLSPACING=1 CLASS=\"MAIL\">\n";
-echo "    <THEAD><TH COLSPAN=2>Color Codes</TH></THEAD> \n";
+ 
+ $message_id=$_GET['id'];
+ if(!$message_id){ $message_id =" ";}
+echo "</HEAD>";
+echo "<BODY>";
+echo "<TABLE BORDER=\"0\" CELLPADDING=\"5\" WIDTH=\"100%\">";
+echo "<TR>";
+echo "<TD>";
+echo "<TABLE BORDER=\"0\" CELLPADDING=\"0\" CELLSPACING=\"0\">";
+echo "<TR>";
+echo "<TD ALIGN=\"LEFT\"><IMG SRC=\"images/mailwatch-logo.gif\" alt=\"MailWatch for MailScanner\"></TD>";
+echo "</TR>";
+echo "<TR>";
+echo "<TD VALIGN=\"BOTTOM\" ALIGN=\"LEFT\" CLASS=\"jump\">";
+echo "<FORM ACTION=\"detail.php\">";
+echo "Jump to message: <INPUT TYPE=\"TEXT\" NAME=\"id\" VALUE=\"$message_id\"><br>";
+echo "</FORM>";
+echo "Welcome ".$_SESSION['fullname'].".\n";
+echo "</TD>";
+echo "</TR>";
+echo "</TABLE>";
+echo "</TD>";
+echo "<TD ALIGN=\"RIGHT\" VALIGN=\"TOP\">";
+ 
+echo "   <TABLE BORDER=\"0\" CELLPADDING=\"1\" CELLSPACING=\"1\" CLASS=\"mail\">\n";
+echo "    <TR> <TH COLSPAN=2>Color Codes</TH> </TR> \n";
 echo "    <TR> <TD>Bad Content/Infected</TD> <TD WIDTH=15 BGCOLOR=\"#B22222\"></TD> </TR>\n";
 echo "    <TR> <TD>Spam</TD> <TD BGCOLOR=\"#F5BBBB\"></TD> </TR>\n";
 echo "    <TR> <TD>High Spam</TD> <TD BGCOLOR=\"#EE6262\"></TD> </TR>\n";
@@ -198,18 +210,19 @@ echo "    <TR> <TD>Whitelisted</TD> <TD BGCOLOR=\"lightgreen\"></TD> </TR>\n";
 echo "    <TR> <TD>Blacklisted</TD> <TD BGCOLOR=\"black\"></TD> </TR>\n";
 echo "    <TR> <TD>Clean</TD> <TD></TD> </TR>\n";
 echo "   </TABLE>\n";
-?>
-  </TD>
-<?php
+echo "  </TD>\n";
+
 if(!DISTRIBUTED_SETUP && ($_SESSION['user_type'] == 'A' || $_SESSION['user_type'] == 'D')) {
  echo "  <TD ALIGN=\"RIGHT\" VALIGN=\"TOP\">\n";
+
  // Status table
- echo "   <TABLE BORDER=0 CELLPADDING=1 CELLSPACING=1 CLASS=\"MAIL\" WIDTH=200>\n";
- echo "    <THEAD><TH COLSPAN=3>Status</TH></THEAD>\n";
+ echo "   <TABLE BORDER=0 CELLPADDING=1 CELLSPACING=1 CLASS=\"mail\" WIDTH=200>\n";
+ echo "    <TR><TH COLSPAN=3>Status</TH></TR>\n";
+
  // MailScanner running?
  if(!DISTRIBUTED_SETUP) {
-  $no = "<SPAN CLASS=\"YES\">&nbsp;NO&nbsp;</SPAN>";
-  $yes  = "<SPAN CLASS=\"NO\">&nbsp;YES&nbsp;</SPAN>";
+  $no = "<SPAN CLASS=\"yes\">&nbsp;NO&nbsp;</SPAN>";
+  $yes  = "<SPAN CLASS=\"no\">&nbsp;YES&nbsp;</SPAN>";
   $junk = exec("ps ax | grep MailScanner | grep -v grep",$output);
   if(count($output)>0) {
    $running = $yes;
@@ -219,6 +232,7 @@ if(!DISTRIBUTED_SETUP && ($_SESSION['user_type'] == 'A' || $_SESSION['user_type'
    $procs = count($output) . " proc(s)";
   }
   echo "     <TR><TD>MailScanner:</TD><TD ALIGN=\"CENTER\">$running</TD><TD ALIGN=\"RIGHT\">$procs</TD></TR>\n";
+
   // is MTA running
   $output = "";
   $mta = get_conf_var('mta');
@@ -231,6 +245,7 @@ if(!DISTRIBUTED_SETUP && ($_SESSION['user_type'] == 'A' || $_SESSION['user_type'
   $procs = count($output)." proc(s)";
   echo "    <TR><TD>".ucwords($mta).":</TD><TD ALIGN=\"CENTER\">$running</TD><TD ALIGN=\"RIGHT\">$procs</TD></TR>\n";
  }
+
  // Load average
  if(file_exists("/proc/loadavg") && !DISTRIBUTED_SETUP) {
   $loadavg = file("/proc/loadavg");
@@ -238,18 +253,23 @@ if(!DISTRIBUTED_SETUP && ($_SESSION['user_type'] == 'A' || $_SESSION['user_type'
   $la_1m = $loadavg[0];
   $la_5m = $loadavg[1];
   $la_15m = $loadavg[2];
-  echo "    <TR><TD>Load Average:</TD><TD ALIGN=\"RIGHT\" COLSPAN=2><TABLE WIDTH=\"100%\" CELLPADDING=0 CELLSPACING=0><TR><TD ALIGN=\"CENTER\">$la_1m</TD><TD ALIGN=\"CENTER\">$la_5m</TD><TD ALIGN=\"CENTER\">$la_15m</TD></TR></TABLE></TD>\n";
+  echo "    <TR><TD>Load Average:</TD><TD ALIGN=\"RIGHT\" COLSPAN=2><TABLE WIDTH=\"100%\" class=\"mail\" CELLPADDING=0 CELLSPACING=0><TR><TD ALIGN=\"CENTER\">$la_1m</TD><TD ALIGN=\"CENTER\">$la_5m</TD><TD ALIGN=\"CENTER\">$la_15m</TD></TR></TABLE></TD>\n";
  }
-  // Mail Queues display
+
+ // Mail Queues display
 $incomingdir = get_conf_var('incomingqueuedir');
 $outgoingdir = get_conf_var('outgoingqueuedir');
 
-if(is_readable($incomingdir) && is_readable($outgoingdir)){
- if($mta =='postfix'){
+
+ if($mta =='postfix' && ($_SESSION['user_type'] == 'A')){
+	if(is_readable($incomingdir) && is_readable($outgoingdir)){
          $inq = postfixinq();
          $outq = postfixallq() - $inq;
          echo "    <TR><TD COLSPAN=2><A HREF=\"postfixmailq.php\">Inbound:</A></TD><TD ALIGN=\"RIGHT\">".$inq."</TD>\n";
          echo "    <TR><TD COLSPAN=2><A HREF=\"postfixmailq.php\">Outbound:</A></TD><TD ALIGN=\"RIGHT\">".$outq."</TD>\n";
+	}else{
+		echo "    <TR><TD COLSPAN=3>Please verify read permissions on ".$incomingdir." and ".$outgoingdir."</TD></tr>\n";
+		 }
  }elseif(MAILQ && ($_SESSION['user_type'] == 'A')) {
   $inq = mysql_result(dbquery("SELECT COUNT(*) FROM inq WHERE ".$_SESSION['global_filter']),0);
   $outq = mysql_result(dbquery("SELECT COUNT(*) FROM outq WHERE ".$_SESSION['global_filter']),0);
@@ -257,9 +277,7 @@ if(is_readable($incomingdir) && is_readable($outgoingdir)){
   echo "    <TR><TD COLSPAN=2><A HREF=\"mailq.php?queue=inq\">Inbound:</A></TD><TD ALIGN=\"RIGHT\">".$inq."</TD>\n";
   echo "    <TR><TD COLSPAN=2><A HREF=\"mailq.php?queue=outq\">Outbound:</A></TD><TD ALIGN=\"RIGHT\">".$outq."</TD>\n";
   }
-}else{
- echo "    <TR><TD COLSPAN=3>Please verify read permissions on ".$incomingdir." and ".$outgoingdir."</TD></tr>\n";
-}
+
   // drive display
  if($_SESSION['user_type'] == 'A') {
    echo "    <TR><TD COLSPAN=3 CLASS=\"heading\" ALIGN=\"CENTER\">Free Drive Space</TD></TR>\n";
@@ -318,7 +336,7 @@ if(is_readable($incomingdir) && is_readable($outgoingdir)){
     }
     $percent = " [";
     $percent.= round($free/$used,2) * 100;
-    $percent.= "%] </span>";
+    $percent.= "%] ";
     echo "    <TR><TD>".$disk[2]."</TD><TD COLSPAN=2 ALIGN=\"RIGHT\">".$free.$percent."</TD>\n";
   }
 
@@ -327,9 +345,9 @@ if(is_readable($incomingdir) && is_readable($outgoingdir)){
  echo "  </TABLE>\n";
  echo "  </TD>\n";
 }
-?>
-  <TD ALIGN="RIGHT">
-<?php
+
+  echo "<TD ALIGN=\"RIGHT\">";
+  
 $sql = "
  SELECT
   COUNT(*) AS processed,
@@ -505,7 +523,7 @@ $sql = "
 $sth = dbquery($sql);
 while($row = mysql_fetch_object($sth)) {
  echo "<TABLE BORDER=0 CELLPADDING=1 CELLSPACING=1 CLASS=\"mail\" WIDTH=200>\n";
- echo " <THEAD><TH ALIGN=\"CENTER\" COLSPAN=3>Today's Totals</TH></THEAD>\n";
+ echo " <TR><TH ALIGN=\"CENTER\" COLSPAN=3>Today's Totals</TH></TR>\n";
  echo " <TR><TD>Processed:</TD><TD ALIGN=\"RIGHT\">".number_format($row->processed)."</TD><TD ALIGN=\"RIGHT\">".format_mail_size($row->size)."</TD></TR>\n";
  echo " <TR><TD>Clean:</TD><TD ALIGN=\"RIGHT\">".number_format($row->clean)."</TD><TD ALIGN=\"RIGHT\">$row->cleanpercent%</TD></TR>\n";
  echo " <TR><TD>Viruses:</TD><TD ALIGN=\"RIGHT\">".number_format($row->viruses)."</TD><TD ALIGN=\"RIGHT\">$row->viruspercent%</TR>\n";
@@ -528,27 +546,38 @@ while($row = mysql_fetch_object($sth)) {
  $nav['logout.php']	= "Logout";
  $table_width = round(100/count($nav));
 }
-?>
-  </TD>
- </TR>
- <TR>
-  <TD COLSPAN=4>
-   <TABLE CLASS="navigation" BORDER=0 CELLSPACING=1 CELLPADDING=0 WIDTH=100%>
-    <TR ALIGN=CENTER>
-<?php
-foreach($nav as $url=>$desc) {
- echo "     <TD style=\"white-space:nowrap\ WIDTH=\"$table_width%\"><A HREF=\"$url\">$desc</A></TD>\n";
-}
-?>
-    </TR>
-   </TABLE>
-  </TD>
- </TR>
- <TR>
-  <TD COLSPAN=4>
-<?php
 
- return $refresh;
+//Navigation table
+echo "  </TD>";
+echo " </TR>";
+echo "<TR>";
+echo "<TD COLSPAN=\"4\">";
+
+echo "<UL id=\"menu\" class=\"yellow\">";
+
+// Display the different words
+foreach($nav as $url=>$desc) {
+$active_url = "".MAILWATCH_HOME."/".$url."";
+  if($_SERVER['SCRIPT_FILENAME'] == $active_url){
+   echo "<li class=\"active\"><a href=\"$url\">$desc</a></li>";
+   }else{
+   echo "<li><a href=\"$url\">$desc</a></li>";
+   }
+}
+
+echo "
+ </UL>
+ </TD>
+ </TR>
+ <TR>
+  <TD COLSPAN=\"4\">";
+
+  if($report){
+ $return_items = $filter;
+ }else{
+ $return_items = $refresh;
+ }
+ return $return_items;
 }
 
 function report_start($title) {
@@ -583,23 +612,23 @@ function report_start($title) {
 
 function html_end($footer="") {
 
-echo "<td>";
-echo "</tr>";
-echo "</table>";
+echo "</td>\n";
+echo "</tr>\n";
+echo "</table>\n";
 echo $footer;
-echo "<br />";
-echo "<CENTER><i><p style=\"font-size:13px\">";
+echo "<br>\n";
+echo "<CENTER><p style=\"font-size:13px\"><i>\n";
 echo page_creation_timer();
-echo "</p><i></CENTER>";
-echo "<br />";
-echo "</body>";
-echo "</html>";
+echo "</i></p></CENTER>\n";
+echo "<br>\n";
+echo "</body>\n";
+echo "</html>\n";
 
 }
 
 
 function dbconn() {
- $link = mysql_pconnect(DB_HOST,DB_USER,DB_PASS)
+ $link = mysql_connect(DB_HOST,DB_USER,DB_PASS)
         or die ("Could not connect to database: ".mysql_error());
  mysql_select_db(DB_NAME) or die("Could not select db: ".mysql_error());
  return $link;
@@ -628,7 +657,7 @@ function dbquery($sql) {
   //dbtable("SHOW STATUS");
   echo "\n-->\n\n";
  }
- $result = mysql_query($sql) or die("<B>Error executing query: </B><BR/><BR/>".mysql_error()."<BR/><BR/><B>SQL:</B><BR/><PRE>$sql</PRE>");
+ $result = mysql_query($sql) or die("<B>Error executing query: </B><BR><BR>".mysql_error()."<BR><BR><B>SQL:</B><BR><PRE>$sql</PRE>");
  return $result;
 }
 
@@ -685,7 +714,7 @@ function format_spam_report($spamreport) {
   }
   // Return the result as an html formatted string
   if(count($output_array)>0) {
-   return "<TABLE BORDER=0 CLASS=\"sa_rules_report\" CELLPADDING=1 CELLSPACING=2 WIDTH=100%>"."<THEAD><TH>Score</TH><TH>Matching Rule</TH><TH>Description</TH></THEAD>".implode("\n",$output_array)."</TABLE>\n";
+   return "<TABLE BORDER=0 CLASS=\"sa_rules_report\" CELLPADDING=1 CELLSPACING=2 WIDTH=\"100%\">"."<tr><TH>Score</TH><TH>Matching Rule</TH><TH>Description</TH></tr>".implode("\n",$output_array)."</TABLE>\n";
   } else {
    return $spamreport;
   }
@@ -745,7 +774,7 @@ function format_mcp_report($mcpreport) {
   }
   // Return the result as an html formatted string
   if(count($output_array)>0) {
-   return "<TABLE BORDER=0 CLASS=\"sa_rules_report\" CELLPADDING=1 CELLSPACING=2 WIDTH=100%>"."<THEAD><TH>Score</TH><TH>Matching Rule</TH><TH>Description</TH></THEAD>".implode("\n",$output_array)."</TABLE>\n";
+   return "<TABLE BORDER=0 CLASS=\"sa_rules_report\" CELLPADDING=1 CELLSPACING=2 WIDTH=100%>"."<tr><TH>Score</TH><TH>Matching Rule</TH><TH>Description</TH></tr>".implode("\n",$output_array)."</TABLE>\n";
   } else {
    return $mcpreport;
   }
@@ -1068,8 +1097,8 @@ function subtract_multi_get_vars($preserve) {
    }
   }
   if(is_array($output)) {
-   $output = join('&',$output);
-   return '&'.$output;
+   $output = join('&amp;',$output);
+   return '&amp;'.$output;
   } else {
    return false;
   }
@@ -1126,10 +1155,10 @@ function db_colorised_table($sql, $table_heading=false, $pager=false, $order=fal
   if($rows>0) {
    if($data['numpages']>1) {
 ?>
- <table border=0 cellpadding=1 cellspacing=1 class="mail">
-  <thead>
+ <table border="0" cellpadding="1" cellspacing="1" class="mail">
+  <tr>
    <th colspan=5>Displaying page <?php echo $data['current']; ?> of <?php echo $data['numpages']; ?> - Records <?php echo $data['from']; ?> to <?php echo $data['to']; ?> of <?php echo $data['numrows']; ?></th>
-  </thead>
+  </tr>
   <tr>
    <!-- First page -->
    <td>
@@ -1188,7 +1217,7 @@ function db_colorised_table($sql, $table_heading=false, $pager=false, $order=fal
  </td>
 </tr>
 <tr>
- <td colspan=4>
+ <td colspan="4">
 <?php
    }
    // Re-run the original query and limit the rows
@@ -1216,7 +1245,7 @@ function db_colorised_table($sql, $table_heading=false, $pager=false, $order=fal
    // Start form for operations
    echo "<FORM NAME=\"operations\" ACTION=\"do_message_ops.php\" method=POST>\n";
   }
-  echo "<table border=0 cellpadding=1 cellspacing=1 width=\"100%\" class=\"mail\">\n";
+  echo "<table border=\"0\" cellpadding=\"1\" cellspacing=\"1\" width=\"100%\" class=\"mail\">\n";
   // Work out which columns to display
   for($f=0; $f<$fields; $f++) {
    if ($f == 0 and $operations != false) {
@@ -1389,12 +1418,12 @@ function db_colorised_table($sql, $table_heading=false, $pager=false, $order=fal
      $column_headings++;
     }
    }
-   echo " <thead>\n";
+   echo " <tr>\n";
    echo "  <th colspan=$column_headings>$table_heading</th>\n";
-   echo " </thead>\n";
+   echo " </tr>\n";
   }
   // Column headings
-  echo " <thead>\n";
+  echo "<tr>\n";
   for($f=0; $f<$fields; $f++) {
    if($display[$f]) {
     if($order && $orderable[$f]) {
@@ -1405,14 +1434,14 @@ function db_colorised_table($sql, $table_heading=false, $pager=false, $order=fal
       $colnum = $f;
      }
      echo "  <th>\n";
-     echo "  $fieldname[$f] (<a href=\"?orderby=".mysql_field_name($sth,$colnum)."&orderdir=a".subtract_multi_get_vars(array('orderby','orderdir'))."\">A</a>/<a href=\"?orderby=".mysql_field_name($sth,$colnum)."&orderdir=d".subtract_multi_get_vars(array('orderby','orderdir'))."\">D</a>)\n";
+     echo "  $fieldname[$f] (<a href=\"?orderby=".mysql_field_name($sth,$colnum)."&amp;orderdir=a".subtract_multi_get_vars(array('orderby','orderdir'))."\">A</a>/<a href=\"?orderby=".mysql_field_name($sth,$colnum)."&amp;orderdir=d".subtract_multi_get_vars(array('orderby','orderdir'))."\">D</a>)\n";
      echo "  </th>\n";
     } else {
      echo "  <th>".$fieldname[$f]."</th>\n";
     }
    }
   }
-  echo " </thead>\n";
+  echo " </tr>\n";
   // Rows
   for($r=0; $r<$rows; $r++) {
    $row = mysql_fetch_row($sth);
@@ -1471,7 +1500,7 @@ function db_colorised_table($sql, $table_heading=false, $pager=false, $order=fal
        $row[$f] = implode(",",$to_temp);
       }
       // Put each address on a new line
-      $row[$f] = str_replace(",","<br />",$row[$f]);
+      $row[$f] = str_replace(",","<br>",$row[$f]);
       break;
      case 'subject':
       $row[$f] = decode_header($row[$f]);
@@ -1560,7 +1589,7 @@ function db_colorised_table($sql, $table_heading=false, $pager=false, $order=fal
       if(count($status_array) == 0) {
        $status = "Clean";
       } else {
-       $status = join("<br />",$status_array);
+       $status = join("<br>",$status_array);
       }
       $row[$f] = $status;
       break;
@@ -1613,7 +1642,7 @@ function db_colorised_table($sql, $table_heading=false, $pager=false, $order=fal
   echo "</table>\n";
   // Javascript function to clear radio buttons
   if ($operations != false) {
-   echo "<SCRIPT LANGUAGE=\"JavaScript\">\n";
+   echo "<SCRIPT LANGUAGE=\"JavaScript\" type=\"text/javascript\">\n";
    echo "function ClearRadios() {\n";
    echo " e=document.operations.elements\n";
    echo " for(i=0; i<e.length; i++) {\n";
@@ -1653,11 +1682,11 @@ function db_colorised_table($sql, $table_heading=false, $pager=false, $order=fal
 
   if($pager) {
 ?>
- <br />
+ <br>
  <table border=0 cellpadding=1 cellspacing=1 class="mail">
-  <thead>
+  <tr>
    <th colspan=5>Displaying page <?php echo $data['current']; ?> of <?php echo $data['numpages']; ?> - Records <?php echo $data['from']; ?> to <?php echo $data['to']; ?> of <?php echo $data['numrows']; ?></th>
-  </thead>
+  </tr>
   <tr>
    <!-- First page -->
    <td>
@@ -1763,9 +1792,9 @@ function dbtable($sql,$title=false,$pager=false) {
    if($data['numpages']>1) {
 ?>
  <table border=0 cellpadding=1 cellspacing=1 class="mail">
-  <thead>
+  <tr>
    <th colspan=5>Displaying page <?php echo $data['current']; ?> of <?php echo $data['numpages']; ?> - Records <?php echo $data['from']; ?> to <?php echo $data['to']; ?> of <?php echo $data['numrows']; ?></th>
-  </thead>
+  </tr>
   <tr>
    <!-- First page -->
    <td>
@@ -1846,19 +1875,18 @@ function dbtable($sql,$title=false,$pager=false) {
     $fields++;
    }
  }
- 
- 
+
  if($rows>0) {
   echo "<TABLE BORDER=0 CELLPADDING=1 CELLSPACING=1 WIDTH=\"100%\" CLASS=\"mail\">\n";
   if($title) {
-   echo "<THEAD><TH COLSPAN=$fields>$title</TH></THEAD>\n";
+   echo "<tr><TH COLSPAN=$fields>$title</TH></tr>\n";
   }
   // Column headings
-  echo " <THEAD>\n";
+  echo " <tr>\n";
   for($f=0;$f<$fields;$f++) {
    echo "  <TH>".mysql_field_name($sth,$f)."</TH>\n";
   }
-  echo " </THEAD>\n";
+  echo " </tr>\n";
   // Rows
   while($row=mysql_fetch_row($sth)) {
    echo " <TR>\n";
@@ -1873,11 +1901,11 @@ function dbtable($sql,$title=false,$pager=false) {
  }
 	if($pager){	
  ?>
-  <br />
+  <br>
  <table border=0 cellpadding=1 cellspacing=1 class="mail">
-  <thead>
+  <tr>
    <th colspan=5>Displaying page <?php echo $data['current']; ?> of <?php echo $data['numpages']; ?> - Records <?php echo $data['from']; ?> to <?php echo $data['to']; ?> of <?php echo $data['numrows']; ?></th>
-  </thead>
+  </tr>
   <tr>
    <!-- First page -->
    <td>
