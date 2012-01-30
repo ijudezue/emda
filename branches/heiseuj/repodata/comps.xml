@@ -78,11 +78,14 @@
      <packagereq type='mandatory'>e2fsprogs</packagereq>
      <packagereq type='mandatory'>e2fsprogs-libs</packagereq>
      <packagereq type='mandatory'>efibootmgr</packagereq>
+     <packagereq type='mandatory'>elfutils</packagereq>
      <packagereq type='mandatory'>elfutils-libelf</packagereq>
+     <packagereq type='mandatory'>elfutils-libs</packagereq>
      <packagereq type='mandatory'>erlang</packagereq>
      <packagereq type='mandatory'>ethtool</packagereq>
      <packagereq type='mandatory'>expat</packagereq>
      <packagereq type='mandatory'>fcoe-utils</packagereq>
+     <packagereq type='mandatory'>file</packagereq>
      <packagereq type='mandatory'>file-libs</packagereq>
      <packagereq type='mandatory'>filesystem</packagereq>
      <packagereq type='mandatory'>findutils</packagereq>
@@ -95,6 +98,7 @@
      <packagereq type='mandatory'>gawk</packagereq>
      <packagereq type='mandatory'>gcc</packagereq>
      <packagereq type='mandatory'>gcc-c++</packagereq>
+     <packagereq type='mandatory'>gdb</packagereq>
      <packagereq type='mandatory'>gdbm</packagereq>
      <packagereq type='mandatory'>GeoIP</packagereq>
      <packagereq type='mandatory'>ghostscript</packagereq>
@@ -204,7 +208,6 @@
      <packagereq type='mandatory'>mailcap</packagereq>
      <packagereq type='mandatory'>mailgraph</packagereq>
      <packagereq type='mandatory'>mailgraph-selinux</packagereq>
-     <packagereq type='mandatory'>mailscanner</packagereq>
      <packagereq type='mandatory'>make</packagereq>
      <packagereq type='mandatory'>MAKEDEV</packagereq>
      <packagereq type='mandatory'>mesa-dri-drivers</packagereq>
@@ -243,6 +246,7 @@
      <packagereq type='mandatory'>pam</packagereq>
      <packagereq type='mandatory'>pango</packagereq>
      <packagereq type='mandatory'>passwd</packagereq>
+     <packagereq type='mandatory'>patch</packagereq>
      <packagereq type='mandatory'>pciutils-libs</packagereq>
      <packagereq type='mandatory'>pcre</packagereq>
      <packagereq type='mandatory'>perl</packagereq>
@@ -251,10 +255,14 @@
      <packagereq type='mandatory'>perl-DBI</packagereq>
      <packagereq type='mandatory'>perl-Filesys-Df</packagereq>
      <packagereq type='mandatory'>perl-Getopt-Long-Descriptive</packagereq>
+     <packagereq type='mandatory'>perl-perl-IP-Country</packagereq>
      <packagereq type='mandatory'>perl-LDAP</packagereq>
      <packagereq type='mandatory'>perl-Mail-DKIM</packagereq>
+     <packagereq type='mandatory'>perl-Mail-SPF</packagereq>
      <packagereq type='mandatory'>perl-MLDBM</packagereq>
+     <packagereq type='mandatory'>perl-MLDBM-Sync</packagereq>
      <packagereq type='mandatory'>perl-Net-CIDR</packagereq>
+     <packagereq type='mandatory'>perl-Net-Ident</packagereq>
      <packagereq type='mandatory'>perl-OLE-Storage_Lite</packagereq>
      <packagereq type='mandatory'>perl-Razor-Agent</packagereq>
      <packagereq type='mandatory'>perl-String-Approx</packagereq>
@@ -313,6 +321,7 @@
      <packagereq type='mandatory'>redhat-lsb-printing</packagereq>
      <packagereq type='mandatory'>rootfiles</packagereq>
      <packagereq type='mandatory'>rpm</packagereq>
+     <packagereq type='mandatory'>rpm-build</packagereq>
      <packagereq type='mandatory'>rpm-libs</packagereq>
      <packagereq type='mandatory'>rpm-python</packagereq>
      <packagereq type='mandatory'>rrdtool</packagereq>
@@ -341,6 +350,7 @@
      <packagereq type='mandatory'>tzdata</packagereq>
      <packagereq type='mandatory'>udev</packagereq>
      <packagereq type='mandatory'>unixODBC</packagereq>
+     <packagereq type='mandatory'>unzip</packagereq>
      <packagereq type='mandatory'>upstart</packagereq>
      <packagereq type='mandatory'>urw-fonts</packagereq>
      <packagereq type='mandatory'>ustr</packagereq>
@@ -352,7 +362,9 @@
      <packagereq type='mandatory'>wxBase</packagereq>
      <packagereq type='mandatory'>wxGTK</packagereq>
      <packagereq type='mandatory'>wxGTK-gl</packagereq>
+     <packagereq type='mandatory'>xz</packagereq>
      <packagereq type='mandatory'>xz-libs</packagereq>
+     <packagereq type='mandatory'>xz-lzma-compat</packagereq>
      <packagereq type='mandatory'>xorg-x11-font-utils</packagereq>
      <packagereq type='mandatory'>yum</packagereq>
      <packagereq type='mandatory'>yum-metadata-parser</packagereq>
