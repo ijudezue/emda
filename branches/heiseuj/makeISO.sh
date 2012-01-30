@@ -3,8 +3,8 @@
 emdaVer="`cat /home/emda/workspace/src/trunk/version`"
 echo $emdaVer > /home/emda/workspace/src/trunk/emda_install.img/emda/etc/emdaVersion
 #create these symlinks since eclipse/svn doesn't like keeping symlinks 
-ls -sf /home/emda/workspace/src/trunk/emda_install.img/emda/var/www/html/fpdf152 /home/emda/workspace/src/trunk/emda_install.img/emda/var/www/html/fpdf
-ls -sf /home/emda/workspace/src/trunk/emda_install.img/emda/var/www/html/jpgraph-1.12.1 /home/emda/workspace/src/trunk/emda_install.img/emda/var/www/html/jpgraph 
+ln -sf /home/emda/workspace/src/trunk/emda_install.img/emda/var/www/html/fpdf152 /home/emda/workspace/src/trunk/emda_install.img/emda/var/www/html/fpdf
+ln -sf /home/emda/workspace/src/trunk/emda_install.img/emda/var/www/html/jpgraph-1.12.1 /home/emda/workspace/src/trunk/emda_install.img/emda/var/www/html/jpgraph 
 
 #make i386 EMDA $emdaVer
 rsync -ar --exclude '.svn' /home/emda/workspace/src/trunk/emda_install.img/emda /home/emda/workspace/src/trunk/emda_install.img/i386/
@@ -30,7 +30,7 @@ rsync -ar --exclude '.svn' /home/emda/workspace/src/trunk/emda_install.img/emda 
 
 	sudo chown 0:0 /home/emda/workspace/src/trunk/emda_install.img/i386/emda/var/spool/MailScanner
 	sudo chown 89:498 /home/emda/workspace/src/trunk/emda_install.img/i386/emda/var/spool/MailScanner/*
-		sudo chmod 774 -R /home/emda/workspace/src/trunk/emda_install.img/i386/emda/var/spool/MailScanner/*
+	sudo chown 89:48 /home/emda/workspace/src/trunk/emda_install.img/i386/emda/var/spool/MailScanner/quarantine	
 	
 	sudo chown 0:0 -R /home/emda/workspace/src/trunk/emda_install.img/i386/emda/var/lib/spamassassin	
 	
@@ -80,13 +80,13 @@ rsync -ar --exclude '.svn' /home/emda/workspace/src/trunk/emda_install.img/emda 
 
 	sudo chown 0:0 /home/emda/workspace/src/trunk/emda_install.img/x86_64/emda/var/spool/MailScanner
 	sudo chown 89:498 /home/emda/workspace/src/trunk/emda_install.img/x86_64/emda/var/spool/MailScanner/*
-		sudo chmod 774 -R /home/emda/workspace/src/trunk/emda_install.img/x86_64/emda/var/spool/MailScanner/*
+	sudo chown 89:48 /home/emda/workspace/src/trunk/emda_install.img/x86_64/emda/var/spool/MailScanner/quarantine
 	
 	sudo chown 0:0 -R /home/emda/workspace/src/trunk/emda_install.img/x86_64/emda/var/lib/spamassassin	
 	
 	sudo chown 48:48 -R /home/emda/workspace/src/trunk/emda_install.img/x86_64/emda/var/www/html
-	sudo chmod ug+rwx /home/emda/workspace/src/trunk/emda_install.img/i386/emda/var/www/html/images
-	sudo chmod ug+rwx /home/emda/workspace/src/trunk/emda_install.img/i386/emda/var/www/html/images/cache
+	sudo chmod ug+rwx /home/emda/workspace/src/trunk/emda_install.img/x86_64/emda/var/www/html/images
+	sudo chmod ug+rwx /home/emda/workspace/src/trunk/emda_install.img/x86_64/emda/var/www/html/images/cache
 
 
 rsync --archive --exclude '.svn' /home/emda/workspace/src/trunk/repodata/comps.xml /home/emda/workspace/builds/EMDA-x86_64/repodata/
@@ -106,6 +106,10 @@ rm -fr /home/emda/workspace/builds/EMDA-x86_64/isolinux/isolinux.cfg
 rm -fr /home/emda/workspace/builds/EMDA-x86_64/install.img
 rm -fr /home/emda/workspace/builds/EMDA-x86_64/repodata/*
 
+
+#clean up local links
+rm /home/emda/workspace/src/trunk/emda_install.img/emda/var/www/html/fpdf
+rm /home/emda/workspace/src/trunk/emda_install.img/emda/var/www/html/jpgraph
 #clean out version info
 rm /home/emda/workspace/src/trunk/emda_install.img/emda/etc/emdaVersion
 

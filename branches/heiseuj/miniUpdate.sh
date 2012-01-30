@@ -3,7 +3,7 @@
 #instead of having to reload the entire repoUpdate.sh script, this can be used to download a very small subset of packages
 #if the packages that are listed here are needed, they should also be listed in repoUpdate.sh
 #example: uRPM="MySQL-python-*, SDL-*"
-uRPM=""
+uRPM="patch-*, elfutils-libs-*, file-*, gdb-*, unzip-*, xz-*, xz-lzma-compat-*"
 
 wget -r -nc -nv -nH -nd -l1 --no-parent -P /home/emda/workspace/rpmUpdates/i386/ -A "$uRPM" http://mirror.centos.org/centos/6/os/i386/Packages/
 wget -r -nc -nv -nH -nd -l1 --no-parent -P /home/emda/workspace/rpmUpdates/x86_64/ -A "$uRPM" http://mirror.centos.org/centos/6/os/x86_64/Packages/
