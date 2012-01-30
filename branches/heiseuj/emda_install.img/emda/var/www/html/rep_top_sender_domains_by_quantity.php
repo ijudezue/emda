@@ -29,12 +29,10 @@ session_start();
 require('login.function.php');
 
 // add the header information such as the logo, search, menu, ....
-html_start("Top Sender Domains by Quantity");
+$filter = html_start("Top Sender Domains by Quantity",0,false,true);
 
 // File name
-$filename = "images/cache/top_sender_domains_by_quantity.png.".time()."";
-
-$filter=report_start("Top Sender Domains by Quantity");
+$filename = "".CACHE_DIR."/top_sender_domains_by_quantity.png.".time()."";
 
 $sql = "
  SELECT
@@ -54,6 +52,9 @@ $sql = "
   count DESC
  LIMIT 10
 ";
+
+// Check permissions to see if apache can actually create the file
+if(is_writable(CACHE_DIR)){
 
 # JPGraph
 include_once("./jpgraph/src/jpgraph.php");
@@ -86,23 +87,31 @@ $graph->legend->Pos(0.25,0.20,center);
 
 $graph->Add($p1);
 $graph->Stroke($filename);
+}
 
 // HTML code to display the graph
-echo "<TABLE BORDER=0 CELLPADDING=10 CELLSPACING=0 HEIGHT=100% WIDTH=100%>";
+echo "<TABLE BORDER=\"0\" CELLPADDING=\"10\" CELLSPACING=\"0\" WIDTH=\"100%\">";
 echo "<TR>";
-echo " <TD ALIGN=\"CENTER\"><IMG SRC=\"images/mailscannerlogo.gif\"></TD>";
+echo " <TD ALIGN=\"CENTER\"><IMG SRC=\"".IMAGES_DIR."/mailscannerlogo.gif\" ALT=\"MailScanner\"></TD>";
 echo "</TR>";
 echo "<TR>";
-echo " <TD ALIGN=\"CENTER\"><IMG SRC=\"".$filename."\"></TD>";
+
+//  Check Permissions to see if the file has been written and that apache to read it.
+if(is_readable($filename)){
+echo " <TD ALIGN=\"CENTER\"><IMG SRC=\"".$filename."\" ALT=\"Graph\"></TD>";
+}else{
+echo "<TD ALIGN=\"CENTER\"> File isn't readable. Please make sure that ".CACHE_DIR." is readable and writable by Mailwatch.";
+}
+
 echo "</TR>";
 echo "<TR>";
 echo "<TD ALIGN=\"CENTER\">";
-echo "<TABLE WIDTH=500>";
-echo "<THEAD BGCOLOR=\"#F7CE4A\">";
+echo "<TABLE WIDTH=\"500\">";
+echo "<TR BGCOLOR=\"#F7CE4A\">";
 echo "<TH>Domain</TH>";
 echo "<TH>Count</TH>";
 echo "<TH>Size</TH>";
-echo "</THEAD>";
+echo "</TR>";
 
 for($i=0; $i<count($data); $i++) {
  echo "<TR BGCOLOR=\"#EBEBEB\">

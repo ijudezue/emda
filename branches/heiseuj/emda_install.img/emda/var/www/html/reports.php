@@ -37,7 +37,7 @@ if(!isset($_SESSION["filter"])) {
 }
 
 // add the header information such as the logo, search, menu, ....
-html_start("Reports");
+html_start("Reports",0,false,false);
 
 // Set directory varible
 $dirname = "".MAILWATCH_HOME."/".CACHE_DIR."";
@@ -95,11 +95,14 @@ $filter->AddReport("rep_top_sender_domains_by_volume.php","Top Sender Domains by
 $filter->AddReport("rep_top_recipient_domains_by_quantity.php","Top Recipient Domains by Quantity");
 $filter->AddReport("rep_top_recipient_domains_by_volume.php","Top Recipient Domains by Volume");
 
+if(get_conf_truefalse('UseSpamAssassin')){
 $filter->AddReport("rep_sa_score_dist.php","SpamAssassin Score Distribution");
 $filter->AddReport("rep_sa_rule_hits.php","SpamAssassin Rule Hits");
-
+}
+if(get_conf_truefalse('MCPChecks')){
 $filter->AddReport("rep_mcp_score_dist.php","MCP Score Distribution");
 $filter->AddReport("rep_mcp_rule_hits.php","MCP Rule Hits");
+}
 
 $filter->AddReport("rep_audit_log.php","Audit Log");
 $filter->Display();

@@ -99,7 +99,7 @@ class Filter {
  }
 
  function Display() {
-  echo "<TABLE ALIGN=\"CENTER\" WIDTH=600 BORDER=0 CLASS=\"BOXTABLE\">\n";
+  echo "<TABLE ALIGN=\"CENTER\" WIDTH=\"600\" BORDER=\"0\" CLASS=\"boxtable\">\n";
   echo " <TR><TH COLSPAN=2>Active Filters</TH></TR>\n";
   if(count($this->item)>0) {
    foreach($this->item as $key=>$val) {
@@ -110,6 +110,7 @@ class Filter {
   } else {
    echo "<TR><TD COLSPAN=2>None</TD></TR>\n";
   }
+  
   // Add filter
   echo " <TR><TH COLSPAN=2>Add Filter</TH></TR>\n";
   echo " <TR><TD COLSPAN=2>".$this->DisplayForm()."</TD></TR>\n";
@@ -135,7 +136,7 @@ WHERE
   foreach($this->reports as $description=>$url) {
    echo "<LI><A HREF=\"$url\">$description</A>\n";
   }
-  echo "</TD></TR>\n";
+  echo "</UL></TD></TR>\n";
   echo "</TABLE>\n";
  }
 
@@ -215,7 +216,7 @@ WHERE
   $return .= "<FORM ACTION=\"$_SERVER[PHP_SELF]\">\n";
 
   // Table
-  $return .= "<TABLE WIDTH=100%>\n";
+  $return .= "<TABLE WIDTH=\"100%\">\n";
 
   // Columns
   $return .= "<TR><TD COLSPAN=2>\n";
@@ -246,7 +247,7 @@ WHERE
    }
    $return .= ">$val</OPTION>\n";
   }
-  $return .= "</SELECT><BR/>\n";
+  $return .= "</SELECT><BR>\n";
   $return .= "</TD></TR>\n";
 
   // Input
@@ -257,13 +258,15 @@ WHERE
    $return .= " VALUE=\"" . htmlentities(stripslashes($this->last_value)) . "\"";
   }
   $return .= ">\n";
-  $return .= "</TD><TD ALIGN=\"RIGHT\"><INPUT TYPE=\"SUBMIT\"  NAME=\"action\" VALUE=\"Add\">\n</TR></TD>";
-  $return .= "<TD ALIGN=\"LEFT\">To set date you must use YYYY-mm-dd format</TD>\n";
+  $return .= "</TD><TD ALIGN=\"RIGHT\"><INPUT TYPE=\"SUBMIT\" NAME=\"action\" VALUE=\"Add\"></TD></TR>";
+  $return .= "<TR><TD ALIGN=\"LEFT\">To set date you must use YYYY-mm-dd format</TD>\n <TD></TD></TR>";
   $return .= "<TR><TH COLSPAN=2>Load/Save Filter</TH></TR>\n";
   $return .= "<TR><TD><INPUT TYPE=\"TEXT\" SIZE=50 NAME=\"save_as\"></TD><TD ALIGN=\"RIGHT\"><INPUT TYPE=\"SUBMIT\" NAME=\"action\" VALUE=\"Save\"></TD></TR>";
   $return .= "<TR><TD>\n";
   $return .= $this->ListSaved()."</TD><TD ALIGN=\"RIGHT\" NOWRAP><INPUT TYPE=\"SUBMIT\" NAME=\"action\" VALUE=\"Load\">&nbsp;<INPUT TYPE=\"SUBMIT\" NAME=\"action\" VALUE=\"Save\">&nbsp;<INPUT TYPE=\"SUBMIT\" NAME=\"action\" VALUE=\"Delete\"></TD></TR>\n";
+  $return .= "</TABLE>";
   $return .= "</FORM>\n";
+
 
   return $return;
  }

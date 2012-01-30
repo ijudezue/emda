@@ -27,12 +27,14 @@ require_once("./functions.php");
 session_start();
 require('login.function.php');
 
-html_start('Tools');
+html_start('Tools',"0",true,false);
 
 ?>
-<TABLE WIDTH=100% CLASS="BOXTABLE">
+
+<TABLE WIDTH="100%" CLASS="boxtable">
  <TR>
   <TD>
+   <P>Tools</P>
    <UL>
     <?php if(!MSEE): ?>
      <LI><A HREF="user_manager.php">User Management</A>
@@ -83,7 +85,7 @@ html_start('Tools');
     <?php if(preg_match('/sophos/i',get_conf_var('VirusScanners'))): ?>
      <LI><A HREF="http://www.sophos.com" target="_newwin3">Sophos</A>
     <?php endif; ?>
-    <?php if(preg_match('/clamav/i',get_conf_var('VirusScanners'))): ?>
+    <?php if(preg_match('/clam/i',get_conf_var('VirusScanners'))): ?>
      <LI><A HREF="http://clamav.sourceforge.net" target="_newwin4">ClamAV</A>
     <?php endif; ?>
     <LI><A HREF="http://www.dnsstuff.com" target="_newwin5">DNSstuff</A>
@@ -96,6 +98,8 @@ html_start('Tools');
  </TR>
 </TABLE>
 <?php
+
+
 // Add footer
 html_end();
 // Close any open db connections

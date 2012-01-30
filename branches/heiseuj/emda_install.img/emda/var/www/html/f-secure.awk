@@ -23,9 +23,9 @@
 BEGIN {
  FS = ": ";
  print "<TABLE CLASS=\"SOPHOS\" CELLPADDING=1 CELLSPACING=1>";
- print " <THEAD>";
+ print " <TR>";
  print "  <TH COLSPAN=4>F-Secure Information</TH>";
- print " </THEAD>";
+ print " </TR>";
 }
 
 /F-Secure Anti-Virus Database/||/Copyright/ {

@@ -21,17 +21,17 @@
 */
 
 // Include of nessecary functions
-require_once('./functions.php');
-require_once('./pear/DB.php');
-require_once('./pear/DB/Pager.php');
-require_once('./filter.inc');
+require_once("./functions.php");
+require_once("./pear/DB.php");
+require_once("./pear/DB/Pager.php");
+require_once("./filter.inc");
 
 // Authenication checking
 session_start();
 require('login.function.php');
 
 // add the header information such as the logo, search, menu, ....
-$refresh = html_start("Message Listing");
+$filter=html_start("Message Listing",0,false,false);
 
 $sql = "
  SELECT

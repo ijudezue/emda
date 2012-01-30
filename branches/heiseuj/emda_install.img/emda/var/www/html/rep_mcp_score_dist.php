@@ -29,12 +29,10 @@ session_start();
 require('login.function.php');
 
 // add the header information such as the logo, search, menu, ....
-html_start("MCP Score Distribution");
+$filter = html_start("MCP Score Distribution",0,false,true);
 
 // File name
-$filename = "images/cache/mcp_score_dist.png.".time()."";
-
-$filter=report_start("MCP Score Distribution");
+$filename = "".CACHE_DIR."/mcp_score_dist.png.".time()."";
 
 $sql = "
  SELECT
@@ -50,6 +48,9 @@ $sql = "
  ORDER BY
   score
 ";
+
+// Check permissions to see if apache can actually create the file
+if(is_writable(CACHE_DIR)){
 
 // JPGraph
 include_once("./jpgraph/src/jpgraph.php");
@@ -78,8 +79,8 @@ if (count($data_labels) <= 30) {
 if (count($data_labels) <= 5) {
   $labelinterval=1;
 }
-##### AJOS1 CHANGE #####
 
+// Graphing 
 $graph = new Graph(750,350,0,false);
 $graph->SetShadow();
 $graph->SetScale("textlin");
@@ -97,19 +98,31 @@ $bar1->SetFillColor('blue');
 
 $graph->Add($bar1);
 $graph->Stroke($filename);
+}
 
-echo "<TABLE BORDER=0 CELLPADDING=10 CELLSPACING=0 HEIGHT=100% WIDTH=100%>\n";
-echo " <TR><TD ALIGN=\"CENTER\"><IMG SRC=\"images/mailscannerlogo.gif\"></TD></TR>\n";
+// Creating the page
+echo "<TABLE BORDER=\"0\" CELLPADDING=\"10\" CELLSPACING=\"0\" WIDTH=\"100%\">\n";
+echo " <TR><TD ALIGN=\"CENTER\"><IMG SRC=\"".IMAGES_DIR."/mailscannerlogo.gif\" ALT=\"MailScanner Logo\"></TD></TR>";
 echo " <TR>\n";
-echo " <TD ALIGN=\"CENTER\"><IMG SRC=\"".$filename."\"></TD>\n";
+
+//  Check Permissions to see if the file has been written and that apache to read it.
+if(is_readable($filename)){
+echo " <TD ALIGN=\"CENTER\"><IMG SRC=\"".$filename."\" ALT=\"Graph\"></TD>";
+}else{
+echo "<TD ALIGN=\"CENTER\"> File isn't readable. Please make sure that ".CACHE_DIR." is readable and writable by Mailwatch.";
+}
+
+// Create the table
 echo " </TR>\n";
 echo " <TR>\n";
 echo "  <TD ALIGN=\"CENTER\">\n";
-echo "<TABLE BORDER=0 WIDTH=500>\n";
-echo " <THEAD BGCOLOR=\"#F7CE4A\">\n";
+echo "<TABLE BORDER=\"0\" WIDTH=\"500\">\n";
+echo " <TR BGCOLOR=\"#F7CE4A\">\n";
 echo "  <TH>Score</TH>\n";
 echo "  <TH>Count</TH>\n";
-echo " </THEAD>\n";
+echo " </TR>\n";
+
+// Displaying data
 for($i=0; $i<count($data_count); $i++) {
  echo "<TR BGCOLOR=\"#EBEBEB\">\n";
  echo " <TD ALIGN=\"CENTER\">$data_labels[$i]</TD>\n";

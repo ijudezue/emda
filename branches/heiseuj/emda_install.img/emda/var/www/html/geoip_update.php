@@ -27,82 +27,177 @@ require_once('./functions.php');
 session_start();
 require('login.function.php');
 
-html_start("GeoIP Database Update");
+html_start("GeoIP Database Update",0,false,false);
 
 if(!isset($_POST['run'])) {
-?>
-<FORM METHOD="POST" ACTION=<?php echo $_SERVER['PHP_SELF']; ?>>
-<INPUT TYPE="HIDDEN" NAME="run" VALUE="true">
-<TABLE CLASS="BOXTABLE" WIDTH="100%">
- <TR>
-  <TD>
-   This utility is used to update the SQL database with up-to-date GeoIP data from <a href="http://www.maxmind.com/app/geoip_country" target="_maxmind">MaxMind</a> which is used to work out the country of origin for any given IP address and is displayed on the Message Detail page.<BR>
-   <BR>
-  </TD>
- </TR>
- <TR>
-  <TD ALIGN="CENTER"><BR><INPUT TYPE="SUBMIT" VALUE="Run Now"><BR><BR></TD>
- </TR>
-<TABLE>
-<?php
-html_end();
+
+echo "<FORM METHOD=\"POST\" ACTION=\"".$_SERVER['PHP_SELF']."\">";
+echo "<INPUT TYPE=\"HIDDEN\" NAME=\"run\" VALUE=\"true\">";
+echo "<TABLE CLASS=\"boxtable\" WIDTH=\"100%\">";
+echo "<TR>";
+echo "<TD>";
+echo "This utility is used to update the SQL database with up-to-date GeoIP data from <a href=\"http://www.maxmind.com/app/geoip_country\" target=\"_maxmind\">MaxMind</a> which is used to work out the country of origin for any given IP address and is displayed on the Message Detail page.<BR>";
+echo "<BR>";
+echo "</TD>";
+echo "</TR>";
+echo "<TR>";
+echo "<TD ALIGN=\"CENTER\"><BR><INPUT TYPE=\"SUBMIT\" VALUE=\"Run Now\"><BR><BR></TD>";
+echo "</TR>";
+echo "</TABLE>";
+echo "</FORM>";
+
 } else {
  echo "Downloading file, please wait....<BR>\n";
- $file = 'temp/GeoIPCountryCSV.zip';
- $file2 = 'temp/GeoIPCountryWhois.csv';
- $base = dirname(__FILE__);
+ $file1 = './temp/GeoIPCountryCSV.zip';
+ $file2 = './temp/GeoIPCountryWhois.csv';
+ $file3 = './temp/GeoIPv6.csv.gz';
+ $file4 = './temp/GeoIPv6.csv';
  // Clean-up from last run
- if(file_exists($file)) { unlink($file); }
+ if(file_exists($file1)) { unlink($file1); }
  if(file_exists($file2)) { unlink($file2); }
- ###### AJOS1 CHANGE #####
- $FILECMD="/usr/bin/wget";
- $LINKGEO="http://geolite.maxmind.com/download/geoip/database/GeoIPCountryCSV.zip";
- $FILELOG="/tmp/geo_down.txt";
- $OUTDIR="./temp";
- $getfilestring = sprintf("%s --tries=5 -N -nd -nH -o %s -P %s %s", $FILECMD, $FILELOG, $OUTDIR, $LINKGEO);
- #debug# printf("Running:  %s\n", $getfilestring);
- if (! ini_get('safe_mode')) {
-    if (file_exists($FILECMD)) {
-       ###STILL TESTING### passthru("$getfilestring");
-    }
- }
- ###### AJOS1 CHANGE #####
- if(! file_exists($file)) {
-    // Download GeoIP CSV file
-    if($ufh = fopen($LINKGEO,"r")) {
-     // Open local file for writing
-     if($lfh = fopen($file,"w+")) {
-      do {
-       $data = fread($ufh,8192);
-       if(strlen($data)==0) {
-        break;
-       }
-       fwrite($lfh,$data);
-      } while(true);
-      fclose($ufh);
-      fclose($lfh);
-     } else {
-      die("Unable to open $file for writing.\n");
-     }
-   } else {
-     die("Unable to download GeoIP data file.\n");
-   }
- }
+ if(file_exists($file3)) { unlink($file3); }
+ if(file_exists($file4)) { unlink($file4); }
+ $LINKGEOIPv4="http://geolite.maxmind.com/download/geoip/database/GeoIPCountryCSV.zip";
+ $LINKGEOIPv6="http://geolite.maxmind.com/download/geoip/database/GeoIPv6.csv.gz";
+ $OUTDIR="./temp/";
 
- // Unzip the file (unzip required)
- $exec = exec('unzip -d temp/ '.$file, $output, $retval);
- if($retval==0) {
-  // Drop the data from the table
-  dbquery("DELETE FROM geoip_country");
-  // Load the data
-  dbquery("LOAD DATA LOCAL INFILE '".$base.'/'.$file2."' INTO TABLE geoip_country FIELDS TERMINATED BY ',' ENCLOSED BY '\"'");
-  // Done return the number of rows
-  echo "Download complete ... ".mysql_result(dbquery("SELECT COUNT(*) FROM geoip_country"),0)." rows imported.<BR>\n";
-  audit_log('Ran GeoIP update');
- } else {
-  die("Unzip failed:<BR>Error: ".join("<BR>",$output)."<BR>\n");
- }
- html_end();
- dbclose();
+
+
+ 
+ // changing to cURL rather than fopen
+ if(!file_exists($file) && !file_exists($file3)) {
+	if(is_writable($OUTDIR) && is_readable($OUTDIR)){ 
+
+//////////////////////// IPv4 ///////////////////////////////////////////////////
+
+         ////////////////////////////////////
+         /// Initialize the cURL session ////
+         ////////////////////////////////////
+        $curl_var1 = curl_init();
+
+         /////////////////////////////////////////////////////////
+         //////  Set the URL of the page or file to download. ////
+         /////////////////////////////////////////////////////////
+        curl_setopt($curl_var1, CURLOPT_URL, $LINKGEOIPv4);
+
+
+     // Create the file
+        $fp1 = fopen($file1, "w+");
+
+        curl_setopt($curl_var1, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($curl_var1, CURLOPT_BINARYTRANSFER, 1);
+        curl_setopt($curl_var1, CURLOPT_FILE,$fp1);
+
+
+         ////////////////////////////////////////////////////////////////
+         ///// Set the timeout to allow curl to finish the download//////
+         ////////////////////////////////////////////////////////////////
+        curl_setopt($curl_var1, CURLOPT_TIMEOUT, 180);
+
+
+/////////////////////  IPv6 /////////////////////////////////////////////////////
+
+         ////////////////////////////////////
+         /// Initialize the cURL session ////
+         ////////////////////////////////////
+        $curl_var2 = curl_init();
+
+         /////////////////////////////////////////////////////////
+         //////  Set the URL of the page or file to download. ////
+         /////////////////////////////////////////////////////////
+        curl_setopt($curl_var2, CURLOPT_URL, $LINKGEOIPv6);
+
+
+     // Create the file
+        $fp2 = fopen($file3, "w+");
+
+        curl_setopt($curl_var2, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($curl_var2, CURLOPT_BINARYTRANSFER, 1);
+        curl_setopt($curl_var2, CURLOPT_FILE,$fp2);
+
+
+         ////////////////////////////////////////////////////////////////
+         ///// Set the timeout to allow curl to finish the download//////
+         ////////////////////////////////////////////////////////////////
+        curl_setopt($curl_var2, CURLOPT_TIMEOUT, 180);
+
+
+
+
+
+   // Download GeoIP CSV file
+   if(curl_exec($curl_var1) && curl_exec($curl_var2)) {
+       //Close the curl connection
+       curl_close($curl_var1);
+       
+	   // Cluse the file connection
+	   fclose($fp1);
+	   
+	   // Unset the file variable
+       unset($fp1);
+	   
+	   // Close the curl connection
+	   curl_close($curl_var2);
+	   
+	   // Cluse the file connection
+       fclose($fp2);
+	   
+	   // Unset the file variable
+       unset($fp1);
+	   
+       // Unzip the IPv4 file (unzip required) 
+       $exec = exec('unzip -d '.$OUTDIR.' '.$file1, $output, $retval);
+
+	   // Gunzip the IPv6 file (gunzip required)
+       $exec = exec('gunzip '.$OUTDIR.' '.$file3, $output1, $retval1);
+
+        if($retval==0) {
+
+        // Drop the data from the table
+        dbquery("DELETE FROM geoip_country");
+
+        // Load the data
+        dbquery("LOAD DATA LOCAL INFILE '".$file2."' INTO TABLE geoip_country FIELDS TERMINATED BY ',' ENCLOSED BY '\"'");
+
+        dbquery("LOAD DATA LOCAL INFILE '".$file4."' INTO TABLE geoip_country FIELDS TERMINATED BY ',' ENCLOSED BY '\"'");
+
+        // Done return the number of rows
+        echo "Download complete ... ".mysql_result(dbquery("SELECT COUNT(*) FROM geoip_country"),0)." rows imported.<BR>\n";
+        
+		audit_log('Ran GeoIP update');
+
+        } else {
+		
+        // If it was unable to unzip the the file display this erro
+        
+		die("Unzip failed:<BR>Error: ".join("<BR>",$output)."<BR>".join("<BR>",$output1)."\n");
+        }
+    }else{
+        
+		// unable to download the file correctly
+        die("Unable to download GeoIP data file.\n");
+    
+	}
+    
+	}else{
+    
+	// unable to read or write to the directory
+    
+	die("Unable to read or write to the".$OUTDIR.".\n");
+    
+	}
+    
+	}else{
+    
+	die("Files still exist for some reason\n");
+    
+	}
+
 }
+
+  // Add the footer
+ html_end();
+  
+  // close the connection to the Database
+ dbclose();
 ?>

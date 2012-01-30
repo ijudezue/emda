@@ -23,7 +23,7 @@
  * @author     Daniel Convissor <danielc@php.net>
  * @copyright  1997-2007 The PHP Group
  * @license    http://www.php.net/license/3_0.txt  PHP License 3.0
- * @version    CVS: $Id: ibase.php,v 1.1.2.2 2011/12/09 11:57:51 lorodoes Exp $
+ * @version    CVS: $Id: ibase.php,v 1.3 2011/12/14 19:25:53 lorodoes Exp $
  * @link       http://pear.php.net/package/DB
  */
 

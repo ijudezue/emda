@@ -3,7 +3,7 @@
  // File:        JPGRAPH_DATE.PHP
  // Description: Classes to handle Date scaling
  // Created:     2005-05-02
- // Ver:         $Id: jpgraph_date.php,v 1.3.2.2 2011/12/11 04:49:30 lorodoes Exp $
+ // Ver:         $Id: jpgraph_date.php,v 1.7 2011/12/14 19:25:53 lorodoes Exp $
  //
  // Copyright (c) Asial Corporation. All rights reserved.
  //========================================================================

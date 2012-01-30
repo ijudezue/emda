@@ -25,18 +25,20 @@ require_once("./functions.php");
 session_start();
 require('login.function.php');
 
-html_start("Quarantine Viewer");
+
+
+html_start("Quarantine Viewer",0,false,false);
 
 if(!isset($_GET['dir']) && !isset($_GET["msgdir"])) {
  // Get the top-level list
  if(QUARANTINE_USE_FLAG) {
   // Don't use the database any more - it's too slow on big datasets
   $dates = return_quarantine_dates();
-  echo "<TABLE CLASS=\"MAIL\" WIDTH=100% CELLPADDING=2 CELLSPACING=2>\n";
-  echo "<THEAD><TH>Folder</TH></THEAD>\n";
+  echo "<TABLE CLASS=\"mail\" WIDTH=\"100%\" CELLPADDING=2 CELLSPACING=2>\n";
+  echo "<tr><TH>Folder</TH></tr>\n";
   foreach($dates as $date) {
    ##### AJOS1 CHANGE #####
-   $sql = "SELECT id FROM maillog WHERE ".$GLOBALS['global_filter']." AND date='$date' AND quarantined=1";
+   $sql = "SELECT id FROM maillog WHERE ".$_SESSION['global_filter']." AND date='$date' AND quarantined=1";
    $result = dbquery($sql);
    $rowcnt = mysql_num_rows($result);
    $rowstr = " - ----------";
@@ -53,8 +55,8 @@ if(!isset($_GET['dir']) && !isset($_GET["msgdir"])) {
   if(count($items)>0) {
    // Sort in reverse chronological order
    arsort($items);
-   echo "<TABLE CLASS=\"MAIL\" WIDTH=100% CELLPADDING=1 CELLSPACING=1>\n";
-   echo "<THEAD><TH>Folder</TH></THEAD>\n";
+   echo "<TABLE CLASS=\"mail\" WIDTH=\"100%\" CELLPADDING=\"1\" CELLSPACING=\"1\">\n";
+   echo "<tr><TH>Folder</TH></tr>\n";
    $count=0;
    foreach($items as $f) {
    
@@ -100,7 +102,7 @@ SELECT
 FROM
  maillog
 WHERE
- ".$GLOBALS['global_filter']."
+ ".$_SESSION['global_filter']."
 AND
  date = '$date'
 AND
@@ -143,7 +145,7 @@ ORDER BY
   FROM
    maillog
   WHERE
-   ".$GLOBALS['global_filter']."
+   ".$_SESSION['global_filter']."
   AND
    date = '$date'
   AND

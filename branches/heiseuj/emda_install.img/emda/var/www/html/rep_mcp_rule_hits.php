@@ -29,12 +29,10 @@ session_start();
 require('login.function.php');
 
 // add the header information such as the logo, search, menu, ....
-html_start("MCP Rule Hits");
+$filter = html_start("MCP Rule Hits",0,false,true);
 
 // File name
-$filename = "images/cache/rep_mcp_rule_hits.png.".time()."";
-
-$filter=report_start("MCP Rule Hits");
+$filename = "".CACHE_DIR."/rep_mcp_rule_hits.png.".time()."";
 
 $sql = "
  SELECT
@@ -87,12 +85,11 @@ while ($row = mysql_fetch_object($result)) {
 
 reset($sa_array);
 arsort($sa_array);
-?>
-<TABLE BORDER=0 CELLPADDING=10 CELLSPACING=0 HEIGHT=100% WIDTH=100%>
- <TR><TD ALIGN="CENTER"><IMG SRC="images/mailscannerlogo.gif"></TD></TR>
- <TR><TD ALIGN="CENTER">
-<?php
-echo "<TABLE ALIGN=\"CENTER\" BORDER=0>\n";
+
+echo "<TABLE BORDER=\"0\" CELLPADDING=\"10\" CELLSPACING=\"0\" WIDTH=\"100%\">";
+echo " <TR><TD ALIGN=\"CENTER\"><IMG SRC=\"".IMAGES_DIR."/mailscannerlogo.gif\" ALT=\"MailScanner Logo\"></TD></TR>";
+echo "<TR><TD ALIGN=\"CENTER\">";
+echo "<TABLE CLASS=\"boxtable\" ALIGN=\"CENTER\" BORDER=\"0\">\n";
 echo "
 <TR BGCOLOR=\"#F7CE4A\">
  <TH>Rule</TH>

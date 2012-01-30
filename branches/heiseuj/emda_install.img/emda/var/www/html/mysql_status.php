@@ -25,22 +25,26 @@ require_once('./functions.php');
 session_start();
 include 'login.function.php';
 
-html_start("MySQL Status");
+html_start("MySQL Status",0,false,true);
 
 if($_SESSION['user_type']!=A)
 {
+
 echo "Not Authorized";
+
 }
 else{
 
-
 audit_log('Viewed MySQL Status');
 dbtable("SHOW TABLE STATUS");
-echo "<BR/>\n";
+echo "<BR>\n";
 dbtable("SHOW FULL PROCESSLIST");
-echo "<BR/>\n";
+echo "<BR>\n";
 dbtable("SHOW VARIABLES");
+
+// Add footer
 html_end();
+// Close any open db connections
 dbclose();
 }
 ?>

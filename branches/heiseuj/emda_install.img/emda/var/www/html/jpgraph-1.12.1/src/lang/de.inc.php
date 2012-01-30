@@ -5,7 +5,7 @@
 // Created:     2006-03-06
 // Author:      Timo Leopold (timo@leopold-hh.de)
 //              Johan Persson (ljp@localhost.nil)
-// Ver:         $Id: de.inc.php,v 1.3.2.2 2011/12/11 04:49:34 lorodoes Exp $
+// Ver:         $Id: de.inc.php,v 1.7 2011/12/14 19:25:53 lorodoes Exp $
 //
 // Copyright (c)
 //========================================================================

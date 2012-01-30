@@ -29,10 +29,7 @@ session_start();
 require('login.function.php');
 
 // add the header information such as the logo, search, menu, ....
-html_start("Virus Report");
-
-// Start the report
-$filter=report_start("Virus Report");
+$filter = html_start("Virus Report",0,false,true);
 
 // Get a list of virus scanners from MailScanner.conf
 $scanner=array();
@@ -130,7 +127,6 @@ if(!mysql_num_rows($result) > 0) {
  die("Error: no rows retrieved from database\n");
 }
 
-
 $virus_array = array();
 
 while($row = mysql_fetch_object($result)) {
@@ -156,21 +152,22 @@ while((list($key, $val) = each($virus_array))) {
  $count++;
 }
 
-?>
-<TABLE BORDER=0 CELLPADDING=10 CELLSPACING=0 HEIGHT=100% WIDTH=100%>
-<TR>
- <TD ALIGN="CENTER"><IMG SRC="images/mailscannerlogo.gif"></TD>
-</TR>
-<TR>
- <TD ALIGN="CENTER">
-  <TABLE WIDTH=500>
-   <THEAD BGCOLOR="#F7CE4A">
-    <TH>Virus</TH>
-    <TH>Scanner</TH>
-    <TH>First Seen</TH>
-    <TH>Count</TH>
-   </THEAD>
-<?php
+// HTML Code
+echo "<TABLE BORDER=\"0\" CELLPADDING=\"10\" CELLSPACING=\"0\" WIDTH=\"100%\">";
+echo "<TR>";
+echo " <TD ALIGN=\"CENTER\"><IMG SRC=\"".IMAGES_DIR."/mailscannerlogo.gif\" ALT=\"MailScanner Logo\"></TD>";
+echo "</TR>";
+echo "<TR>";
+echo "<TD ALIGN=\"CENTER\">";
+echo "<TABLE WIDTH=\"500\">";
+echo "<TR BGCOLOR=\"#F7CE4A\">";
+echo "<TH>Virus</TH>";
+echo "<TH>Scanner</TH>";
+echo "<TH>First Seen</TH>";
+echo "<TH>Count</TH>";
+echo "</TR>";
+
+// Write the data in table
 for($i=0; $i<count($data_names); $i++) {
  echo "<TR BGCOLOR=\"#EBEBEB\">
  <TD>$data_names[$i]</TD>
@@ -179,8 +176,15 @@ for($i=0; $i<count($data_names); $i++) {
  <TD ALIGN=\"RIGHT\">".number_format($data[$i])."</TD>
 </TR>\n";
 }
-?>
+
+echo "
   </TABLE>
  </TD>
 </TR>
-</TABLE>
+</TABLE>";
+
+// Add footer
+html_end();
+// Close any open db connections
+dbclose();
+?>

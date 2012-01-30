@@ -25,10 +25,12 @@ require_once("./functions.php");
 session_start();
 require('login.function.php');
 
-html_start("SpamAssassin Bayes Database Info");
+html_start("SpamAssassin Bayes Database Info",0,false,false);
+
 audit_log('Viewed SpamAssasin Bayes Database Info');
-echo "<TABLE ALIGN=\"CENTER\" CLASS=\"boxtable\" BORDER=0 CELLSPACING=1 CELLPADDING=1 WIDTH=600>\n";
-echo "<THEAD><TH COLSPAN=2>Bayes Database Information</TH></THEAD>\n";
+
+echo "<TABLE ALIGN=\"CENTER\" CLASS=\"boxtable\" BORDER=\"0\" CELLSPACING=\"1\" CELLPADDING=\"1\" WIDTH=\"600\">\n";
+echo "<TR><TH COLSPAN=2>Bayes Database Information</TH></TR>\n";
 $fh = popen(SA_DIR.'sa-learn -p '.SA_PREFS.' --dump magic','r');
 while (!feof($fh)) {
  $line = rtrim(fgets($fh,4096));
@@ -64,6 +66,9 @@ while (!feof($fh)) {
 }
 pclose($fh);
 echo "</TABLE>\n";
+
+// Add footer
 html_end();
+// Close any open db connections
 dbclose();
 ?>

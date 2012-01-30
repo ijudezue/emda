@@ -25,8 +25,7 @@ require_once("./functions.php");
 session_start();
 require('login.function.php');
 
-html_start("Whitelist/Blacklist",0,false);
-echo "<form action=\"".$_SERVER['PHP_SELF']."\">\n";
+html_start("Whitelist/Blacklist",0,false,false);
 
 // First check that the user is in the correct form e.g. user@domain.com
 // or for domain admins domain.com
@@ -191,7 +190,7 @@ function build_table($sql,$list) {
    echo " <tr>\n";
    echo "  <td>$row[1]</td>\n";
    echo "  <td>$row[2]</td>\n";
-   echo "  <td><a href=\"".$_SERVER['PHP_SELF']."?submit=Delete&id=".$row[0]."&list=$list\">Delete</a><td>\n";
+   echo "  <td><a href=\"".$_SERVER['PHP_SELF']."?submit=Delete&amp;id=".$row[0]."&amp;list=$list\">Delete</a><td>\n";
    echo " </tr>\n";
   }
   echo "</table>\n";
@@ -205,7 +204,7 @@ function build_table($sql,$list) {
 <form action="<?php echo $_SERVER['PHP_SELF']; ?>">
 <table border=0 cellpadding=1 cellspacing=1 class="mail">
  <tr>
-  <th colspan=2>Add to Whitelist/Blacklist</td>
+  <th colspan=2>Add to Whitelist/Blacklist</th>
  </tr>
  <tr>
   <td class="heading">From:</td>
@@ -213,7 +212,7 @@ function build_table($sql,$list) {
  </tr>
  <tr>
   <td class="heading">To:</td>
-  <td><input <?php echo $disable_user; ?> type="text" name="to" size=22 value="<?php echo $touser; ?>">@<input <?php echo $disable_domain; ?> type="text" name="domain" size=25 value="<?php echo $todomain; ?>"></td>
+  <td><input <?php echo $disable_user; ?> type="text" name="to" size=22 value="<?php echo $touser; ?>">@<input <?php echo$disable_domain; ?> type="text" name="domain" size=25 value="<?php echo $todomain; ?>"></td>
  </tr>
  <tr>
   <td class="heading">List:</td>
@@ -239,16 +238,18 @@ echo  "   <input type=\"radio\" value=\"b\" name=\"list\" $b>Blacklist\n";
 <?php if(isset($errors)): ?>
  <tr>
   <td class="heading">Errors:</td>
-  <td><?php echo implode("<br/>",$errors); ?></td>
-<?php endif; ?>
-</table>
-</form>
+  <td><?php echo implode("<br>",$errors); ?></td>
+ </tr> 
+<?php endif;
+echo "</table>";
+echo "</form>";
 
+?>
 
 <table border=0 cellpadding=1 cellspacing=1 width="100%" class="mail">
 <tr>
- <th class="whitelist">Whitelist</td>
- <th class="blacklist">Blacklist</td>
+ <th class="whitelist">Whitelist</th>
+ <th class="blacklist">Blacklist</th>
 </tr>
 <tr>
  <td valign="top" width="50%">

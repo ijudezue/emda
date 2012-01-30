@@ -3,7 +3,7 @@
  // File:        JPGRAPH_CANVAS.PHP
  // Description: Canvas drawing extension for JpGraph
  // Created:     2001-01-08
- // Ver:         $Id: jpgraph_canvas.php,v 1.1.1.1.4.2 2011/12/11 04:49:30 lorodoes Exp $
+ // Ver:         $Id: jpgraph_canvas.php,v 1.5 2011/12/14 19:25:53 lorodoes Exp $
  //
  // Copyright (c) Asial Corporation. All rights reserved.
  //========================================================================

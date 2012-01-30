@@ -29,27 +29,25 @@ if($_SESSION['user_type'] != 'A'){
 header( 'Location: index.php');
 }
 else{
-html_start("SpamAssassin Rule Description Update");
+html_start("SpamAssassin Rule Description Update",0,false,false);
 
-?>
-<FORM METHOD="POST" ACTION=<?php echo $_SERVER['PHP_SELF']; ?>>
-<INPUT TYPE="HIDDEN" NAME="run" VALUE="true">
-<TABLE CLASS="BOXTABLE" WIDTH="100%">
- <TR>
-  <TD>
-   This utility is used to update the SQL database with up-to-date descriptions of the SpamAssassin rules which are displayed on the Message Detail screen.<BR>
-   <BR>
-   This utility should generally be run after a SpamAssassin update, however it is safe to run at any time as it only replaces the existing values and inserts only new values in the table (therefore preserving descriptions from potentially deprecated or removed rules).<BR>
-  </TD>
- </TR>
- <TR>
-  <TD ALIGN="CENTER"><BR><INPUT TYPE="SUBMIT" VALUE="Run Now"><BR><BR></TD>
- </TR>
-<?php
+echo "<FORM METHOD=\"POST\" ACTION=\"".$_SERVER['PHP_SELF']."\">";
+echo "<INPUT TYPE=\"HIDDEN\" NAME=\"run\" VALUE=\"true\">";
+echo "<TABLE CLASS=\"boxtable\" WIDTH=\"100%\">";
+echo "<TR>";
+echo "  <TD>";
+echo "   This utility is used to update the SQL database with up-to-date descriptions of the SpamAssassin rules which are displayed on the Message Detail screen.<BR>";
+echo "   <BR>";
+echo "   This utility should generally be run after a SpamAssassin update, however it is safe to run at any time as it only replaces the existing values and inserts only new values in the table (therefore preserving descriptions from potentially deprecated or removed rules).<BR>";
+echo "  </TD>";
+echo "</TR>";
+echo " <TR>";
+echo "  <TD ALIGN=\"CENTER\"><BR><INPUT TYPE=\"SUBMIT\" VALUE=\"Run Now\"><BR><BR></TD>";
+echo "</TR>";
 
 if($_POST['run']) {
- echo "<TR><TD ALIGN=\"CENTER\"><TABLE CLASS=\"mail\" BORDER=0 CELLPADDING=1 CELLSPACING=1><THEAD><TH>Rule</TH><TH>Description</TH></THEAD>\n";
- $fh = popen("ls ".SA_RULES_DIR."*.cf /etc/MailScanner/spam.assassin.prefs.conf /opt/MailScanner/etc/spam.assassin.prefs.conf /usr/local/etc/mail/spamassassin/*.cf /etc/mail/spamassassin/*.cf /usr/local/share/spamassassin/*.cf /var/lib/spamassassin/3.003002/updates_spamassassin_org/*.cf | xargs grep -h '^describe'",'r');
+ echo "<TR><TD ALIGN=\"CENTER\"><TABLE CLASS=\"mail\" BORDER=\"0\" CELLPADDING=\"1\" CELLSPACING=\"1\"><TR><TH>Rule</TH><TH>Description</TH></TR>\n";
+ $fh = popen("grep -hr '^describe' ".SA_RULES_DIR." /usr/share/spamassassin /usr/local/share/spamassassin /etc/MailScanner/spam.assassin.prefs.conf /opt/MailScanner/etc/spam.assassin.prefs.conf /usr/local/etc/mail/spamassassin /etc/mail/spamassassin /var/lib/spamassassin 2>/dev/null | sort | uniq",'r');
  audit_log('Ran SpamAssasin Rules Description Update');
  while (!feof($fh)) {
   $line = rtrim(fgets($fh,4096));
@@ -67,11 +65,15 @@ if($_POST['run']) {
  }
  pclose($fh);
  echo "</TABLE><BR></TD></TR>\n";
+
+echo "</TABLE>";
+
 }
-?>
-</TABLE>
-<?php
+echo "</TABLE>\n";
+echo "</FORM>\n";
+}
+// Add footer
 html_end();
+// Close any open db connections
 dbclose();
-}
 ?>

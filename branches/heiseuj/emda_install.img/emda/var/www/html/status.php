@@ -25,13 +25,13 @@ require_once("./functions.php");
 session_start();
 require('login.function.php');
 
-$refresh = html_start("Recent Messages",STATUS_REFRESH,false);
+$refresh = html_start("Recent Messages",STATUS_REFRESH,false,false);
 
 $sql = "
 SELECT
  id AS id2,
  hostname AS host,
- DATE_FORMAT(timestamp, '".DATE_FORMAT."<br/>".TIME_FORMAT."') AS datetime,
+ DATE_FORMAT(timestamp, '".DATE_FORMAT."<br>".TIME_FORMAT."') AS datetime,
  from_address,
  to_address,
  subject,
@@ -61,6 +61,8 @@ LIMIT ".MAX_RESULTS;
 
 db_colorised_table($sql,"Last ".MAX_RESULTS." Messages (Refreshing every $refresh seconds)");
 
+// Add footer
 html_end();
+// Close any open db connections
 dbclose();
 ?>

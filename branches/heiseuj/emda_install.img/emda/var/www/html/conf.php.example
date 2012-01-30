@@ -36,10 +36,10 @@ define('DEBUG', false);
 // (IE) Do not use your main-global-admin accounts.
 //
 define('DB_TYPE', 'mysql');
-define('DB_USER', 'emdadb');
+define('DB_USER', 'root');
 define('DB_PASS', '');
 define('DB_HOST', 'localhost');
-define('DB_NAME', 'emdadb');
+define('DB_NAME', 'mailscanner');
 define('DB_DSN', DB_TYPE.'://'.DB_USER.":".DB_PASS."@".DB_HOST."/".DB_NAME);
 
 // LDAP settings
@@ -59,6 +59,7 @@ http://php.net/manual/en/timezones.php
 define('MAILWATCH_HOME', '/var/www/html/mailscanner');
 define('MS_CONFIG_DIR', '/etc/MailScanner/');
 define('MS_LIB_DIR', '/usr/lib/MailScanner/');
+define('IMAGES_DIR', './images/');
 define('CACHE_DIR', './images/cache/'); // JpGraph cache
 define('TTF_DIR','./jpgraph/src/fonts/'); // JpGraph fonts
 define('SA_DIR','/usr/bin/');
@@ -89,6 +90,9 @@ define('TIME_FORMAT', '%H:%i:%s');
 // Define how many days of emails to keep
 define('RECORD_DAYS_TO_KEEP', 60);
 
+// Define how many days to audit logs to keep
+define('AUDIT_DAYS_TO_KEEP', 60);
+
 // Quarantine settings
 
 // The quarantine flag is only available on MailScanner >=4.43
@@ -96,7 +100,7 @@ define('RECORD_DAYS_TO_KEEP', 60);
 // but requires that you use the quarantine_manager.php in place of
 // the clean.quarantine script provided with MailScanner.
 define('QUARANTINE_USE_FLAG', false);
-define('QUARANTINE_DAYS_TO_KEEP', 60);
+define('QUARANTINE_DAYS_TO_KEEP', 30);
 define('QUARANTINE_MAIL_HOST', '127.0.0.1');
 define('QUARANTINE_FROM_ADDR', 'postmaster');
 define('QUARANTINE_REPORT_FROM_NAME', 'MailWatch for MailScanner');
@@ -152,7 +156,7 @@ define('RPC_ONLY', false);
 define('MAILQ', true);
 
 // Do you want an audit trail?
-define('AUDIT', true);
+define('AUDIT', false);
 
 // Do you want the whitelist/blacklist functionality enabled??
 // You'll need to configure MailScanner to use it accordingly.

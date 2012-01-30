@@ -26,19 +26,16 @@ require_once("./filter.inc");
 
 // Authenication checking
 session_start();
-include 'login.function.php';
+require('login.function.php');
 
 // add the header information such as the logo, search, menu, ....
-html_start("Total Mail by Date");
-
-// Start the report
-$filter=report_start("Total Mail by Date",false,false);
+$filter=html_start("Total Mail by Date",0,false,true);
 
 // Set Date format
 $date_format = "'".DATE_FORMAT."'";
 
 // File name
-$filename = "images/cache/total_mail_by_date.png.".time()."";
+$filename = "".CACHE_DIR."/total_mail_by_date.png.".time()."";
 
 // SQL query to pull the data from maillog
 $sql = "
@@ -79,15 +76,16 @@ ORDER BY
  timestamp
 ";
 
-# Includes for JPgraph
+// Check permissions to see if apache can actually create the file
+if(is_writable(CACHE_DIR)){
+
+// Includes for JPgraph
 include_once("./jpgraph/src/jpgraph.php");
 include_once("./jpgraph/src/jpgraph_log.php");
 include_once("./jpgraph/src/jpgraph_bar.php");
 include_once("./jpgraph/src/jpgraph_line.php");
 
-##### AJOS1 NOTE #####
-### AjosNote - Can be 1 or more rows...
-##### AJOS1 NOTE #####
+// Must be one or more row
 $result = dbquery($sql);
 if(!mysql_num_rows($result) > 0) {
  die("Error: no rows retrieved from database\n");
@@ -136,9 +134,7 @@ if(count($graph_labels)>20) {
  }
 }
 
-
 format_report_volume($data_total_size, $size_info);
-
 
 $graph = new Graph(750,350,0,false);
 $graph->SetShadow();
@@ -180,17 +176,25 @@ $gbplot = new GroupBarPlot(array($bar1,$abar1));
 $graph->AddY2($line1);
 $graph->Add($gbplot);
 $graph->Stroke($filename);
+}
 
 // HTML Code to display the graph
-echo "<TABLE BORDER=0 CELLPADDING=10 CELLSPACING=0 HEIGHT=100% WIDTH=100%>\n";
-echo " <TR><TD ALIGN=\"CENTER\"><IMG SRC=\"./images/mailscannerlogo.gif\"></TD></TR>\n";
+echo "<TABLE BORDER=\"0\" CELLPADDING=\"10\" CELLSPACING=\"0\" WIDTH=\"100%\">\n";
+echo " <TR><TD ALIGN=\"CENTER\"><IMG SRC=\"".IMAGES_DIR."/mailscannerlogo.gif\" ALT=\"MailScanner Logo\"></TD></TR>";
 echo " <TR>\n";
-echo " <TD ALIGN=\"CENTER\"><IMG SRC=\"".$filename."\"></TD>\n";
+
+//  Check Permissions to see if the file has been written and that apache to read it.
+if(is_readable($filename)){
+echo " <TD ALIGN=\"CENTER\"><IMG SRC=\"".$filename."\" ALT=\"Graph\"></TD>";
+}else{
+echo "<TD ALIGN=\"CENTER\"> File isn't readable. Please make sure that ".CACHE_DIR." is readable and writable by Mailwatch.";
+}
+
 echo " </TR>\n";
 echo " <TR>\n";
 echo "  <TD ALIGN=\"CENTER\">\n";
 echo "<TABLE BORDER=0>\n";
-echo " <THEAD BGCOLOR=\"#F7CE4A\">\n";
+echo " <TR BGCOLOR=\"#F7CE4A\">\n";
 echo "  <TH>Date</TH>\n";
 echo "  <TH>Mail</TH>\n";
 echo "  <TH>Virus</TH>\n";
@@ -201,10 +205,10 @@ echo "  <TH>MCP</TH>\n";
 echo "  <TH>%</TH>\n";
 echo "  <TH>Volume</TH>\n";
 echo "  <TH>&nbsp;&nbsp;&nbsp;&nbsp</TH>\n";
-echo "  <TH>Unknown<BR/>Users</TH>\n";
-echo "  <TH>Can't<BR/>Resolve</TH>\n";
+echo "  <TH>Unknown<BR>Users</TH>\n";
+echo "  <TH>Can't<BR>Resolve</TH>\n";
 echo "  <TH>RBL</TH>\n";
-echo " </THEAD>\n";
+echo " </TR>\n";
 
 for($i=0; $i<count($data_total_mail); $i++) {
  echo "<TR BGCOLOR=\"#EBEBEB\">\n";
@@ -217,14 +221,14 @@ for($i=0; $i<count($data_total_mail); $i++) {
  echo " <TD ALIGN=\"RIGHT\">".number_format($data_total_mcp[$i])."</TD>\n";
  echo " <TD ALIGN=\"RIGHT\">".number_format($data_total_mcp[$i]/$data_total_mail[$i]*100,1)."</TD>\n";
  echo " <TD ALIGN=\"RIGHT\">".format_mail_size($data_total_size[$i]*$size_info['formula'])."</TD>\n";
- echo " <TD><BR/></TD>\n";
+ echo " <TD><BR></TD>\n";
  echo " <TD ALIGN=\"RIGHT\">".number_format($data_total_unknown_users[$i])."</TD>\n";
  echo " <TD ALIGN=\"RIGHT\">".number_format($data_total_unresolveable[$i])."</TD>\n";
  echo " <TD ALIGN=\"RIGHT\">".number_format($data_total_rbl[$i])."</TD>\n";
  echo "</TR>\n";
 }
 
- echo " <THEAD BGCOLOR=\"#F7CE4A\">\n";
+ echo " <TR BGCOLOR=\"#F7CE4A\">\n";
  echo " <TH ALIGN=\"RIGHT\">Totals</TH>\n";
  echo " <TH ALIGN=\"RIGHT\">".number_format(mailwatch_array_sum($data_total_mail))."</TH>\n";
  echo " <TH ALIGN=\"RIGHT\">".number_format(mailwatch_array_sum($data_total_virii))."</TH>\n";
@@ -234,12 +238,12 @@ for($i=0; $i<count($data_total_mail); $i++) {
  echo " <TH ALIGN=\"RIGHT\">".number_format(mailwatch_array_sum($data_total_mcp))."</TH>\n";
  echo " <TH ALIGN=\"RIGHT\">".number_format(mailwatch_array_sum($data_total_mcp)/mailwatch_array_sum($data_total_mail)*100,1)."</TH>\n";
  echo " <TH ALIGN=\"RIGHT\">".format_mail_size(mailwatch_array_sum($data_total_size)*$size_info['formula'])."</TH>\n";
- echo " <TD><BR/></TD>\n";
+ echo " <TD><BR></TD>\n";
  echo " <TH ALIGN=\"RIGHT\">".number_format(mailwatch_array_sum($data_total_unknown_users))."</TH>\n";
  echo " <TH ALIGN=\"RIGHT\">".number_format(mailwatch_array_sum($data_total_unresolveable))."</TH>\n";
  echo " <TH ALIGN=\"RIGHT\">".number_format(mailwatch_array_sum($data_total_rbl))."</TH>\n";
  echo "</TR>\n";
-
+echo "</TABLE>\n";
 echo "</TABLE>\n";
 
 // Add footer
