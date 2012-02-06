@@ -1,10 +1,27 @@
 #!/bin/bash
 
+#    Copyright 2012 Uriah Heise - aka. HyTeK
+#
+# This file is part of EMDA.
+#
+# EMDA is free software: you can redistribute it and/or modify it 
+# under the terms of the GNU General Public License as published by 
+# the Free Software Foundation, either version 3 of the License, or 
+# (at your option) any later version.
+#
+# EMDA is distributed in the hope that it will be useful, but 
+# WITHOUT ANY WARRANTY; without even the implied warranty of 
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+# General Public License for more details.You should have received a 
+# copy of the GNU General Public License along with Foobar. If not, 
+# see http://www.gnu.org/licenses/.
+
+
 emdaVer="`cat /home/emda/workspace/src/trunk/version`"
 echo $emdaVer > /home/emda/workspace/src/trunk/emda_install.img/emda/etc/emdaVersion
 #create these symlinks since eclipse/svn doesn't like keeping symlinks 
-ln -sf /home/emda/workspace/src/trunk/emda_install.img/emda/var/www/html/fpdf152 /home/emda/workspace/src/trunk/emda_install.img/emda/var/www/html/fpdf
-ln -sf /home/emda/workspace/src/trunk/emda_install.img/emda/var/www/html/jpgraph-1.12.1 /home/emda/workspace/src/trunk/emda_install.img/emda/var/www/html/jpgraph 
+ln -sf /var/www/html/fpdf152 /home/emda/workspace/src/trunk/emda_install.img/emda/var/www/html/fpdf
+ln -sf /var/www/html/jpgraph-1.12.1 /home/emda/workspace/src/trunk/emda_install.img/emda/var/www/html/jpgraph 
 
 #make i386 EMDA $emdaVer
 rsync -ar --exclude '.svn' /home/emda/workspace/src/trunk/emda_install.img/emda /home/emda/workspace/src/trunk/emda_install.img/i386/
@@ -16,6 +33,8 @@ rsync -ar --exclude '.svn' /home/emda/workspace/src/trunk/emda_install.img/emda 
 	sudo chown 0:0 -R /home/emda/workspace/src/trunk/emda_install.img/i386/emda/root
 	
 	sudo chown 0:0 -R /home/emda/workspace/src/trunk/emda_install.img/i386/emda/etc
+	sudo chown 0:48 -R /home/emda/workspace/src/trunk/emda_install.img/i386/emda/etc/MailScanner/bayes
+		sudo chmod g+rws -R /home/emda/workspace/src/trunk/emda_install.img/i386/emda/etc/MailScanner/bayes
 	
 	sudo chown 0:0 -R /home/emda/workspace/src/trunk/emda_install.img/i386/emda/usr
 	
@@ -25,8 +44,12 @@ rsync -ar --exclude '.svn' /home/emda/workspace/src/trunk/emda_install.img/emda 
 	sudo chown 89:0 /home/emda/workspace/src/trunk/emda_install.img/i386/emda/var/spool/postfix/*
 	sudo chown :90 -R /home/emda/workspace/src/trunk/emda_install.img/i386/emda/var/spool/postfix/public
 	sudo chown :90 -R /home/emda/workspace/src/trunk/emda_install.img/i386/emda/var/spool/postfix/maildrop
-		sudo chmod 734 /home/emda/workspace/src/trunk/emda_install.img/i386/emda/var/spool/postfix/incoming
-		sudo chmod 734 /home/emda/workspace/src/trunk/emda_install.img/i386/emda/var/spool/postfix/outgoing
+	sudo chown :48 -R /home/emda/workspace/src/trunk/emda_install.img/i386/emda/var/spool/postfix/incoming
+	sudo chown :48 -R /home/emda/workspace/src/trunk/emda_install.img/i386/emda/var/spool/postfix/hold
+	sudo chown :48 -R /home/emda/workspace/src/trunk/emda_install.img/i386/emda/var/spool/postfix/outgoing
+		sudo chmod 740 /home/emda/workspace/src/trunk/emda_install.img/i386/emda/var/spool/postfix/incoming
+		sudo chmod 740 /home/emda/workspace/src/trunk/emda_install.img/i386/emda/var/spool/postfix/hold
+		sudo chmod 740 /home/emda/workspace/src/trunk/emda_install.img/i386/emda/var/spool/postfix/outgoing
 
 	sudo chown 0:0 /home/emda/workspace/src/trunk/emda_install.img/i386/emda/var/spool/MailScanner
 	sudo chown 89:498 /home/emda/workspace/src/trunk/emda_install.img/i386/emda/var/spool/MailScanner/*
@@ -34,6 +57,7 @@ rsync -ar --exclude '.svn' /home/emda/workspace/src/trunk/emda_install.img/emda 
 	
 	sudo chown 0:0 -R /home/emda/workspace/src/trunk/emda_install.img/i386/emda/var/lib/spamassassin	
 	
+	sudo chown 48:48 -R /home/emda/workspace/src/trunk/emda_install.img/i386/emda/var/www/.spamassassin
 	sudo chown 48:48 -R /home/emda/workspace/src/trunk/emda_install.img/i386/emda/var/www/html
 	sudo chmod ug+rwx /home/emda/workspace/src/trunk/emda_install.img/i386/emda/var/www/html/images
 	sudo chmod ug+rwx /home/emda/workspace/src/trunk/emda_install.img/i386/emda/var/www/html/images/cache
@@ -75,8 +99,12 @@ rsync -ar --exclude '.svn' /home/emda/workspace/src/trunk/emda_install.img/emda 
 	sudo chown 89:0 /home/emda/workspace/src/trunk/emda_install.img/x86_64/emda/var/spool/postfix/*
 	sudo chown :90 -R /home/emda/workspace/src/trunk/emda_install.img/x86_64/emda/var/spool/postfix/public
 	sudo chown :90 -R /home/emda/workspace/src/trunk/emda_install.img/x86_64/emda/var/spool/postfix/maildrop
-		sudo chmod 734 /home/emda/workspace/src/trunk/emda_install.img/x86_64/emda/var/spool/postfix/incoming
-		sudo chmod 734 /home/emda/workspace/src/trunk/emda_install.img/x86_64/emda/var/spool/postfix/outgoing
+	sudo chown :48 -R /home/emda/workspace/src/trunk/emda_install.img/x86_64/emda/var/spool/postfix/incoming
+	sudo chown :48 -R /home/emda/workspace/src/trunk/emda_install.img/x86_64/emda/var/spool/postfix/hold
+	sudo chown :48 -R /home/emda/workspace/src/trunk/emda_install.img/x86_64/emda/var/spool/postfix/outgoing
+		sudo chmod 740 /home/emda/workspace/src/trunk/emda_install.img/x86_64/emda/var/spool/postfix/incoming
+		sudo chmod 740 /home/emda/workspace/src/trunk/emda_install.img/x86_64/emda/var/spool/postfix/hold
+		sudo chmod 740 /home/emda/workspace/src/trunk/emda_install.img/x86_64/emda/var/spool/postfix/outgoing
 
 	sudo chown 0:0 /home/emda/workspace/src/trunk/emda_install.img/x86_64/emda/var/spool/MailScanner
 	sudo chown 89:498 /home/emda/workspace/src/trunk/emda_install.img/x86_64/emda/var/spool/MailScanner/*
