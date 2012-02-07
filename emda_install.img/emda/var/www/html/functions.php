@@ -43,6 +43,10 @@ ini_set('include_path','.:'.MAILWATCH_HOME.'/pear:'.MAILWATCH_HOME.'/fpdf:'.MAIL
 @include_once('xmlrpc/xmlrpcs.inc');
 @include_once('xmlrpc/xmlrpc_wrappers.inc');
 
+//begin added by HyTeK
+require "grey_config.inc.php";
+require "grey_db.inc.php";
+//end added by HyTeK
 include "postfix.inc";
 
 /*
@@ -257,25 +261,38 @@ if(!DISTRIBUTED_SETUP && ($_SESSION['user_type'] == 'A' || $_SESSION['user_type'
  }
 
  // Mail Queues display
-$incomingdir = get_conf_var('incomingqueuedir');
-$outgoingdir = get_conf_var('outgoingqueuedir');
+//$incomingdir = get_conf_var('incomingqueuedir');
+//$outgoingdir = get_conf_var('outgoingqueuedir');
 
 
  if($mta =='postfix' && ($_SESSION['user_type'] == 'A')){
-	if(is_readable($incomingdir) && is_readable($outgoingdir)){
+//	if(is_readable($incomingdir) && is_readable($outgoingdir)){
          $inq = postfixinq();
-         $outq = postfixallq() - $inq;
+	if(postfixallq() == "N/A"){
+		$outq = "N/A";
+	}else{
+		$outq = postfixallq() - $inq;
+	}
          echo "    <TR><TD COLSPAN=2><A HREF=\"postfixmailq.php\">Inbound:</A></TD><TD ALIGN=\"RIGHT\">".$inq."</TD>\n";
          echo "    <TR><TD COLSPAN=2><A HREF=\"postfixmailq.php\">Outbound:</A></TD><TD ALIGN=\"RIGHT\">".$outq."</TD>\n";
-	}else{
-		echo "    <TR><TD COLSPAN=3>Please verify read permissions on ".$incomingdir." and ".$outgoingdir."</TD></tr>\n";
-		 }
+         //begin added by HyTeK
+         echo "    <TR><TD COLSPAN=2><A HREF=\"grey_connect.php\">Greylisted:</A></TD><TD ALIGN=\"RIGHT\">".$line["count"]."</TD>\n";
+         //end added by HyTeK
+//	}else{
+//		echo "    <TR><TD COLSPAN=3>Please verify read permissions on ".$incomingdir." and ".$outgoingdir."</TD></tr>\n";
+//		 //begin added by HyTeK
+//         echo "    <TR><TD COLSPAN=2><A HREF=\"grey_connect.php\">Greylisted:</A></TD><TD ALIGN=\"RIGHT\">".$line["count"]."</TD>\n";
+//       //end added by HyTeK
+//		 }
  }elseif(MAILQ && ($_SESSION['user_type'] == 'A')) {
   $inq = mysql_result(dbquery("SELECT COUNT(*) FROM inq WHERE ".$_SESSION['global_filter']),0);
   $outq = mysql_result(dbquery("SELECT COUNT(*) FROM outq WHERE ".$_SESSION['global_filter']),0);
   echo "    <TR><TD COLSPAN=3 CLASS=\"heading\" ALIGN=\"CENTER\">Mail Queues</TD></TR>\n";
   echo "    <TR><TD COLSPAN=2><A HREF=\"mailq.php?queue=inq\">Inbound:</A></TD><TD ALIGN=\"RIGHT\">".$inq."</TD>\n";
   echo "    <TR><TD COLSPAN=2><A HREF=\"mailq.php?queue=outq\">Outbound:</A></TD><TD ALIGN=\"RIGHT\">".$outq."</TD>\n";
+  //begin added by HyTeK
+  echo "    <TR><TD COLSPAN=2><A HREF=\"grey_connect.php\">Greylisted:</A></TD><TD ALIGN=\"RIGHT\">".$line["count"]."</TD>\n";
+  //end added by HyTeK
   }
 
   // drive display
@@ -541,6 +558,11 @@ while($row = mysql_fetch_object($sth)) {
  $nav['status.php'] 	= "Recent Messages";
  if(LISTS) { $nav['lists.php'] = "Lists"; }
  if(!DISTRIBUTED_SETUP) { $nav['quarantine.php'] = "Quarantine"; }
+ //begin added by HyTeK
+ //if (MAILQ && ($GLOBALS['user_type'] == 'A')) {
+     $nav['grey.php']    = "Greylist";
+ //}
+ //end added by HyTeK
  $nav['reports.php'] 	= "Reports";
  $nav['other.php'] 	= "Tools/Links";
  $nav['logout.php']	= "Logout";
