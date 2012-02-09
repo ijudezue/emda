@@ -21,19 +21,25 @@
 
 function  postfixinq()
   {
-  $handle = opendir('/var/spool/postfix/hold/');
+$pfdir = "/var/spool/postfix/hold/";
+if ($handle = opendir($pfdir))
+{
   $inq = 0;
   while (false !== ($file = readdir($handle)))
     {
     //evaluate each entry, removing the . & .. entries
-    if ($file !== '.' && $file !== '..')
+    if (($file !== '.') && ($file !== '..'))
       {
       $inq++;
       }
     }
   closedir($handle);
   return $inq;
+}else{
+        return "0";
+}
   }
+
 
 function  postfixallq()
   {
