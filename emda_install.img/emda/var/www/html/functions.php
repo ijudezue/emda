@@ -269,14 +269,19 @@ if(!DISTRIBUTED_SETUP && ($_SESSION['user_type'] == 'A' || $_SESSION['user_type'
 //	if(is_readable($incomingdir) && is_readable($outgoingdir)){
          $inq = postfixinq();
 	if(postfixallq() == "N/A"){
-		$outq = "N/A";
+		$outq = "0";
 	}else{
 		$outq = postfixallq() - $inq;
 	}
          echo "    <TR><TD COLSPAN=2><A HREF=\"postfixmailq.php\">Inbound:</A></TD><TD ALIGN=\"RIGHT\">".$inq."</TD>\n";
          echo "    <TR><TD COLSPAN=2><A HREF=\"postfixmailq.php\">Outbound:</A></TD><TD ALIGN=\"RIGHT\">".$outq."</TD>\n";
          //begin added by HyTeK
-         echo "    <TR><TD COLSPAN=2><A HREF=\"grey_connect.php\">Greylisted:</A></TD><TD ALIGN=\"RIGHT\">".$line["count"]."</TD>\n";
+         if($line["count"])
+         {
+         	echo "    <TR><TD COLSPAN=2><A HREF=\"grey_connect.php\">Greylisted:</A></TD><TD ALIGN=\"RIGHT\">".$line["count"]."</TD>\n";
+         }else{
+         	echo "    <TR><TD COLSPAN=2><A HREF=\"grey_connect.php\">Greylisted:</A></TD><TD ALIGN=\"RIGHT\">0</TD>\n";
+         }
          //end added by HyTeK
 //	}else{
 //		echo "    <TR><TD COLSPAN=3>Please verify read permissions on ".$incomingdir." and ".$outgoingdir."</TD></tr>\n";
@@ -291,7 +296,12 @@ if(!DISTRIBUTED_SETUP && ($_SESSION['user_type'] == 'A' || $_SESSION['user_type'
   echo "    <TR><TD COLSPAN=2><A HREF=\"mailq.php?queue=inq\">Inbound:</A></TD><TD ALIGN=\"RIGHT\">".$inq."</TD>\n";
   echo "    <TR><TD COLSPAN=2><A HREF=\"mailq.php?queue=outq\">Outbound:</A></TD><TD ALIGN=\"RIGHT\">".$outq."</TD>\n";
   //begin added by HyTeK
-  echo "    <TR><TD COLSPAN=2><A HREF=\"grey_connect.php\">Greylisted:</A></TD><TD ALIGN=\"RIGHT\">".$line["count"]."</TD>\n";
+         if($line["count"])
+         {
+         	echo "    <TR><TD COLSPAN=2><A HREF=\"grey_connect.php\">Greylisted:</A></TD><TD ALIGN=\"RIGHT\">".$line["count"]."</TD>\n";
+         }else{
+         	echo "    <TR><TD COLSPAN=2><A HREF=\"grey_connect.php\">Greylisted:</A></TD><TD ALIGN=\"RIGHT\">0</TD>\n";
+         }
   //end added by HyTeK
   }
 
