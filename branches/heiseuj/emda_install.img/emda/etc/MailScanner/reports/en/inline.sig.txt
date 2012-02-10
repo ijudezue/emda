@@ -1,0 +1,6 @@
+-- 
+This message has been scanned for spam, viruses, and
+dangerous content by EMDA and is believed to be clean.
+If you believe this to be an error please visit this link
+to report this message as spam:
+http://$hostname/cgi-bin/learn-msg.cgi?id=$id

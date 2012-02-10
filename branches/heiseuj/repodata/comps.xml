@@ -15,6 +15,7 @@
      <packagereq type='mandatory'>apr-util</packagereq>
      <packagereq type='mandatory'>apr-util-ldap</packagereq>
      <packagereq type='mandatory'>atk</packagereq>
+     <packagereq type='mandatory'>atrpms</packagereq>
      <packagereq type='mandatory'>attr</packagereq>
      <packagereq type='mandatory'>audit</packagereq>
      <packagereq type='mandatory'>audit-libs</packagereq>
@@ -46,7 +47,9 @@
      <packagereq type='mandatory'>cups-libs</packagereq>
      <packagereq type='mandatory'>curl</packagereq>
      <packagereq type='mandatory'>cyrus-sasl</packagereq>
+     <packagereq type='mandatory'>cyrus-sasl-dev</packagereq>
      <packagereq type='mandatory'>cyrus-sasl-lib</packagereq>
+     <packagereq type='mandatory'>cyrus-sasl-plain</packagereq>
      <packagereq type='mandatory'>dash</packagereq>
      <packagereq type='mandatory'>db4</packagereq>
      <packagereq type='mandatory'>db4-utils</packagereq>
@@ -255,7 +258,7 @@
      <packagereq type='mandatory'>perl-DBI</packagereq>
      <packagereq type='mandatory'>perl-Filesys-Df</packagereq>
      <packagereq type='mandatory'>perl-Getopt-Long-Descriptive</packagereq>
-     <packagereq type='mandatory'>perl-perl-IP-Country</packagereq>
+     <packagereq type='mandatory'>perl-IP-Country</packagereq>
      <packagereq type='mandatory'>perl-LDAP</packagereq>
      <packagereq type='mandatory'>perl-Mail-DKIM</packagereq>
      <packagereq type='mandatory'>perl-Mail-SPF</packagereq>

@@ -1,0 +1,17 @@
+# These values can be overridden by editing ~/.spamassassin/user_prefs.cf 
+# (see spamassassin(1) for details)
+
+# These should be safe assumptions and allow for simple visual sifting
+# without risking lost emails.
+
+required_hits 5
+report_safe 0
+rewrite_header Subject [SPAM]
+pyzor_options --homedir /etc/mail/spamassassin/pyzor
+use_pyzor 1
+
+razor_config /etc/mail/spamassassin/razor/razor-agent.conf
+use_razor2 1
+
+bayes_path /etc/MailScanner/bayes/bayes
+bayes_file_mode 0774
