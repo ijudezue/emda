@@ -151,6 +151,8 @@ if ($mode=="email") html_start("Greylist AWL - Addresses"); else html_start("Gre
 <?
 require "grey_copyright.inc.php";
 html_end();
+// Close any open db connections
+dbclose();
 ?>
 
 
