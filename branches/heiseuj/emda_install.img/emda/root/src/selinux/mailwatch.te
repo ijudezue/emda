@@ -1,0 +1,162 @@
+
+module mailwatch 1.0;
+
+require {
+	type postfix_smtpd_t;
+	type razor_port_t;
+	type etc_t;
+	type etc_mail_t;
+	type unconfined_t;
+	type postfix_public_t;
+	type postfix_spool_t;
+	type auditd_t;
+	type boot_t;
+	type postfix_showq_t;
+	type syslogd_t;
+	type getty_t;
+	type initrc_t;
+	type etc_runtime_t;
+	type clamd_t;
+	type rpcbind_t;
+	type dhcpc_t;
+	type proc_net_t;
+	type init_t;
+	type kernel_t;
+	type spamd_t;
+	type postfix_qmgr_t;
+	type httpd_t;
+	type mysqld_t;
+	type udev_t;
+	type mysqld_safe_t;
+	type postfix_pickup_t;
+	type sshd_t;
+	type rpm_t;
+	type rpcd_t;
+	type postfix_master_t;
+	type spamd_var_lib_t;
+	type clamscan_exec_t;
+	type usr_t;
+	type lib_t;
+	type fonts_cache_t;
+	type var_spool_t;
+	type postfix_cleanup_t;
+	type postfix_spool_maildrop_t;
+	type clamd_var_run_t;
+	type smtp_port_t;
+	type clamd_var_lib_t;
+	type initrc_var_run_t;
+	type postfix_smtp_t;
+	class sock_file write;
+	class unix_stream_socket connectto;
+	class file { rename execute append setattr read create unlink ioctl execute_no_trans write getattr open };
+	class process setrlimit;
+	class tcp_socket name_connect;
+	class fifo_file { write getattr open };
+	class sock_file getattr;
+	class dir { ioctl write getattr setattr read remove_name open search add_name };
+}
+
+#============= clamd_t ==============
+allow clamd_t var_spool_t:dir read;
+allow clamd_t var_spool_t:file { read getattr open };
+
+#============= httpd_t ==============
+allow httpd_t auditd_t:dir { getattr search };
+allow httpd_t auditd_t:file { read open };
+allow httpd_t boot_t:dir getattr;
+allow httpd_t clamd_t:dir { getattr search };
+allow httpd_t clamd_t:file { read open };
+allow httpd_t dhcpc_t:dir { getattr search };
+allow httpd_t dhcpc_t:file { read open };
+allow httpd_t etc_runtime_t:file setattr;
+allow httpd_t getty_t:dir { getattr search };
+allow httpd_t getty_t:file { read open };
+allow httpd_t init_t:dir { getattr search };
+allow httpd_t init_t:file { read open };
+allow httpd_t initrc_t:dir { getattr search };
+allow httpd_t initrc_t:file { read open };
+allow httpd_t kernel_t:dir { getattr search };
+allow httpd_t kernel_t:file { read open };
+allow httpd_t mysqld_safe_t:dir { getattr search };
+allow httpd_t mysqld_safe_t:file { read open };
+allow httpd_t mysqld_t:dir { getattr search };
+allow httpd_t mysqld_t:file { read open };
+allow httpd_t postfix_master_t:dir { getattr search };
+allow httpd_t postfix_master_t:file { read open };
+allow httpd_t postfix_master_t:unix_stream_socket connectto;
+allow httpd_t postfix_pickup_t:dir { getattr search };
+allow httpd_t postfix_pickup_t:file { read open };
+allow httpd_t postfix_public_t:dir search;
+allow httpd_t postfix_public_t:sock_file write;
+allow httpd_t postfix_qmgr_t:dir { getattr search };
+allow httpd_t postfix_qmgr_t:file { read open };
+allow httpd_t postfix_showq_t:dir { getattr search };
+allow httpd_t postfix_showq_t:file { read open };
+allow httpd_t postfix_spool_t:dir search;
+allow httpd_t proc_net_t:file read;
+allow httpd_t rpcbind_t:dir { getattr search };
+allow httpd_t rpcbind_t:file { read open };
+allow httpd_t rpcd_t:dir { getattr search };
+allow httpd_t rpcd_t:file { read open };
+allow httpd_t rpm_t:dir { getattr search };
+allow httpd_t rpm_t:file { read open };
+allow httpd_t spamd_t:dir { getattr search };
+allow httpd_t spamd_t:file { read open };
+allow httpd_t sshd_t:dir { getattr search };
+allow httpd_t sshd_t:file { read open };
+allow httpd_t syslogd_t:dir { getattr search };
+allow httpd_t syslogd_t:file { read open };
+allow httpd_t udev_t:dir { getattr search };
+allow httpd_t udev_t:file { read open };
+allow httpd_t unconfined_t:dir { getattr search };
+allow httpd_t unconfined_t:file { read open };
+allow httpd_t clamd_var_lib_t:dir search;
+allow httpd_t clamd_var_lib_t:file { read getattr open };
+allow httpd_t clamd_var_run_t:dir search;
+allow httpd_t clamd_var_run_t:sock_file getattr;
+allow httpd_t clamscan_exec_t:file { read getattr open };
+allow httpd_t fonts_cache_t:dir setattr;
+allow httpd_t initrc_var_run_t:file read;
+allow httpd_t lib_t:file execute_no_trans;
+allow httpd_t postfix_cleanup_t:dir { getattr search };
+allow httpd_t postfix_cleanup_t:file { read open };
+#!!!! The source type 'httpd_t' can write to a 'fifo_file' of the following types:
+# passenger_var_run_t, httpd_tmpfs_t, dirsrv_var_log_t
+
+allow httpd_t postfix_public_t:fifo_file { write getattr open };
+allow httpd_t postfix_smtp_t:dir { getattr search };
+allow httpd_t postfix_smtp_t:file { read open };
+#!!!! The source type 'httpd_t' can write to a 'dir' of the following types:
+# dirsrv_var_run_t, httpd_var_lib_t, httpd_var_run_t, dirsrvadmin_config_t, squirrelmail_spool_t, var_lock_t, passenger_var_run_t, tmp_t, var_t, tmpfs_t, dirsrv_config_t, httpd_tmp_t, httpd_cache_t, httpd_tmpfs_t, dirsrvadmin_tmp_t, var_lib_t, var_run_t, httpd_squirrelmail_t, var_log_t, dirsrv_var_log_t, zarafa_var_lib_t, httpd_cvs_rw_content_t, httpd_git_rw_content_t, httpd_sys_rw_content_t, httpd_sys_rw_content_t, httpd_nagios_rw_content_t, httpd_nutups_cgi_rw_content_t, httpd_mediawiki_rw_content_t, httpd_apcupsd_cgi_rw_content_t, httpd_squid_rw_content_t, httpd_smokeping_cgi_rw_content_t, httpd_sys_content_t, httpd_dirsrvadmin_rw_content_t, httpd_prewikka_rw_content_t, root_t, httpd_w3c_validator_rw_content_t, httpd_awstats_rw_content_t, httpd_user_rw_content_t, httpdcontent, httpd_cobbler_rw_content_t, httpd_munin_rw_content_t, httpd_bugzilla_rw_content_t
+
+allow httpd_t postfix_spool_maildrop_t:dir { write remove_name search add_name };
+#!!!! The source type 'httpd_t' can write to a 'file' of the following types:
+# dirsrv_var_run_t, httpd_var_lib_t, httpd_var_run_t, dirsrvadmin_config_t, squirrelmail_spool_t, passenger_var_run_t, httpd_lock_t, dirsrv_config_t, httpd_tmp_t, httpd_cache_t, httpd_tmpfs_t, dirsrvadmin_tmp_t, httpd_squirrelmail_t, dirsrv_var_log_t, zarafa_var_lib_t, httpd_cvs_rw_content_t, httpd_git_rw_content_t, httpd_sys_rw_content_t, httpd_sys_rw_content_t, httpd_nagios_rw_content_t, httpd_nutups_cgi_rw_content_t, httpd_mediawiki_rw_content_t, httpd_apcupsd_cgi_rw_content_t, httpd_squid_rw_content_t, httpd_smokeping_cgi_rw_content_t, httpd_dirsrvadmin_rw_content_t, httpd_prewikka_rw_content_t, root_t, httpd_w3c_validator_rw_content_t, httpd_awstats_rw_content_t, httpd_user_rw_content_t, httpdcontent, httpd_cobbler_rw_content_t, httpd_munin_rw_content_t, httpd_bugzilla_rw_content_t
+
+allow httpd_t postfix_spool_maildrop_t:file { rename write getattr setattr read create open };
+allow httpd_t postfix_spool_t:dir getattr;
+#!!!! This avc can be allowed using the boolean 'httpd_setrlimit'
+
+allow httpd_t self:process setrlimit;
+#!!!! This avc can be allowed using one of the these booleans:
+#     httpd_can_sendmail, allow_ypbind, httpd_can_network_connect
+
+allow httpd_t smtp_port_t:tcp_socket name_connect;
+allow httpd_t spamd_var_lib_t:dir { read search open ioctl getattr };
+allow httpd_t spamd_var_lib_t:file { read getattr open ioctl };
+allow httpd_t usr_t:file { execute execute_no_trans };
+allow httpd_t var_spool_t:file { read getattr open ioctl };
+
+allow httpd_t etc_mail_t:file append;
+allow httpd_t etc_t:file write;
+allow httpd_t postfix_smtpd_t:dir { getattr search };
+allow httpd_t postfix_smtpd_t:file { read open };
+
+#!!!! The source type 'httpd_t' can write to a 'dir' of the following types:
+# dirsrv_var_run_t, httpd_var_lib_t, httpd_var_run_t, dirsrvadmin_config_t, squirrelmail_spool_t, var_lock_t, passenger_var_run_t, tmp_t, var_t, tmpfs_t, dirsrv_config_t, httpd_tmp_t, httpd_cache_t, http$
+
+allow httpd_t etc_mail_t:dir { write remove_name add_name };
+allow httpd_t etc_mail_t:file { write create unlink };
+#!!!! This avc can be allowed using the boolean 'httpd_can_network_connect'
+
+allow httpd_t razor_port_t:tcp_socket name_connect;
