@@ -21,7 +21,7 @@
 */
 
 // Change the following to reflect the location of functions.php
-require_once('/var/www/functions.php');
+require_once('/var/www/html/functions.php');
 
 require_once('Mail.php');
 require_once('Mail/mime.php');

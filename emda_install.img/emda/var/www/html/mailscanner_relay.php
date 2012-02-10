@@ -27,7 +27,7 @@ ini_set('display_errors','on');
 ini_set('implicit_flush','false');
 
 // Edit this to reflect the full path to functions.php
-require("functions.php");
+require("/var/www/html/functions.php");
 
 // Set-up environment
 set_time_limit(0);

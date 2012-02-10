@@ -4,7 +4,7 @@
 #
 # For common configuration examples, see BASIC_CONFIGURATION_README
 # and STANDARD_CONFIGURATION_README. To find these documents, use
-# the command "postconf html_directory readme_directory", or go to
+# the command "postconf html_directory ctory", or go to
 # http://www.postfix.org/.
 #
 # For best results, change no more than 2-3 parameters at a time,
@@ -96,7 +96,7 @@ mail_owner = postfix
 # to recipient addresses that have no @domain part.
 #
 #myorigin = $myhostname
-#myorigin = $mydomain
+myorigin = $mydomain
 
 # RECEIVING MAIL
 
@@ -207,7 +207,7 @@ mydestination = $myhostname, localhost.$mydomain, localhost
 # 
 #local_recipient_maps = unix:passwd.byname $alias_maps
 #local_recipient_maps = proxy:unix:passwd.byname $alias_maps
-#local_recipient_maps =
+local_recipient_maps =
 
 # The unknown_local_recipient_reject_code specifies the SMTP server
 # response code when a recipient domain matches $mydestination or
@@ -247,7 +247,7 @@ unknown_local_recipient_reject_code = 550
 # only the local machine.
 # 
 #mynetworks_style = class
-#mynetworks_style = subnet
+mynetworks_style = subnet
 #mynetworks_style = host
 
 # Alternatively, you can specify the mynetworks list by hand, in
@@ -294,6 +294,7 @@ unknown_local_recipient_reject_code = 550
 # permit_mx_backup restriction description in postconf(5).
 #
 #relay_domains = $mydestination
+relay_domains = hash:/etc/postfix/transport
 
 # INTERNET OR INTRANET
 
@@ -674,3 +675,44 @@ sample_directory = /usr/share/doc/postfix-2.6.6/samples
 # readme_directory: The location of the Postfix README files.
 #
 readme_directory = /usr/share/doc/postfix-2.6.6/README_FILES
+
+transport_maps = hash:/etc/postfix/transport
+
+smtpd_helo_required = yes
+smtpd_helo_restrictions = check_helo_access hash:/etc/postfix/helo_access, reject_invalid_hostname
+
+smtpd_delay_reject = yes
+disable_vrfy_command = yes
+virtual_alias_maps = hash:/etc/postfix/virtual
+default_destination_recipient_limit = 1
+
+broken_sasl_auth_clients = yes
+smtpd_sasl_auth_enable = yes
+smtpd_sasl_local_domain = 
+smtpd_sasl_path = smtpd
+smtpd_sasl_security_options = noanonymous
+smtp_sasl_password_maps = hash:/etc/postfix/sasl_passwd
+smtp_sasl_type = cyrus
+
+smtp_use_tls = yes
+smtpd_use_tls = yes
+smtp_tls_CAfile = /etc/postfix/ssl/smtpd.pem
+smtp_tls_session_cache_database = btree:/var/spool/postfix/smtp_tls_session_cache
+smtp_tls_note_starttls_offer = yes
+smtpd_tls_key_file = /etc/postfix/ssl/smtpd.pem
+smtpd_tls_cert_file = /etc/postfix/ssl/smtpd.pem
+smtpd_tls_CAfile = /etc/postfix/ssl/smtpd.pem
+smtpd_tls_loglevel = 1
+smtpd_tls_received_header = yes
+smtpd_tls_session_cache_timeout = 3600s
+tls_random_source = dev:/dev/urandom
+smtpd_tls_session_cache_database = btree:/var/spool/postfix/smtpd_tls_session_cache
+smtpd_tls_security_level = may
+
+
+smtpd_sender_restrictions = permit_sasl_authenticated, check_sender_access hash:/etc/postfix/sender_access, reject_non_fqdn_sender, reject_unknown_sender_domain
+smtpd_data_restrictions = reject_unauth_pipelining
+smtpd_client_restrictions = permit_sasl_authenticated, reject_rbl_client zen.spamhaus.org
+smtpd_recipient_restrictions = permit_sasl_authenticated, permit_mynetworks, reject_unauth_destination, reject_non_fqdn_recipient, reject_unknown_recipient_domain, check_recipient_access hash:/etc/postfix/recipient_access, check_policy_service inet:127.0.0.1:2501
+
+masquerade_domains = $mydomain

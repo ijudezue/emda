@@ -1,5 +1,21 @@
 #!/bin/bash
 
+#    Copyright 2012 Uriah Heise - aka. HyTeK
+#
+# This file is part of EMDA.
+#
+# EMDA is free software: you can redistribute it and/or modify it 
+# under the terms of the GNU General Public License as published by 
+# the Free Software Foundation, either version 3 of the License, or 
+# (at your option) any later version.
+#
+# EMDA is distributed in the hope that it will be useful, but 
+# WITHOUT ANY WARRANTY; without even the implied warranty of 
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+# General Public License for more details.You should have received a 
+# copy of the GNU General Public License along with Foobar. If not, 
+# see http://www.gnu.org/licenses/.
+
 #The purpose of this script is to download all required packages, clean out all old packages, leaving only the most up-to-date packages.
 #This script should only be run when the $EMDAversion changes, as some packages that get updated could change the functionality of the system.
 #While building version EMDA 1.0, this script should only be run once. When we start working on the next version of EMDA 1.1, this script should

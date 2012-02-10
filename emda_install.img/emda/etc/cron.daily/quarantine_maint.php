@@ -21,7 +21,7 @@
 */
 
 // Change the following to reflect the location of functions.php
-require('/var/www/functions.php');
+require('/var/www/html/functions.php');
 
 ini_set('error_log','syslog');
 ini_set('html_errors','off');

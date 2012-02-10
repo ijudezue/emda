@@ -77,6 +77,7 @@ $_SESSION["filter"] = $filter;
 $filter->AddReport("rep_message_listing.php","Message Listing");
 $filter->AddReport("rep_message_ops.php","Message Operations");
 
+$filter->AddReport("rep_mtastats.php","MTA Statistics");
 $filter->AddReport("rep_total_mail_by_date.php","Total Messages by Date");
 $filter->AddReport("rep_top_mail_relays.php","Top Mail Relays");
 

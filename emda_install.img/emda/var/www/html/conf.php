@@ -56,7 +56,7 @@ http://php.net/manual/en/timezones.php
 */
 
 // Paths
-define('MAILWATCH_HOME', '/var/www/html/mailscanner');
+define('MAILWATCH_HOME', '/var/www/html');
 define('MS_CONFIG_DIR', '/etc/MailScanner/');
 define('MS_LIB_DIR', '/usr/lib/MailScanner/');
 define('CACHE_DIR', './images/cache/'); // JpGraph cache
@@ -95,11 +95,11 @@ define('RECORD_DAYS_TO_KEEP', 60);
 // it will dramtically improved the speed of quarantine operations
 // but requires that you use the quarantine_manager.php in place of
 // the clean.quarantine script provided with MailScanner.
-define('QUARANTINE_USE_FLAG', false);
+define('QUARANTINE_USE_FLAG', true);
 define('QUARANTINE_DAYS_TO_KEEP', 60);
 define('QUARANTINE_MAIL_HOST', '127.0.0.1');
-define('QUARANTINE_FROM_ADDR', 'postmaster');
-define('QUARANTINE_REPORT_FROM_NAME', 'MailWatch for MailScanner');
+define('QUARANTINE_FROM_ADDR', 'Quarantine@EMDA');
+define('QUARANTINE_REPORT_FROM_NAME', 'EMDA Quarantine');
 define('QUARANTINE_REPORT_SUBJECT', 'Message Quarantine Report');
 define('QUARANTINE_SUBJECT', 'Message released from quarantine');
 define('QUARANTINE_MSG_BODY', 'Please find the original message that was quarantined attached to this mail.
@@ -108,7 +108,7 @@ Regards,
 Postmaster');
 define('QUARANTINE_REPORT_HOSTURL', 'http://'.chop(`hostname`).'/mailscanner/');
 define('QUARANTINE_REPORT_DAYS', 7);
-define('QUARANTINE_USE_SENDMAIL', false);
+define('QUARANTINE_USE_SENDMAIL', true);
 define('QUARANTINE_SENDMAIL_PATH', '/usr/sbin/sendmail');
 
 // This turns virus names into links that can be used to get more information
@@ -149,7 +149,7 @@ define('RPC_ONLY', false);
 // Display the inbound/outbound mail queue lengths
 // Note: this only works with Sendmail & Exim
 // You will also need to run mailwatch/mailq.php from cron.
-define('MAILQ', true);
+define('MAILQ', false);
 
 // Do you want an audit trail?
 define('AUDIT', true);
