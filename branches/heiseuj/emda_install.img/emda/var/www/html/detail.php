@@ -389,7 +389,7 @@ if((is_array($quarantined)) && (count($quarantined)>0)) {
   if($item['dangerous'] == "Y") {
    echo "  <TD COLSPAN=\"6\">&nbsp</TD>\n";
   } else {
-   echo "  <TD COLSPAN=\"6\"><INPUT TYPE=\"checkbox\" NAME=\"alt_recpt_yn\" VALUE=\"y\">&nbsp;Alternate Recipient(s):&nbsp;<INPUT TYPE=\"TEXT\" NAME=\"alt_recpt\" SIZE=\"100\"></TD>\n";
+   echo "  <TD COLSPAN=\"6\"><INPUT TYPE=\"checkbox\" NAME=\"alt_recpt_yn\" VALUE=\"y\">&nbsp;Alternate Recipient(s): (Release must be checked as well)&nbsp;<INPUT TYPE=\"TEXT\" NAME=\"alt_recpt\" SIZE=\"100\"></TD>\n";
   }
   echo "  <TD ALIGN=\"RIGHT\">\n";
   echo "<INPUT TYPE=\"HIDDEN\" NAME=\"id\" VALUE=\"".$quarantined[0]['msgid']."\">\n";
