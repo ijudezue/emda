@@ -99,7 +99,7 @@ func_startSQLGREY(){
 #sets the root password for mysql
 func_mysqlRootPW(){
 	#mysql must be started first to allow for changing db passwords
-	mysqlRootPW=$(whiptail --title "MySQL root Password" --passwordbox "Please enter the password for the MySQL root account:" 10 75 3>&1 1>&2 2>&3)
+	mysqlRootPW=$(whiptail --title "MySQL root Password" --passwordbox "Please create a password for the MySQL root account:" 10 75 3>&1 1>&2 2>&3)
 	mysqlRootPW=$(func_checkPW $mysqlRootPW)
 	mysqladmin -u root password $mysqlRootPW
 }
@@ -107,7 +107,7 @@ func_mysqlRootPW(){
 #sets the mailwatch db connect password
 func_mailwatchDBSetup(){
 	#mysql must be started first to allow for changing db passwords
-	mailwatchDBPW=$(whiptail --title "MailWatch Database Password" --passwordbox "Please enter the password for the MailWatch and SQLGrey Databases.\n\n NOTE: It is advised to make a different password then the one used for the root account." 10 75 3>&1 1>&2 2>&3)
+	mailwatchDBPW=$(whiptail --title "MailWatch Database Password" --passwordbox "Please create a password for the MailWatch and SQLGrey Databases.\n\n NOTE: It is advised to make a different password then the one used for the root account." 10 75 3>&1 1>&2 2>&3)
 	mailwatchDBPW=$(func_checkPW $mailwatchDBPW)
 	sed -i "/^GRANT ALL ON emdadb.* TO emdadb@localhost IDENTIFIED BY '<password>';/ c\GRANT ALL ON emdadb.* TO emdadb@localhost IDENTIFIED BY \'$mailwatchDBPW\';" /root/mailwatch_user.sql
 	sed -i "/^define('DB_PASS', '');/ c\define('DB_PASS', \'$mailwatchDBPW\');" /var/www/html/conf.php
@@ -118,7 +118,7 @@ func_mailwatchDBSetup(){
 #sets the mailwatch password for emdadmin
 func_mailwatchUserPW(){
 	#mysql must be started first before this
-	mailwatchPW=$(whiptail --title "MailWatch EMDAdmin Password" --passwordbox "Please enter the password for the MailWatch web portal account: emdadmin.\n\n NOTE: This is the password you will use to log into the web portal, and the account name is: emdadmin. Please remember it." 15 75 3>&1 1>&2 2>&3)
+	mailwatchPW=$(whiptail --title "MailWatch EMDAdmin Password" --passwordbox "Please create a password for the MailWatch web portal account: emdadmin.\n\n NOTE: This is the password you will use to log into the web portal, and the account name is: emdadmin. Please remember it." 15 75 3>&1 1>&2 2>&3)
 	mailwatchPW=$(func_checkPW $mailwatchPW)
 	sed -i "/^INSERT INTO users SET username = 'emdadmin', password = md5('<password>'), fullname = 'EMDAdmin', type ='A'/ c\INSERT INTO users SET username = 'emdadmin', password = md5(\'$mailwatchPW\'), fullname = 'EMDAdmin', type ='A';" /root/mailwatch_user.sql
 }
@@ -193,7 +193,7 @@ func_webSite(){
 func_genKeyTLS(){
 	countryCode=$(whiptail --title "Two Letter Country Code" --inputbox "Please enter the two letter country code where your organization resides in:\n\n [ex: us]"  10 75 3>&1 1>&2 2>&3)
 	stateName=$(whiptail --title "Name of State or Province" --inputbox "Please enter the name of the state/province where your organization resides in:\n\n [ex: New York]"  10 75 3>&1 1>&2 2>&3)
-	watermarkSecret=$(whiptail --title "TLS/Watermark Password" --passwordbox "Please enter the password for the TLS certificate and postfix watermark secret:" 10 75 3>&1 1>&2 2>&3)
+	watermarkSecret=$(whiptail --title "TLS/Watermark Password" --passwordbox "Please create a password for the TLS certificate and postfix watermark secret:" 10 75 3>&1 1>&2 2>&3)
 
 	if [ ! -d /etc/postfix/ssl ]
 	then
@@ -208,7 +208,7 @@ func_genKeyTLS(){
 
 #questions on how the user wants emda to be configured
 func_mailscannerSetup(){
-	signClean=$(whiptail --title "Sign Clean Emails?" --yesno "Do you want clean [non-spam] emails to have a signature placed at the bottom of the email?\n\n NOTE: The user can click a link in the signature for EMDA to learn it as spam." 10 75 --yes-button "Yes" --no-button "No" 3>&1 1>&2 2>&3)
+	signClean=$(whiptail --title "Sign Clean Emails?" --yesno "Do you want clean [non-spam] emails to have a signature placed at the bottom of the email?\n\n NOTE: The user can click a link in the signature for EMDA to learn it as spam." 15 75 --yes-button "Yes" --no-button "No" 3>&1 1>&2 2>&3)
 	if [ $? = 0 ]
 	then
 		sed -i "/^Sign Clean Messages = no/ c\Sign Clean Messages = yes" /etc/MailScanner/MailScanner.conf
@@ -279,6 +279,7 @@ func_confMailScanner(){
 	sed -i "/^Unscanned Header Value =/ c\Unscanned Header Value = Please contact $orgLongName for details" /etc/MailScanner/MailScanner.conf
 	sed -i "/^Information Header Value = Please contact  for more information/ c\Information Header Value = Please contact $sysAdminEmail for more information" /etc/MailScanner/MailScanner.conf
 	sed -i "/^envelope_sender_header X-MailScanner-EMDA-From/ c\envelope_sender_header X-$orgShortName-MailScanner-EMDA-From" /etc/MailScanner/spam.assassin.prefs.conf
+	sed -i "/^define('QUARANTINE_FROM_ADDR', 'Quarantine@EMDA'/ c\define('QUARANTINE_FROM_ADDR', \'$orgShortName-EMDA-Quarantine@$primaryEmailDomain\'" /var/www/html/conf.php
 }
 
 func_installReqs(){
@@ -315,9 +316,30 @@ func_fixPyzor(){
 }
 
 func_fixRazor(){
-	razor-admin -home=/etc/mail/spamassassin/razor -conf=/etc/mail/spamassassin/razor/razor-agent.conf -ident=/etc/mail/spamassassin/razor/identity -create
-	razor-admin -home=/etc/mail/spamassassin/razor -conf=/etc/mail/spamassassin/razor/razor-agent.conf -ident=/etc/mail/spamassassin/razor/identity -register
-	razor-report -home=/etc/mail/spamassassin/razor -conf=/etc/mail/spamassassin/razor/razor-agent.conf -register
+		razor-admin -create
+		razor-admin -register
+		razor-report -register
+		rm -fr /root/.razor/razor-agent.conf
+		mv /root/.razor/* /etc/mail/spamassassin/razor/
+		echo "razorhome = /etc/mail/spamassassin/razor/" >> /etc/mail/spamassassin/razor/razor-agent.conf
+		echo "identity = /etc/mail/spamassassin/razor/identity" >> /etc/mail/spamassassin/razor/razor-agent.conf
+		echo "listfile_catalogue = /etc/mail/spamassassin/razor/servers.catalogue.lst" >> /etc/mail/spamassassin/razor/razor-agent.conf
+		echo "listfile_discovery = /etc/mail/spamassassin/razor/servers.discovery.lst" >> /etc/mail/spamassassin/razor/razor-agent.conf
+		echo "listfile_nomination = /etc/mail/spamassassin/razor/servers.nomination.lst" >> /etc/mail/spamassassin/razor/razor-agent.conf
+		echo "logfile = /var/log/razor-agent.log" >> /etc/mail/spamassassin/razor/razor-agent.conf
+		echo "debuglevel = 0" >> /etc/mail/spamassassin/razor/razor-agent.conf
+		echo "ignorelist = 0" >> /etc/mail/spamassassin/razor/razor-agent.conf
+		echo "logic_method = 4" >> /etc/mail/spamassassin/razor/razor-agent.conf
+		echo "min_cf = ac" >> /etc/mail/spamassassin/razor/razor-agent.conf
+		echo "razordiscovery = discovery.razor.cloudmark.com" >> /etc/mail/spamassassin/razor/razor-agent.conf
+		echo "rediscovery_wait = 172800" >> /etc/mail/spamassassin/razor/razor-agent.conf
+		echo "report_headers = 1" >> /etc/mail/spamassassin/razor/razor-agent.conf
+		echo "turn_off_discovery = 0" >> /etc/mail/spamassassin/razor/razor-agent.conf
+		echo "use_engines = 4,8" >> /etc/mail/spamassassin/razor/razor-agent.conf
+		echo "whitelist = /etc/mail/spamassassin/razor/razor-whitelist" >> /etc/mail/spamassassin/razor/razor-agent.conf
+		touch /etc/mail/spamassassin/razor/razor-whitelist
+		chown root:apache -R /etc/mail/spamassassin/razor
+		chmod 770 -R /etc/mail/spamassassin/razor
 }
 
 func_fixSA(){
@@ -326,6 +348,11 @@ func_fixSA(){
 	then
 		mkdir /var/www/.spamassassin
 		chown apache:apache /var/www/.spamassassin
+	fi
+	#during installation at some point changes perms back to :root. needs to be apache for sa-learn
+	if [ -d /etc/MailScanner/bayes ]
+	then
+		chown root:apache -R /etc/MailScanner/bayes
 	fi
 }
 
