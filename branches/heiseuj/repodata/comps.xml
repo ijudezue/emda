@@ -4,7 +4,8 @@
   <group>
     <id>core</id>
     <name>Core</name>
- <description/>
+    <name xml:lang='en_GB'>EMDA Core</name>
+	<description/>
     <default>true</default>
     <uservisible>false</uservisible>
      <packagelist>
@@ -377,7 +378,7 @@
    </packagelist> 
   </group>
 
-<category>
+  <category>
     <id>core</id>
     <name>Core</name>
     <description>Minimal server packages set for EMDA</description>
