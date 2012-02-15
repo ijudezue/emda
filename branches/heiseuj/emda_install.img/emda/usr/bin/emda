@@ -279,7 +279,7 @@ func_confMailScanner(){
 	sed -i "/^Unscanned Header Value =/ c\Unscanned Header Value = Please contact $orgLongName for details" /etc/MailScanner/MailScanner.conf
 	sed -i "/^Information Header Value = Please contact  for more information/ c\Information Header Value = Please contact $sysAdminEmail for more information" /etc/MailScanner/MailScanner.conf
 	sed -i "/^envelope_sender_header X-MailScanner-EMDA-From/ c\envelope_sender_header X-$orgShortName-MailScanner-EMDA-From" /etc/MailScanner/spam.assassin.prefs.conf
-	sed -i "/^define('QUARANTINE_FROM_ADDR', 'Quarantine@EMDA'/ c\define('QUARANTINE_FROM_ADDR', \'$orgShortName-EMDA-Quarantine@$primaryEmailDomain\'" /var/www/html/conf.php
+	sed -i "/^define('QUARANTINE_FROM_ADDR', 'Quarantine@EMDA');/ c\define('QUARANTINE_FROM_ADDR', \'$orgShortName-EMDA-Quarantine@$primaryEmailDomain\');" /var/www/html/conf.php
 }
 
 func_installReqs(){
