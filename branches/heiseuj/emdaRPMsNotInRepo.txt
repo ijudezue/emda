@@ -1,0 +1,14 @@
+Installed package atrpms-74-1.noarch (from anaconda-centos-201106051823.i386) not available.
+Installed package dcc-1.3.140-1.el6.i686 (from anaconda-centos-201106051823.i386) not available.
+Installed package dcc-client-1.3.140-1.el6.i686 (from anaconda-centos-201106051823.i386) not available.
+Installed package dcc-server-1.3.140-1.el6.i686 (from anaconda-centos-201106051823.i386) not available.
+No Match for argument: gpg-pubkey
+No Match for argument: gpg-pubkey
+Skipping the running kernel: kernel-2.6.32-220.4.2.el6.i686
+Installed package mailscanner-4.84.3-1.noarch not available.
+Installed package perl-IP-Country-2.27-1.el6.noarch (from anaconda-centos-201106051823.i386) not available.
+Installed package perl-MLDBM-Sync-0.30-1.2.el6.rf.noarch (from anaconda-centos-201106051823.i386) not available.
+Installed package perl-Net-Ident-1.23-1.el6.rf.noarch (from anaconda-centos-201106051823.i386) not available.
+Installed package webmin-1.570-1.noarch (from anaconda-centos-201106051823.i386) not available.
+
+epel-release
