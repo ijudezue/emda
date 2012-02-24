@@ -124,7 +124,7 @@ func_downloadExtractIsos(){
 	if [ -f $isoPath/CentOS-6.2-$1-minimal.iso ]
 	then
 		sudo mount -o loop $isoPath/CentOS-6.2-$1-minimal.iso $isoMountPath
-		if [ -d $isoMountPath/install ]
+		if [ -d $isoMountPath/image ]
 		then
 			sudo rsync -ar $isoMountPath/* $buildPath/EMDA-$1/
 			sudo umount $isoMountPath
