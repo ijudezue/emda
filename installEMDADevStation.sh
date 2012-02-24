@@ -18,10 +18,10 @@
 # copy of the GNU General Public License along with EMDA. If not, 
 # see http://www.gnu.org/licenses/.
 
-if [ ! "`lsb_release -a | grep CentOS | grep 6.0`" ]
+if [ ! "`lsb_release -a | grep CentOS | grep 6.`" ]
 then
 	clear
-	echo "It appears you are not running CentOS 6.0."
+	echo "It appears you are not running CentOS 6.x."
 	echo " "
 	echo "CentOS 6.0 is required to develop EMDA, and to use this installer."
 	echo "Please run this installer again from a CentOS 6.0 installation."
