@@ -115,7 +115,7 @@ func_downloadExtractIsos(){
 		clear
 		echo "Please wait while we download the CentOS $1 ISO."
 		echo ""
-		wget $isoDownload -O $isoPath/CentOS-6.2-$1-minimal.iso
+		wget -nv $isoDownload -O $isoPath/CentOS-6.2-$1-minimal.iso
 		echo " "
 		echo "Downloading Complete. Please press any key to continue..."
 		read tmp
@@ -173,7 +173,7 @@ func_rpmPackages(){
 		sudo rm -fr $buildPath/EMDA-$1/Packages/*
 		clear
 		echo "Please wait while we download the rpm packages required for EMDA."
-		sudo wget http://www.emda.pro/dev/$ver/emda-rpms-$1.tar.gz
+		sudo wget -nv http://www.emda.pro/dev/$ver/emda-rpms-$1.tar.gz
 		echo "Download complete. Please wait while we extract the packages. Press any key to continue..."
 		read tmp
 		sudo tar xzf emda-rpms-$1.tar.gz
