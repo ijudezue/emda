@@ -105,47 +105,88 @@ func_checkWorkspace(){
 		mkdir $isoPath
 		mkdir $isoMountPath
 		mkdir -p $srcPath
-	else
-		echo "There appears to be an EMDA workspace already present. Please remove all prior EMDA workspaces, and then rerun this script."
-		echo "Example command: $> rm -fr $workspacePath"
-		exit 0
 	fi
 }
 
 func_downloadExtractIsos(){
 	isoDownload="http://mirror.stanford.edu/yum/pub/centos/6.2/isos/$1/CentOS-6.2-$1-minimal.iso"
-	wget $isoDownload -O $isoPath/CentOS-6.2-$1-minimal.iso
-	sudo mount -o loop $isoPath/CentOS-6.2-$1-minimal.iso $isoMountPath
-	sudo rsync -ar $isoMountPath/* $buildPath/EMDA-$1/
-	sudo umount $isoMountPath
+	if [ ! -f $isoPath/CentOS-6.2-$1-minimal.iso ] 
+	then
+		clear
+		echo "Please wait while we download the CentOS $1 ISO."
+		echo ""
+		wget $isoDownload -O $isoPath/CentOS-6.2-$1-minimal.iso
+		echo " "
+		echo "Downloading Complete. Please press any key to continue..."
+		read tmp
+	fi
+
+	if [ -f $isoPath/CentOS-6.2-$1-minimal.iso ]
+	then
+		sudo mount -o loop $isoPath/CentOS-6.2-$1-minimal.iso $isoMountPath
+		if [ -d $isoMountPath/install ]
+		then
+			sudo rsync -ar $isoMountPath/* $buildPath/EMDA-$1/
+			sudo umount $isoMountPath
+		else
+			echo "There was an error with the downloaded ISO image. Please delete the file $isoPath/CentOS-6.2-$1-minimal.iso, and run this installer again."
+			exit 0
+		fi
+	fi
 }
 
 func_extractImage(){
-	sudo mount -t squashfs $buildPath/EMDA-$1/images/install.img $isoMountPath -o loop
-	sudo rsync -ar $isoMountPath/* $buildPath/installImg-$1/
-	sudo umount $isoMountPath
+	if [ -f $buildPath/EMDA-$1/images/install.img ]
+	then
+		sudo mount -t squashfs $buildPath/EMDA-$1/images/install.img $isoMountPath -o loop
+		if [ -d $isoMountPath/etc ]
+		then
+			sudo rsync -ar $isoMountPath/* $buildPath/installImg-$1/
+			sudo umount $isoMountPath
+		else
+			echo "There was an error mounting the install.img. Please correct and rerun this installer."
+			exit 0
+		fi
+	else
+		echo "There was an error locating the install.img. Please correct and rerun this installer."
+		exit 0
+	fi
 }
 
 func_eclipse(){
-	su -c "echo \"osgi.instance.area.default=@user.home/EMDAworkspace-$ver/src\" > /usr/lib$curArch/eclipse/configuration/config.ini"
+	if [ -f /usr/lib$curArch/eclipse/configuration/config.ini ]
+	then
+		su -c "echo \"osgi.instance.area.default=@user.home/EMDAworkspace-$ver/src\" >> /usr/lib$curArch/eclipse/configuration/config.ini"
+	fi
 }
 
 func_rpmPackages(){
-	rm -fr $buildPath/EMDA-$1/Packages/*
-	cd $buildPath/EMDA-$1/Packages
-	wget http://www.emda.pro/dev/$ver/emda-rpms-$1.tar.gz
-	if [ ! -f $buildPath/emda-rpms-$1.tar.gz ]
+	if [ -f $builtPath/EMDA-$1/Packages/emda-rpms-$1.tar.gz ] && [ ! -f $buildPath/EMDA-$1/Packages/* ]
 	then
+		cd $buildPath/EMDA-$1/Packages
+		sudo tar xzf emda-rpms-$1.tar.gz
+		sudo rm -fr emda-rpms-$1.tar.gz
+	
+	elif [ -d $buildPath/EMDA-$1/Packages ]
+	then
+		cd $buildPath/EMDA-$1/Packages
+		sudo rm -fr $buildPath/EMDA-$1/Packages/*
 		clear
-		echo "This workstation was unable to obtain the EMDA packages from www.emda.pro"
-		echo " "
-		echo "Please ensure you are able to visit/browse, and are able to download files from www.emda.pro"
-		echo " "
-		echo "Please rerun this installer when this workstation is able to download files from www.emda.pro"
-		exit 0
+		echo "Please wait while we download the rpm packages required for EMDA."
+		sudo wget http://www.emda.pro/dev/$ver/emda-rpms-$1.tar.gz
+		echo "Download complete. Please wait while we extract the packages. Press any key to continue..."
+		read tmp
+		sudo tar xzf emda-rpms-$1.tar.gz
+		sudo rm -fr emda-rpms-$1.tar.gz
+	else
+		echo "There was an error with the rpm packages for emda. Please correct and rerun this installer."
 	fi
-	tar xzf emda-rpms-$1.tar.gz
-	rm -fr emda-rpms-$1.tar.gz
+}
+
+func_svnTrunk(){
+	cd $srcPath
+	svn checkout http://emda.googlecode.com/svn/trunk/ trunk
+	cd $srcPath/trunk
 }
 
 main(){
@@ -163,9 +204,13 @@ main(){
 
 	func_rpmPackages i386
 	func_rpmPackages x86_64
+
+	func_svnTrunk
 }
 
 main
-
+clear
+echo "EMDA Developer Workstation Installation is complete. Please run $srcPath/trunk/makeISO.sh to create ISO images for EMDA."
+echo ""
 sudo -K
 exit 0
