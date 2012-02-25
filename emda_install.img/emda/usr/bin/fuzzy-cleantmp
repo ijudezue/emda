@@ -1,0 +1,27 @@
+#!/usr/local/bin/perl
+#----
+
+opendir TMP, "/tmp" or die "Cannot read /tmp\n";
+my @files = grep {m/spamassassin/} readdir TMP;
+closedir TMP;
+
+my $hours = shift @ARGV || 12;
+my $limit = time - ($hours * 3600);
+printf "Removing tempfiles older than %s\n",scalar(localtime($limit));
+foreach my $d (@files) {
+    my $df = "/tmp/" . $d;
+    next unless -d $df;
+    my @stat = stat $df;
+    next if $stat[9] > $limit;
+    printf "$d -> %s\n",scalar(localtime($stat[9]));
+    opendir TMP, $df or die "Cannot read $df\n";
+    my @dfs = readdir TMP;
+    closedir TMP;
+    foreach my $f (@dfs) {
+        next if $f eq '.';
+        next if $f eq '..';
+        my $fn = sprintf "%s/%s",$df,$f;
+        unlink $fn;
+    }
+    rmdir $df;
+}
