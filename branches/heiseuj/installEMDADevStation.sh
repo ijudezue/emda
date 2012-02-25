@@ -127,6 +127,8 @@ func_downloadExtractIsos(){
 		if [ -d $isoMountPath/images ]
 		then
 			sudo rsync -ar $isoMountPath/* $buildPath/EMDA-$1/
+      sudo cp $isoMountPath/.discinfo $buildPath/EMDA-$1/
+      sudo cp $isoMountPath/.treeinfo $buildPath/EMDA-$1/
 			sudo umount $isoMountPath
 		else
 			echo "There was an error with the downloaded ISO image. Please delete the file $isoPath/CentOS-6.2-$1-minimal.iso, and run this installer again."
