@@ -1,33 +1,30 @@
-#!/bin/sh
+#!/bin/bash
+
+#    Copyright 2012 Uriah Heise - aka. HyTeK
+#
+# This file is part of EMDA.
+#	Enterprise Mail Delivery Appliance
+#	www.emda.pro
+#
+# EMDA is free software: you can redistribute it and/or modify it 
+# under the terms of the GNU General Public License as published by 
+# the Free Software Foundation, either version 3 of the License, or 
+# (at your option) any later version.
+#
+# EMDA is distributed in the hope that it will be useful, but 
+# WITHOUT ANY WARRANTY; without even the implied warranty of 
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+# General Public License for more details. You should have received a 
+# copy of the GNU General Public License along with EMDA. If not, 
+# see http://www.gnu.org/licenses/.
+
 emdaVer="`cat /etc/emdaVersion`"
-#emda-configure
-#this is the initial configure script that will initialize a brand new EMDA installation
-#this will be run only during the first reboot of the system, then removed and not used again.
-
-
 emdaHostname="`hostname`"
-orgShortName=""
-orgLongName=""
-primaryEmailDomain=""
-primaryEmailServer=""
-secondaryEmailDomain=""
-secondaryEmailServer=""
-ianaCountryCode=""
-sysAdminEmail=""
-rootEmail=""
-webSite=""
 backupDate="`date +%Y%m%d-%s`"
-mysqlRootPW=""
-mailwatchDBPW=""
-mailwatchPW=""
-countryCode=""
-stateName=""
 
 #MailScanner Vars
 	numCPU=`grep -c processor /proc/cpuinfo`
 	let maxMailScannerChild=$numCPU*5
-	webSite=""
-	watermarkSecret=""
 
 
 
@@ -35,79 +32,101 @@ stateName=""
 func_welcome(){
 	clear
 	echo "Loading EMDA Configuration Wizard..."
-	whiptail --title "Welcome to the EMDA Configuration Wizard" --msgbox "This configuration wizard will guide you through setting up your Enterprise Mail Deilvery Appliance. Please press [enter] to continue..." 20 75;
+	whiptail --title "Welcome to the EMDA Configuration Wizard" --msgbox "This configuration wizard will guide you through setting up your Enterprise Mail Deilvery Appliance.\n\n Please press [enter] to continue..." 20 75;
+}
+
+#$1 is the actual password to check against
+func_checkPW(){
+	firstPW=$1
+	secondPW=$(whiptail --title "Confirm Password" --passwordbox "Please enter the password again to confirm..." 10 75 3>&1 1>&2 2>&3)
+	while [ "$secondPW" != "$firstPW" ]
+	do
+		firstPW=$(whiptail --title "Passwords did not match!" --passwordbox "The passwords did not match. Please enter the password again..." 10 75 3>&1 1>&2 2>&3)
+		secondPW=$(whiptail --title "Confirm Password" --passwordbox "Please enter the password again..." 10 75 3>&1 1>&2 2>&3)
+	done
+	echo "$secondPW"
 }
 
 func_startMYSQL(){
 	service mysqld start
 	chkconfig mysqld --add
-	chkconfig mysqld on --level 3
+	chkconfig mysqld on --level 2345
+	sleep 2
+}
+
+func_startPOSTFIX(){
+	service postfix start
+	chkconfig postfix --add
+	chkconfig postfix on --level 2345
 }
 
 func_startHTTPD(){
 	service httpd start
 	chkconfig httpd --add
-	chkconfig httpd on --level 3
+	chkconfig httpd on --level 2345
 }
 
 func_startCLAMD(){
 	service clamd start
 	chkconfig clamd --add
-	chkconfig clamd on --level 3
+	chkconfig clamd on --level 2345
 }
 
 func_startSPAM(){
 	service spamassassin start
 	chkconfig spamassassin --add
-	chkconfig spamassassin on --level 3
+	chkconfig spamassassin on --level 2345
 }
 
 func_startMAILSCAN(){
 	service mailscanner start
 	chkconfig mailscanner --add
-	chkconfig mailscanner on --level 3
+	chkconfig mailscanner on --level 2345
 }
 
 func_startMAILGRAPH(){
 	service mailgraph start
 	chkconfig mailgraph --add
-	chkconfig mailgraph on --level 3
+	chkconfig mailgraph on --level 2345
 }
 
 func_startSQLGREY(){
 	service sqlgrey start
 	chkconfig sqlgrey --add
-	chkconfig sqlgrey on --level 3
+	chkconfig sqlgrey on --level 2345
 }
 
 #sets the root password for mysql
 func_mysqlRootPW(){
-	#mysql must be started first before this
-	$mysqlRootPW=$(whiptail --title "MySQL root Password" --passwordbox "Please enter the password for the MySQL root account:" 10 75 3>&1 1>&2 2>&3)
+	#mysql must be started first to allow for changing db passwords
+	mysqlRootPW=$(whiptail --title "MySQL root Password" --passwordbox "Please create a password for the MySQL root account:" 10 75 3>&1 1>&2 2>&3)
+	mysqlRootPW=$(func_checkPW $mysqlRootPW)
 	mysqladmin -u root password $mysqlRootPW
 }
 
 #sets the mailwatch db connect password
 func_mailwatchDBSetup(){
-	#emdadb
-	#mysql must be started first before this
-	$mailwatchDBPW=$(whiptail --title "MailWatch Database Password" --passwordbox "Please enter the password for the MailWatch Database:" 10 75 3>&1 1>&2 2>&3)
-	sed -i "/^GRANT ALL ON emdadb.* TO emdadb@localhost IDENTIFIED BY '<password>';/ c\GRANT ALL ON emdadb.* TO emdadb@localhost IDENTIFIED BY '$mailwatchDBPW';" /root/mailwatch_user.sql
-	sed -i "/^define('DB_PASS', '');/ c\define('DB_PASS', '$mailwatchDBPW');" /var/www/conf.php
-	sed -i "/^my($db_pass) = '';/ c\my($db_pass) = '$mailwatchDBPW';" /usr/lib/MailScanner/MailScanner/CustomFunctions/SQLBlackWhiteList.pm
+	#mysql must be started first to allow for changing db passwords
+	mailwatchDBPW=$(whiptail --title "MailWatch Database Password" --passwordbox "Please create a password for the MailWatch and SQLGrey Databases.\n\n NOTE: It is advised to make a different password then the one used for the root account." 10 75 3>&1 1>&2 2>&3)
+	mailwatchDBPW=$(func_checkPW $mailwatchDBPW)
+	sed -i "/^GRANT ALL ON emdadb.* TO emdadb@localhost IDENTIFIED BY '<password>';/ c\GRANT ALL ON emdadb.* TO emdadb@localhost IDENTIFIED BY \'$mailwatchDBPW\';" /root/mailwatch_user.sql
+	sed -i "/^define('DB_PASS', '');/ c\define('DB_PASS', \'$mailwatchDBPW\');" /var/www/html/conf.php
+	sed -i "/^  my(\$db_pass) = '';/ c\  my(\$db_pass) = \'$mailwatchDBPW\';" /usr/lib/MailScanner/MailScanner/CustomFunctions/SQLBlackWhiteList.pm
+	sed -i "/^my(\$db_pass) = '';/ c\my(\$db_pass) = \'$mailwatchDBPW\';" /usr/lib/MailScanner/MailScanner/CustomFunctions/MailWatch.pm
 }
 
 #sets the mailwatch password for emdadmin
-func_mailwatchpw(){
+func_mailwatchUserPW(){
 	#mysql must be started first before this
-	$mailwatchPW=$(whiptail --title "MailWatch EMDAdmin Password" --passwordbox "Please enter the password for the MailWatch web portal account: emdadmin\nThis is the password you will use to log into the web portal. Please remember it." 10 75 3>&1 1>&2 2>&3)
-	sed -i "/^INSERT INTO users SET username = 'emdadmin', password = md5('<password>'), fullname = 'EMDAdmin', type ='A'/ c\INSERT INTO users SET username = 'emdadmin', password = md5('$mailwatchPW'), fullname = 'EMDAdmin', type ='A';" /root/mailwatch_user.sql
+	mailwatchPW=$(whiptail --title "MailWatch EMDAdmin Password" --passwordbox "Please create a password for the MailWatch web portal account: emdadmin.\n\n NOTE: This is the password you will use to log into the web portal, and the account name is: emdadmin. Please remember it." 15 75 3>&1 1>&2 2>&3)
+	mailwatchPW=$(func_checkPW $mailwatchPW)
+	sed -i "/^INSERT INTO users SET username = 'emdadmin', password = md5('<password>'), fullname = 'EMDAdmin', type ='A'/ c\INSERT INTO users SET username = 'emdadmin', password = md5(\'$mailwatchPW\'), fullname = 'EMDAdmin', type ='A';" /root/mailwatch_user.sql
 }
 
 #create the mailwatch db and user
 func_createdb(){
 	mysql -u root -p$mysqlRootPW < /root/mailwatch_create.sql
-	mysql -u emdadb -p$mailwatchDBPW emdadb < /root/mailwatch_user.sql
+	mysql -u root -p$mysqlRootPW emdadb < /root/mailwatch_user.sql
 }
 
 #check for existing configuration
@@ -142,12 +161,12 @@ func_hostname(){
 
 #add email domains
 func_addEmailDomains(){
-	primaryEmailDomain=$(whiptail --title "Primary Email Domain Name" --inputbox "Please enter the domain name for your primary email recipients: [ex: domain.com]" 10 75 3>&1 1>&2 2>&3)
+	primaryEmailDomain=$(whiptail --title "Primary Email Domain Name" --inputbox "Please enter the domain name for your primary email recipients:\n\n [ex: email.com]" 10 75 3>&1 1>&2 2>&3)
 	primaryEmailServer=$(whiptail --title "Primary Mail Hostname/IP" --inputbox "Please enter the Hostname or IP Address for the server receiving email for $primaryEmailDomain:" 10 75 3>&1 1>&2 2>&3)
 	whiptail --title "Additional Domains" --yesno "Is there an additional email domain name you would like to add?" 10 75
 	if [ $? = 0 ]
 	then
-		secondaryEmailDomain=$(whiptail --title "Secondary Mail Domain" --inputbox "Please enter the domain name of your secondary email recipients: [ex: domaintwo.com]" 10 75 3>&1 1>&2 2>&3)
+		secondaryEmailDomain=$(whiptail --title "Secondary Mail Domain" --inputbox "Please enter the domain name of your secondary email recipients:\n\n [ex: domaintwo.com]" 10 75 3>&1 1>&2 2>&3)
 		secondaryEmailServer=$(whiptail --title "Secondary Mail Hostname/IP" --inputbox "Please enter the Hostname or IP Address for the server receiving email for $secondaryEmailDomain:" 10 75 3>&1 1>&2 2>&3)
 	fi
 }
@@ -159,6 +178,11 @@ func_sysAdminEmail(){
 	rootEmail=$(whiptail --title "Root Mail Delivery Address" --inputbox "What email address should email to \"root\" go to?: [$sysAdminEmail]" 10 75 3>&1 1>&2 2>&3)
 }
 
+func_orgNames(){
+	orgLongName=$(whiptail --title "Name of Organization" --inputbox "What is the official FULL name of your company or organization?\n\n [ex: My Local Company, Inc.]" 10 75 3>&1 1>&2 2>&3)
+	orgShortName=$(whiptail --title "Abbreviated Name of Organization" --inputbox "What is the abbreviated (short) name of your company or organization: $orgLongName?\n\n [ex: MLC]\n\nNOTE: This abbreviated name must not contain spaces." 15 75 3>&1 1>&2 2>&3)
+}
+
 #website for MailScanner
 func_webSite(){
 	webSite="www.$primaryEmailDomain"
@@ -167,9 +191,9 @@ func_webSite(){
 
 #Generate TLS keys for postfix
 func_genKeyTLS(){
-	$countryCode=$(whiptail --title "Two Letter Country Code" --inputbox "Please enter the two letter country code where your organization resides in: [ex: us]"  10 75 3>&1 1>&2 2>&3)
-	$stateName=$(whiptail --title "Name of State/Province" --inputbox "Please enter the name of the state/province where your organization resides in: [ex: New York]"  10 75 3>&1 1>&2 2>&3)
-	$watermarkSecret=$(whiptail --title "TLS/Watermark Password" --passwordbox "Please enter the password for the for the TLS certificate and postfix watermark secret:" 10 75 3>&1 1>&2 2>&3)
+	countryCode=$(whiptail --title "Two Letter Country Code" --inputbox "Please enter the two letter country code where your organization resides in:\n\n [ex: us]"  10 75 3>&1 1>&2 2>&3)
+	stateName=$(whiptail --title "Name of State or Province" --inputbox "Please enter the name of the state/province where your organization resides in:\n\n [ex: New York]"  10 75 3>&1 1>&2 2>&3)
+	watermarkSecret=$(whiptail --title "TLS/Watermark Password" --passwordbox "Please create a password for the TLS certificate and postfix watermark secret:" 10 75 3>&1 1>&2 2>&3)
 
 	if [ ! -d /etc/postfix/ssl ]
 	then
@@ -184,7 +208,7 @@ func_genKeyTLS(){
 
 #questions on how the user wants emda to be configured
 func_mailscannerSetup(){
-	signClean=$(whiptail --title "Sign Clean Emails?" --yesno "Do you want clean [non-spam] emails to have a signature placed at the bottom of the email?\n(If the email was not marked as spam, the user can click the link in the signature for EMDA to learn it as spam)" 10 75 --yes-button "Yes" --no-button "No"
+	signClean=$(whiptail --title "Sign Clean Emails?" --yesno "Do you want clean [non-spam] emails to have a signature placed at the bottom of the email?\n\n NOTE: The user can click a link in the signature for EMDA to learn it as spam." 15 75 --yes-button "Yes" --no-button "No" 3>&1 1>&2 2>&3)
 	if [ $? = 0 ]
 	then
 		sed -i "/^Sign Clean Messages = no/ c\Sign Clean Messages = yes" /etc/MailScanner/MailScanner.conf
@@ -203,8 +227,27 @@ func_confTransport(){
 			sed -i "/$secondaryEmailDomain/d" /etc/postfix/transport
 			echo "$secondaryEmailDomain smtp:[$secondaryEmailServer]" >> /etc/postfix/transport
 	fi
-	rm -f /etc/postfix/transport.db
+	if [ -f /etc/postfix/transport.db ]
+	then
+		rm -f /etc/postfix/transport.db
+	fi
+	if [ -f /etc/postfix/virtual.db ]
+	then
+		rm -f /etc/postfix/virtual.db
+	fi
+	if [ -f /etc/postfix/helo_access.db ]
+	then
+		rm -f /etc/postfix/helo_access.db
+	fi
+	touch /etc/postfix/virtual
+	touch /etc/postfix/helo_access
+	touch /etc/postfix/sender_access
+	touch /etc/postfix/recipient_access
 	postmap /etc/postfix/transport
+	postmap /etc/postfix/virtual
+	postmap /etc/postfix/helo_access
+	postmap /etc/postfix/sender_access
+	postmap /etc/postfix/recipient_access
 	postfix reload
 }
 
@@ -216,29 +259,126 @@ func_rootEmail(){
 	newaliases
 }
 
+func_confSQLGrey(){
+	sed -i "/^GRANT ALL ON emdasqlgreydb.* TO emdasqlgreydb@localhost IDENTIFIED BY '<password>';/ c\GRANT ALL ON emdasqlgreydb.* TO emdasqlgreydb@localhost IDENTIFIED BY \'$mailwatchDBPW\';" /root/sqlgrey_user.sql
+	mysql -u root -p$mysqlRootPW < /root/sqlgrey_create.sql
+	mysql -u root -p$mysqlRootPW emdasqlgreydb < /root/sqlgrey_user.sql
+	sed -i "/^\$db_pass = \"\";/ c\$db_pass = \"$mailwatchDBPW\";" /var/www/html/grey_config.inc.php
+	sed -i "/^db_pass =/ c\db_pass = $mailwatchDBPW" /etc/sqlgrey/sqlgrey.conf
+	update_sqlgrey_config
+}
+
 #configure MailScanner
 func_confMailScanner(){
 	sed -i "/^%org-name% =/ c\%org-name% = $orgShortName" /etc/MailScanner/MailScanner.conf
 	sed -i "/^%org-long-name% =/ c\%org-long-name% = $orgLongName" /etc/MailScanner/MailScanner.conf
 	sed -i "/^%web-site% =/ c\%web-site% = $webSite" /etc/MailScanner/MailScanner.conf
-	#guide is 5 children per cpu
+	#recommended 5 children per cpu
 	sed -i "/^Max Children =/ c\Max Children = $maxMailScannerChild" /etc/MailScanner/MailScanner.conf
 	sed -i "/^Watermark Secret =/ c\Watermark Secret = $watermarkSecret" /etc/MailScanner/MailScanner.conf
 	sed -i "/^Unscanned Header Value =/ c\Unscanned Header Value = Please contact $orgLongName for details" /etc/MailScanner/MailScanner.conf
+	sed -i "/^Information Header Value = Please contact  for more information/ c\Information Header Value = Please contact $sysAdminEmail for more information" /etc/MailScanner/MailScanner.conf
+	sed -i "/^envelope_sender_header X-MailScanner-EMDA-From/ c\envelope_sender_header X-$orgShortName-MailScanner-EMDA-From" /etc/MailScanner/spam.assassin.prefs.conf
+	sed -i "/^define('QUARANTINE_FROM_ADDR', 'Quarantine@EMDA');/ c\define('QUARANTINE_FROM_ADDR', \'$orgShortName-EMDA-Quarantine@$primaryEmailDomain\');" /var/www/html/conf.php
+}
+
+func_installReqs(){
+	clear
+	whiptail --title "Installing Required Applications" --msgbox "EMDA will need to compile and install a few required applications. This process may take several minutes or longer depending on the speed of this system. When the installation of these applications are completed, the EMDA Wizard will continue automatically.\n\n Press OK to continue, and please wait until the installation is finished." 20 75
+	clear
+	#cd /root/src/perl
+	#sh Configure -des -Dprefix=/usr/; make; make install; make clean; make distclean
+	cd /root/src/MailScanner
+	./install.sh
+	cd /root/src/ocrad
+	./configure --prefix=/usr/; make; make install; make clean; make distclean
+	cd /root/src/leptonica
+	./configure --prefix=/usr/; make all; make install; make clean; make distclean
+	cd /root/src/tesseract
+	./configure --prefix=/usr/; make; make install; make clean
+	sudo ldconfig
+	clear
+}
+
+#clears emda first boot from booting on next boot
+func_removeFirstBoot(){
+	sed -i "/^instance tty1/ c\instance \$TTY" /etc/init/tty.conf
+	sed -i "/^exec \/sbin\/mingetty --autologin root tty1/ c\exec /sbin/mingetty \$TTY" /etc/init/tty.conf
+	sed -i "/\/usr\/bin\/emda -setup/d" /etc/bashrc
+}
+
+func_fixPerl(){
+	sed -i "/^#\!\/usr\/bin\/perl -I\/usr\/lib\/MailScanner/ c\#\!\/usr\/bin\/perl -UI\/usr\/lib\/MailScanner" /usr/sbin/MailScanner
+}
+
+func_fixPyzor(){
+	pyzor --homedir /etc/mail/spamassassin/pyzor discover
+}
+
+func_fixRazor(){
+		razor-admin -create
+		razor-admin -register
+		razor-report -register
+		rm -fr /root/.razor/razor-agent.conf
+		mv /root/.razor/* /etc/mail/spamassassin/razor/
+		echo "razorhome = /etc/mail/spamassassin/razor/" >> /etc/mail/spamassassin/razor/razor-agent.conf
+		echo "identity = /etc/mail/spamassassin/razor/identity" >> /etc/mail/spamassassin/razor/razor-agent.conf
+		echo "listfile_catalogue = /etc/mail/spamassassin/razor/servers.catalogue.lst" >> /etc/mail/spamassassin/razor/razor-agent.conf
+		echo "listfile_discovery = /etc/mail/spamassassin/razor/servers.discovery.lst" >> /etc/mail/spamassassin/razor/razor-agent.conf
+		echo "listfile_nomination = /etc/mail/spamassassin/razor/servers.nomination.lst" >> /etc/mail/spamassassin/razor/razor-agent.conf
+		echo "logfile = /var/log/razor-agent.log" >> /etc/mail/spamassassin/razor/razor-agent.conf
+		echo "debuglevel = 0" >> /etc/mail/spamassassin/razor/razor-agent.conf
+		echo "ignorelist = 0" >> /etc/mail/spamassassin/razor/razor-agent.conf
+		echo "logic_method = 4" >> /etc/mail/spamassassin/razor/razor-agent.conf
+		echo "min_cf = ac" >> /etc/mail/spamassassin/razor/razor-agent.conf
+		echo "razordiscovery = discovery.razor.cloudmark.com" >> /etc/mail/spamassassin/razor/razor-agent.conf
+		echo "rediscovery_wait = 172800" >> /etc/mail/spamassassin/razor/razor-agent.conf
+		echo "report_headers = 1" >> /etc/mail/spamassassin/razor/razor-agent.conf
+		echo "turn_off_discovery = 0" >> /etc/mail/spamassassin/razor/razor-agent.conf
+		echo "use_engines = 4,8" >> /etc/mail/spamassassin/razor/razor-agent.conf
+		echo "whitelist = /etc/mail/spamassassin/razor/razor-whitelist" >> /etc/mail/spamassassin/razor/razor-agent.conf
+		touch /etc/mail/spamassassin/razor/razor-whitelist
+		chown root:apache -R /etc/mail/spamassassin/razor
+		chmod 770 -R /etc/mail/spamassassin/razor
+}
+
+func_fixSA(){
+
+	if [ ! -d /var/www/.spamassassin ]
+	then
+		mkdir /var/www/.spamassassin
+		chown apache:apache /var/www/.spamassassin
+	fi
+	#during installation at some point changes perms back to :root. needs to be apache for sa-learn
+	if [ -d /etc/MailScanner/bayes ]
+	then
+		chown root:apache -R /etc/MailScanner/bayes
+	fi
+}
+
+func_setSELinux(){
+	#updating clam
+	checkmodule -M -m -o /root/src/selinux/freshclamtmp.mod /root/src/selinux/freshclamtmp.te
+	semodule_package -o /root/src/selinux/freshclamtmp.pp -m /root/src/selinux/freshclamtmp.mod
+	semodule -i /root/src/selinux/freshclamtmp.pp
+	
+	#allowing mailwatch to properly access postfix/mailscanner areas
+	checkmodule -M -m -o /root/src/selinux/mailwatch.mod /root/src/selinux/mailwatch.te
+	semodule_package -o /root/src/selinux/mailwatch.pp -m /root/src/selinux/mailwatch.mod
+	semodule -i /root/src/selinux/mailwatch.pp
 }
 
 func_showHelp(){
 	echo " "
-	echo "Usage: emda [-OPTION]"
+	echo "Usage: /usr/bin/emda [-option]"
 	echo "   or: emda [-setup]"
 	echo " "
-	echo "This is the EMDA Wizard. Here is the list of available emda options:"
-	echo " -setup		:is for first time users and initial installs."
-	echo " -import	:allows an existing ESVA 2.0.6.1 to be imported into this EMDA appliance"
-	echo " -defaults	:resets the system back to the initial installed state; a factory reset."
-	echo " -help		:displays this message."
-	echo " -version	:will display what version EMDA is currently running."
-	echo " -update	:this will run the emdaupdate tool."
+	echo " -setup		:configures EMDA for first time users and initial installs"
+	echo " -import	:imports an ESVA 2.0.6.1 into this EMDA"
+	echo " -defaults	:resets EMDA to the initial pre-installed state; a factory reset"
+	echo " -help		:displays this help"
+	echo " -version	:display EMDA version"
+	echo " -update	:updates EMDA to the most stable version"
 	echo " "
 	echo "Available options:"
 	echo "	-version"
@@ -258,31 +398,35 @@ main(){
 			func_checkPriorSetup
 			func_hostname
 			func_addEmailDomains
-			func_checkInput
+			#func_checkInput
 			func_sysAdminEmail $rootEmail
+			func_orgNames
 			func_webSite
 			func_mailscannerSetup
-			clear
 			func_startMYSQL
 			func_mysqlRootPW
-			func_checkpassword
 			func_mailwatchDBSetup
-			func_checkpassword
-			func_mailwatchpw
-			func_checkpassword
+			func_mailwatchUserPW
 			func_createdb
 			func_confTransport
 			func_rootEmail $rootEmail
 			func_genKeyTLS
 			func_confMailScanner
-			clear
+			func_confSQLGrey
+			func_installReqs
+			#func_startPOSTFIX #not required, part of MailScanner
+			func_fixPerl
+			func_fixPyzor
+			func_fixRazor
+			func_fixSA
+			func_startSQLGREY
+			func_startMAILSCAN
 			func_startHTTPD
 			func_startCLAMD
 			func_startSPAM
-			func_startMAILSCAN
 			func_startMAILGRAPH
-			func_startSQLGREY
-			rm -fr /etc/rc.d/rc3.d/S01emdasetup
+			func_setSELinux
+			func_removeFirstBoot
 			whiptail --title "EMDA Wizard Finished" --msgbox "This concludes the setup of EMDA. Press OK to reboot." 20 75
 			clear
 			echo "Rebooting in three seconds..."
@@ -296,6 +440,7 @@ main(){
 		;;
 		'-import')
 			#cannot import if the EMDA has already been configured
+			#func_installReqs
 			whiptail --title "Import From ESVA 2.0.6.1" --msgbox "The import feature has not been implemented yet. Thank you. Press OK to exit this wizard." 20 75
 			exit 0
 		;;

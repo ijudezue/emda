@@ -1,0 +1,10 @@
+A message you recently received from "$from" with the subject:
+"$subject"
+contained an attachment with one or more viruses in it.
+EMDA has disinfected and removed the viruses from the attachment, and has attached the files to this message.
+
+-- 
+EMDA
+Enterprise Mail Delivery Appliance
+%org-long-name%
+%web-site%

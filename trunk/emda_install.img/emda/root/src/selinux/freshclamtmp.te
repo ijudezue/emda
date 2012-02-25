@@ -1,0 +1,16 @@
+
+module freshclamtmp 1.0;
+
+require {
+	type tmp_t;
+	type freshclam_t;
+	class dir { write add_name };
+	class file { lock create open getattr append };
+}
+
+#============= freshclam_t ==============
+#!!!! The source type 'freshclam_t' can write to a 'dir' of the following types:
+# freshclam_var_log_t, clamd_var_lib_t, clamd_var_run_t, var_run_t, var_log_t, root_t
+
+allow freshclam_t tmp_t:dir { write add_name };
+allow freshclam_t tmp_t:file { lock create open getattr append };
