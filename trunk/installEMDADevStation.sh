@@ -78,7 +78,8 @@ func_checkDeps(){
 ant-apache-regexp ant-apache-resolver ant-commons-logging ant-commons-net ant-javamail \
 ant-jdepend ant-jsch ant-junit antlr ant-nodeps ant-swing ant-trax apache-jasper augeas-libs \
 autoconf automake axis bcel bsf classpathx-jaf classpathx-mail cloog-ppl cobbler cobbler-web \
-cpp Django epel-release fakeroot fakeroot-libs gcc gd \
+cpp Django ecj eclipse-emf eclipse-gef eclipse-phpeclipse eclipse-platform eclipse-rcp eclipse-rse eclipse-subclipse \
+eclipse-subclipse-graph eclipse-svnkit eclipse-swt epel-release fakeroot fakeroot-libs gcc gd \
 geronimo-specs geronimo-specs-compat gettext-devel gettext-libs git glib2-devel glibc-devel \
 glibc-headers icu4j-eclipse intltool jakarta-commons-discovery jakarta-commons-el \
 jakarta-commons-net jakarta-oro java-1.6.0-openjdk-devel jdepend jdom jetty-eclipse jigdo \
@@ -126,9 +127,11 @@ func_downloadExtractIsos(){
 		if [ -d $isoMountPath/images ]
 		then
 			sudo rsync -ar $isoMountPath/* $buildPath/EMDA-$1/
+      sudo cp $isoMountPath/.discinfo $buildPath/EMDA-$1/
+      sudo cp $isoMountPath/.treeinfo $buildPath/EMDA-$1/
 			sudo umount $isoMountPath
 		else
-			echo "There was an error with the downloaded ISO image. Please delete the file $isoPath/CentOS-6.2-$1-minimal.iso, and run this installer again."
+			echo  "There was an error with the downloaded ISO image. Please delete the  file $isoPath/CentOS-6.2-$1-minimal.iso, and run this installer again."
 			exit 0
 		fi
 	fi
@@ -155,7 +158,7 @@ func_extractImage(){
 func_eclipse(){
 	if [ -f /usr/lib$curArch/eclipse/configuration/config.ini ]
 	then
-		su -c "echo \"osgi.instance.area.default=@user.home/EMDAworkspace-$ver/src\" >> /usr/lib$curArch/eclipse/configuration/config.ini"
+		su  -c "echo  \"osgi.instance.area.default=@user.home/EMDAworkspace-$ver/src\"  >> /usr/lib$curArch/eclipse/configuration/config.ini"
 	fi
 }
 
