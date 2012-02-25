@@ -158,7 +158,7 @@ func_extractImage(){
 func_eclipse(){
 	if [ -f /usr/lib$curArch/eclipse/configuration/config.ini ]
 	then
-		su  -c "echo  \"osgi.instance.area.default=@user.home/EMDAworkspace-$ver/src\"  >> /usr/lib$curArch/eclipse/configuration/config.ini"
+		sudo  echo "osgi.instance.area.default=@user.home/EMDAworkspace-$ver/src" >> /usr/lib$curArch/eclipse/configuration/config.ini
 	fi
 }
 
