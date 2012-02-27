@@ -1,0 +1,104 @@
+CREATE TABLE `mail_domain` (
+  `domain_id` int(11) unsigned NOT NULL auto_increment,
+  `sys_userid` int(11) unsigned NOT NULL default '0',
+  `sys_groupid` int(11) unsigned NOT NULL default '0',
+  `sys_perm_user` varchar(5) NOT NULL default '',
+  `sys_perm_group` varchar(5) NOT NULL default '',
+  `sys_perm_other` varchar(5) NOT NULL default '',
+  `server_id` int(11) unsigned NOT NULL default '0',
+  `domain` varchar(255) NOT NULL default '',
+  `active` enum('n','y') NOT NULL,
+  PRIMARY KEY  (`domain_id`),
+  KEY `server_id` (`server_id`,`domain`),
+  KEY `domain_active` (`domain`,`active`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+
+CREATE TABLE `mail_forwarding` (
+  `forwarding_id` int(11) unsigned NOT NULL auto_increment,
+  `sys_userid` int(11) unsigned NOT NULL default '0',
+  `sys_groupid` int(11) unsigned NOT NULL default '0',
+  `sys_perm_user` varchar(5) NOT NULL default '',
+  `sys_perm_group` varchar(5) NOT NULL default '',
+  `sys_perm_other` varchar(5) NOT NULL default '',
+  `server_id` int(11) unsigned NOT NULL default '0',
+  `source` varchar(255) NOT NULL,
+  `destination` text,
+  `type` enum('alias','aliasdomain','forward','catchall') NOT NULL default 'alias',
+  `active` enum('n','y') NOT NULL,
+  PRIMARY KEY  (`forwarding_id`),
+  KEY `server_id` (`server_id`,`source`),
+  KEY `type` (`type`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+
+CREATE TABLE `mail_get` (
+  `mailget_id` int(11) unsigned NOT NULL auto_increment,
+  `sys_userid` int(11) unsigned NOT NULL default '0',
+  `sys_groupid` int(11) unsigned NOT NULL default '0',
+  `sys_perm_user` varchar(5) default NULL,
+  `sys_perm_group` varchar(5) default NULL,
+  `sys_perm_other` varchar(5) default NULL,
+  `server_id` int(11) unsigned NOT NULL default '0',
+  `type` varchar(255) default NULL,
+  `source_server` varchar(255) default NULL,
+  `source_username` varchar(255) default NULL,
+  `source_password` varchar(64) default NULL,
+  `source_delete` varchar(255) NOT NULL default 'y',
+  `source_read_all` varchar(255) NOT NULL default 'y',
+  `destination` varchar(255) default NULL,
+  `active` varchar(255) NOT NULL default 'y',
+  PRIMARY KEY  (`mailget_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+
+CREATE TABLE IF NOT EXISTS `mail_relay_recipient` (
+  `relay_recipient_id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `sys_userid` int(11) NOT NULL DEFAULT '0',
+  `sys_groupid` int(11) NOT NULL DEFAULT '0',
+  `sys_perm_user` varchar(5) DEFAULT NULL,
+  `sys_perm_group` varchar(5) DEFAULT NULL,
+  `sys_perm_other` varchar(5) DEFAULT NULL,
+  `server_id` int(11) NOT NULL DEFAULT '0',
+  `source` varchar(255) DEFAULT NULL,
+  `access` varchar(255) NOT NULL DEFAULT 'OK',
+  `active` varchar(255) NOT NULL DEFAULT 'y',
+  PRIMARY KEY (`relay_recipient_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+
+CREATE TABLE `mail_transport` (
+  `transport_id` int(11) unsigned NOT NULL auto_increment,
+  `sys_userid` int(11) unsigned NOT NULL default '0',
+  `sys_groupid` int(11) unsigned NOT NULL default '0',
+  `sys_perm_user` varchar(5) NOT NULL default '',
+  `sys_perm_group` varchar(5) NOT NULL default '',
+  `sys_perm_other` varchar(5) NOT NULL default '',
+  `server_id` int(11) unsigned NOT NULL default '0',
+  `domain` varchar(255) NOT NULL default '',
+  `transport` varchar(255) NOT NULL,
+  `sort_order` int(11) unsigned NOT NULL default '5',
+  `active` enum('n','y') NOT NULL,
+  PRIMARY KEY  (`transport_id`),
+  KEY `server_id` (`server_id`,`transport`),
+  KEY `server_id_2` (`server_id`,`domain`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+
+CREATE TABLE `mail_user_filter` (
+  `filter_id` int(11) unsigned NOT NULL auto_increment,
+  `sys_userid` int(11) unsigned NOT NULL default '0',
+  `sys_groupid` int(11) unsigned NOT NULL default '0',
+  `sys_perm_user` varchar(5) default NULL,
+  `sys_perm_group` varchar(5) default NULL,
+  `sys_perm_other` varchar(5) default NULL,
+  `mailuser_id` int(11) unsigned NOT NULL default '0',
+  `rulename` varchar(64) default NULL,
+  `source` varchar(255) default NULL,
+  `searchterm` varchar(255) default NULL,
+  `op` varchar(255) default NULL,
+  `action` varchar(255) default NULL,
+  `target` varchar(255) default NULL,
+  `active` enum('n','y') NOT NULL default 'y',
+  PRIMARY KEY  (`filter_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+
+
+
+
+
