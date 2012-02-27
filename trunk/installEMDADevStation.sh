@@ -6,16 +6,16 @@
 #	Enterprise Mail Delivery Appliance
 #	www.emda.pro
 #
-# EMDA is free software: you can redistribute it and/or modify it 
-# under the terms of the GNU General Public License as published by 
-# the Free Software Foundation, either version 3 of the License, or 
+# EMDA is free software: you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# EMDA is distributed in the hope that it will be useful, but 
-# WITHOUT ANY WARRANTY; without even the implied warranty of 
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
-# General Public License for more details. You should have received a 
-# copy of the GNU General Public License along with EMDA. If not, 
+# EMDA is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# General Public License for more details. You should have received a
+# copy of the GNU General Public License along with EMDA. If not,
 # see http://www.gnu.org/licenses/.
 
 if [ ! "`lsb_release -a | grep CentOS | grep 6.`" ]
@@ -110,14 +110,14 @@ func_checkWorkspace(){
 
 func_downloadExtractIsos(){
 	isoDownload="http://mirror.stanford.edu/yum/pub/centos/6.2/isos/$1/CentOS-6.2-$1-minimal.iso"
-	if [ ! -f $isoPath/CentOS-6.2-$1-minimal.iso ] 
+	if [ ! -f $isoPath/CentOS-6.2-$1-minimal.iso ]
 	then
 		clear
 		echo "Please wait while we download the CentOS $1 ISO."
 		echo ""
 		wget -nv $isoDownload -O $isoPath/CentOS-6.2-$1-minimal.iso
 		echo " "
-		echo "Downloading Complete. Please press any key to continue..."
+		echo "Downloading Complete. Please press the enter key to continue..."
 		read tmp
 	fi
 
@@ -131,7 +131,7 @@ func_downloadExtractIsos(){
       sudo cp $isoMountPath/.treeinfo $buildPath/EMDA-$1/
 			sudo umount $isoMountPath
 		else
-			echo  "There was an error with the downloaded ISO image. Please delete the  file $isoPath/CentOS-6.2-$1-minimal.iso, and run this installer again."
+			echo "There was an error with the downloaded ISO image. Please delete the file $isoPath/CentOS-6.2-$1-minimal.iso, and run this installer again."
 			exit 0
 		fi
 	fi
@@ -158,7 +158,7 @@ func_extractImage(){
 func_eclipse(){
 	if [ -f /usr/lib$curArch/eclipse/configuration/config.ini ]
 	then
-		sudo  echo "osgi.instance.area.default=@user.home/EMDAworkspace-$ver/src" >> /usr/lib$curArch/eclipse/configuration/config.ini
+		su -c "echo \"osgi.instance.area.default=@user.home/EMDAworkspace-$ver/src\" >> /usr/lib$curArch/eclipse/configuration/config.ini"
 	fi
 }
 
@@ -176,7 +176,7 @@ func_rpmPackages(){
 		clear
 		echo "Please wait while we download the rpm packages required for EMDA."
 		sudo wget -nv http://www.emda.pro/dev/$ver/emda-rpms-$1.tar.gz
-		echo "Download complete. Please wait while we extract the packages. Press any key to continue..."
+		echo "Download complete. Please wait while we extract the packages. Press the enter key to continue..."
 		read tmp
 		sudo tar xzf emda-rpms-$1.tar.gz
 		sudo rm -fr emda-rpms-$1.tar.gz
@@ -195,7 +195,9 @@ main(){
 	func_checkDeps
 	
 	func_checkWorkspace
-	
+  clear
+	echo "Dependency installation complete. Press the enter key to continue..."
+  read tmp
 	func_eclipse
 	
 	func_downloadExtractIsos i386
