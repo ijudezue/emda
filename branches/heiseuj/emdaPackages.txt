@@ -436,6 +436,7 @@ perl-Test-Harness
 perl-Test-Pod
 perl-Test-Simple
 perl-Text-Iconv
+perl-Tie-Cache
 perl-TimeDate
 perl-Time-HiRes
 perl-URI
