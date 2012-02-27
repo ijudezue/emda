@@ -117,7 +117,7 @@ func_downloadExtractIsos(){
 		echo ""
 		wget -nv $isoDownload -O $isoPath/CentOS-6.2-$1-minimal.iso
 		echo " "
-		echo "Downloading Complete. Please press any key to continue..."
+		echo "Downloading Complete. Please press the enter key to continue..."
 		read tmp
 	fi
 
@@ -176,7 +176,7 @@ func_rpmPackages(){
 		clear
 		echo "Please wait while we download the rpm packages required for EMDA."
 		sudo wget -nv http://www.emda.pro/dev/$ver/emda-rpms-$1.tar.gz
-		echo "Download complete. Please wait while we extract the packages. Press any key to continue..."
+		echo "Download complete. Please wait while we extract the packages. Press the enter key to continue..."
 		read tmp
 		sudo tar xzf emda-rpms-$1.tar.gz
 		sudo rm -fr emda-rpms-$1.tar.gz
@@ -195,7 +195,9 @@ main(){
 	func_checkDeps
 	
 	func_checkWorkspace
-	
+  clear
+	echo "Dependency installation complete. Press the enter key to continue..."
+  read tmp
 	func_eclipse
 	
 	func_downloadExtractIsos i386
