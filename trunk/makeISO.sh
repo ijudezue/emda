@@ -27,8 +27,8 @@ else
 	homePath="/home/$homePath"
 fi
 
-#workspacePath="$homePath/EMDAworkspace-$ver"
-workspacePath="$homePath/EMDAworkspace"
+workspacePath="$homePath/EMDAworkspace-$ver"
+#workspacePath="$homePath/EMDAworkspace"
 buildPath="$workspacePath/builds"
 isoPath="$workspacePath/iso"
 isoMountPath="$workspacePath/tmp"
