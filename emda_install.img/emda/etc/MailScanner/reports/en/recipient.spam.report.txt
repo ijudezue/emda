@@ -13,7 +13,7 @@ The message to you has been detected as spam based on either its contents or
 the mail server which sent the message to us, or both.
 
 %org-short-name% does not accept unsolicited commercial (spam) e-mail and actively
-work to stop it. If you have any questions about this, or you believe you have received
+works to stop it. If you have any questions about this, or you believe you have received
 this message in error, please contact your system administrators.
 
 Your system administrators will need the following information:

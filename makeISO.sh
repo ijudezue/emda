@@ -27,8 +27,8 @@ else
 	homePath="/home/$homePath"
 fi
 
-#workspacePath="$homePath/EMDAworkspace-$ver"
-workspacePath="$homePath/EMDAworkspace"
+workspacePath="$homePath/EMDAworkspace-$ver"
+#workspacePath="$homePath/EMDAworkspace"
 buildPath="$workspacePath/builds"
 isoPath="$workspacePath/iso"
 isoMountPath="$workspacePath/tmp"
@@ -49,7 +49,7 @@ ln -sf /var/www/html/fpdf152 $emdaImagePath/emda/var/www/html/fpdf
 ln -sf /var/www/html/jpgraph-1.12.1 $emdaImagePath/emda/var/www/html/jpgraph
 
 func_makeIso(){
-	sudo rsync -ar --exclude '.svn' $emdaImagePath/emda $buildPath/installImg-$1/
+	sudo rsync -ar --exclude '.svn' --exclude '.metadata' --exclude "~*" --exclude "*~" $emdaImagePath/emda $buildPath/installImg-$1/
 	#fixing permissions
 		#User ID: apache=48, postfix=89
 		#Group ID: apache=48, postfix=89, postdrop=90, clam=498
@@ -72,6 +72,8 @@ func_makeIso(){
 			sudo chmod 740 $buildPath/installImg-$1/emda/var/spool/postfix/incoming
 			sudo chmod 740 $buildPath/installImg-$1/emda/var/spool/postfix/hold
 			sudo chmod 740 $buildPath/installImg-$1/emda/var/spool/postfix/outgoing
+
+		sudo chown :498 -R $buildPath/installImg-$1/emda/var/lib/clamav
 	
 		sudo chown 89:498 $buildPath/installImg-$1/emda/var/spool/MailScanner/*
 		sudo chown 89:48 $buildPath/installImg-$1/emda/var/spool/MailScanner/quarantine
@@ -83,13 +85,13 @@ func_makeIso(){
 		sudo chmod ug+rwx $buildPath/installImg-$1/emda/var/www/html/images/cache
 		 
 	
-	sudo rsync -ar --exclude '.svn' $srcPath/repodata/comps.xml $buildPath/EMDA-$1/repodata/
+	sudo rsync -ar --exclude '.svn' --exclude '.metadata' --exclude "~*" --exclude "*~" $srcPath/repodata/comps.xml $buildPath/EMDA-$1/repodata/
 	sudo mksquashfs $buildPath/installImg-$1 $buildPath/EMDA-$1/images/install.img -noappend -no-sparse -no-recovery -info -no-fragments -no-duplicates
-	sudo rsync -ar --exclude '.svn' $srcPath/isolinux/* $buildPath/EMDA-$1/isolinux/;
+	sudo rsync -ar --exclude '.svn' --exclude '.metadata' --exclude "~*" --exclude "*~" $srcPath/isolinux/* $buildPath/EMDA-$1/isolinux/;
 	sudo sed -i "/menu title Welcome to EMDA ver arch Bit!/ c\menu title Welcome to EMDA $emdaVer $1" $buildPath/EMDA-$1/isolinux/isolinux.cfg
 	sudo sed -i "/  menu label ^Install EMDA ver arch/ c\  menu label ^Install EMDA $emdaVer $1" $buildPath/EMDA-$1/isolinux/isolinux.cfg
-	sudo rsync -ar --exclude '.svn' $srcPath/repodata/* $buildPath/EMDA-$1/repodata/;
-	sudo rsync -ar --exclude '.svn' $srcPath/Packages/* $buildPath/EMDA-$1/Packages/;
+	sudo rsync -ar --exclude '.svn' --exclude '.metadata' --exclude "~*" --exclude "*~" $srcPath/repodata/* $buildPath/EMDA-$1/repodata/;
+	sudo rsync -ar --exclude '.svn' --exclude '.metadata' --exclude "~*" --exclude "*~" $srcPath/Packages/* $buildPath/EMDA-$1/Packages/;
 	#create the repo tree
 	cd $buildPath/EMDA-$1
 	sudo createrepo -g repodata/comps.xml .

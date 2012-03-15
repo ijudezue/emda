@@ -115,7 +115,7 @@ func_downloadExtractIsos(){
 		clear
 		echo "Please wait while we download the CentOS $1 ISO."
 		echo ""
-		wget -nv $isoDownload -O $isoPath/CentOS-6.2-$1-minimal.iso
+		wget $isoDownload -O $isoPath/CentOS-6.2-$1-minimal.iso
 		echo " "
 		echo "Downloading Complete. Please press the enter key to continue..."
 		read tmp
@@ -127,8 +127,8 @@ func_downloadExtractIsos(){
 		if [ -d $isoMountPath/images ]
 		then
 			sudo rsync -ar $isoMountPath/* $buildPath/EMDA-$1/
-      sudo cp $isoMountPath/.discinfo $buildPath/EMDA-$1/
-      sudo cp $isoMountPath/.treeinfo $buildPath/EMDA-$1/
+			sudo cp $isoMountPath/.discinfo $buildPath/EMDA-$1/
+			sudo cp $isoMountPath/.treeinfo $buildPath/EMDA-$1/
 			sudo umount $isoMountPath
 		else
 			echo "There was an error with the downloaded ISO image. Please delete the file $isoPath/CentOS-6.2-$1-minimal.iso, and run this installer again."
@@ -175,7 +175,7 @@ func_rpmPackages(){
 		sudo rm -fr $buildPath/EMDA-$1/Packages/*
 		clear
 		echo "Please wait while we download the rpm packages required for EMDA."
-		sudo wget -nv http://www.emda.pro/dev/$ver/emda-rpms-$1.tar.gz
+		sudo wget http://www.emda.pro/dev/$ver/emda-rpms-$1.tar.gz
 		echo "Download complete. Please wait while we extract the packages. Press the enter key to continue..."
 		read tmp
 		sudo tar xzf emda-rpms-$1.tar.gz

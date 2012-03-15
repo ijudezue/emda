@@ -1,3 +1,3 @@
-GRANT ALL ON emdadb.* TO emdadb@localhost IDENTIFIED BY '<password>'; 
+GRANT ALL ON emdadb.* TO emdadb@localhost IDENTIFIED BY '<webdbPassword>'; 
 FLUSH PRIVILEGES;
-INSERT INTO users SET username = 'emdadmin', password = md5('<password>'), fullname = 'EMDAdmin', type ='A';
+INSERT INTO users SET username = 'emdadmin', password = md5('<webPassword>'), fullname = 'EMDAdmin', type ='A';
