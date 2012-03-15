@@ -499,11 +499,17 @@ func_confMailScanner(){
 		mkdir /var/spool/MailScanner/incoming
 		func_debugMid "Create MailScanner incoming directory"
 	fi
+
 	echo "none /var/spool/MailScanner/incoming tmpfs defaults 0 0" >> /etc/fstab
-	func_debugMid "Add tmpfs to fstab"
+	func_debugMid "Add MS incoming to fstab"
 	mount /var/spool/MailScanner/incoming
 	func_debugMid "Mount MS incoming folder"
-		
+	echo "none /tmp tmpfs defaults 0 0" >> /etc/fstab
+	func_debugMid "Add tmp to fstab"
+	mount /tmp
+	func_debugMid "Mount /tmp folder"
+
+	
 	sed -i "/^%org-name% =/ c\%org-name% = $orgShortName" /etc/MailScanner/MailScanner.conf
 	func_debugMid "Modify Org Short Name MailScanner.conf"
 	sed -i "/^%org-long-name% =/ c\%org-long-name% = $orgLongName" /etc/MailScanner/MailScanner.conf
