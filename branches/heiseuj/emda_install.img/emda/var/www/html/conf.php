@@ -37,7 +37,7 @@ define('DEBUG', false);
 //
 define('DB_TYPE', 'mysql');
 define('DB_USER', 'emdadb');
-define('DB_PASS', '');
+define('DB_PASS', '<webdbPassword>');
 define('DB_HOST', 'localhost');
 define('DB_NAME', 'emdadb');
 define('DB_DSN', DB_TYPE.'://'.DB_USER.":".DB_PASS."@".DB_HOST."/".DB_NAME);

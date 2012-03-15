@@ -360,7 +360,6 @@ perl
 perl-Archive-Tar
 perl-Archive-Zip
 perl-Authen-SASL
-perl-bignum
 perl-Bit-Vector
 perl-Carp-Clan
 perl-CGI
@@ -383,14 +382,11 @@ perl-devel
 perl-Digest-HMAC
 perl-Digest-SHA
 perl-Digest-SHA1
-perl-Digest-MD5
 perl-Encode-Detect
 perl-Error
 perl-ExtUtils-MakeMaker
 perl-ExtUtils-ParseXS
 perl-Filesys-Df
-perl-File-Spec
-perl-File-Temp
 perl-File-Tail
 perl-FreezeThaw
 perl-Geography-Countries
@@ -399,7 +395,6 @@ perl-Getopt-Long-Descriptive
 perl-GSSAPI
 perl-HTML-Parser
 perl-HTML-Tagset
-perl-IO
 perl-IO-Compress-Base
 perl-IO-Compress-Zlib
 perl-IO-Multiplex
@@ -414,9 +409,6 @@ perl-libwww-perl
 perl-Mail-DKIM
 perl-Mail-SPF
 perl-MailTools
-perl-Math-BigInt
-perl-Math-BigRat
-perl-MIME-Base64
 perl-MIME-tools
 perl-MLDBM
 perl-MLDBM-Sync
@@ -437,7 +429,6 @@ perl-Pod-Escapes
 perl-Pod-Simple
 perl-Pod-Scaler-List-Utils
 perl-Razor-Agent
-perl-Scalar-List-Utils
 perl-Socket6
 perl-Storable
 perl-String-Approx
@@ -445,7 +436,6 @@ perl-Sub-Exporter
 perl-Sub-Install
 perl-Sys-Hostname-Long
 perl-Sys-SigAction
-perl-Sys-Syslog
 perl-Test-Harness
 perl-Test-Pod
 perl-Test-Simple
@@ -550,6 +540,7 @@ rrdtool
 rrdtool-perl
 rrdtool-php
 rrdtool-python
+rsync
 rsyslog
 SDL
 sed

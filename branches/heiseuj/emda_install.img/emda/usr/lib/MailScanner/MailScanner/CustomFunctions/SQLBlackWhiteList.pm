@@ -103,7 +103,7 @@ sub CreateList {
   my($db_name) = 'emdadb';
   my($db_host) = 'localhost';
   my($db_user) = 'emdadb';
-  my($db_pass) = '';
+  my($db_pass) = '<webdbPassword>';
   
   # Connect to the database
   $dbh = DBI->connect("DBI:mysql:database=$db_name;host=$db_host",

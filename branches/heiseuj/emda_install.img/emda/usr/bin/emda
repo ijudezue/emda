@@ -21,18 +21,76 @@
 emdaVer="`cat /etc/emdaVersion`"
 emdaHostname="`hostname`"
 backupDate="`date +%Y%m%d-%s`"
+#Enable debugging by adding -debug as the second argument to this script. [ex. /usr/bin/debug -help -debug]
+if [ "$2" = "-debug" ]
+then
+	debug="1"
+else
+	debug=""
+fi
 
-#MailScanner Vars
-	numCPU=`grep -c processor /proc/cpuinfo`
-	let maxMailScannerChild=$numCPU*5
+func_debug(){
+	if [ "$debug" ]
+	then
+		clear
+		echo ""
+		echo "==========BEGIN FUNCTION DEBUGGING=========="
+		if [ "$1" ]
+		then
+			echo ""
+			echo "OUTPUT: $1"
+		fi
+		echo ""
+		echo "Debugging is enabled. Please press [enter] to continue or [ctrl]+[c] to exit..."
+		read tmp
+		echo ""
+		echo ""
+	fi
+}
 
+func_debugMid(){
+	if [ "$debug" ]
+	then
+		if [ "$1" ]
+		then
+			echo ""
+			echo "OUTPUT: $1"
+			echo ""
+			echo "Debugging is enabled. Please press [enter] to continue or [ctrl]+[c] to exit..."
+			read tmp
+			echo ""
+		fi
+	fi	
+}
 
+func_debugEnd(){
+	if [ "$debug" ]
+	then
+		if [ "$1" ]
+		then
+			echo ""
+			echo "OUTPUT: $1"
+		fi
+		echo ""
+		echo "===========END FUNCTION DEBUGGING==========="
+		echo ""
+		echo "Debugging is enabled. Please press [enter] to continue or [ctrl]+[c] to exit..."
+		read tmp
+		echo ""
+		echo ""
+		clear
+	fi
+}
 
 #initial wizard welcome message --box text heightInRows widthInChars redirectOutputToVar
 func_welcome(){
 	clear
 	echo "Loading EMDA Configuration Wizard..."
-	whiptail --title "Welcome to the EMDA Configuration Wizard" --msgbox "This configuration wizard will guide you through setting up your Enterprise Mail Deilvery Appliance.\n\n Please press [enter] to continue..." 20 75;
+	whiptail --title "Welcome to the EMDA Configuration Wizard" --yesno "This configuration wizard will guide you through setting up your Enterprise Mail Deilvery Appliance.\n\n Please press [enter] to continue..." 20 75 --yes-button "Continue" --no-button "Exit Wizard";
+	if [ $? = 1 ]
+	then
+		exit 0
+	fi
 }
 
 #$1 is the actual password to check against
@@ -48,89 +106,107 @@ func_checkPW(){
 }
 
 func_startMYSQL(){
+	func_debug "Start startMYSQL"
 	service mysqld start
 	chkconfig mysqld --add
 	chkconfig mysqld on --level 2345
+	echo "Waiting for MySQL to start up..."
 	sleep 2
+	func_debugEnd "end func_startMYSQL"
 }
 
 func_startPOSTFIX(){
+	func_debug "Start func_startPOSTFIX"
 	service postfix start
 	chkconfig postfix --add
 	chkconfig postfix on --level 2345
+	func_debugEnd "end func_startPOSTFIX"
 }
 
 func_startHTTPD(){
+	func_debug "Start func_startHTTPD"
 	service httpd start
 	chkconfig httpd --add
 	chkconfig httpd on --level 2345
+	func_debugEnd "end func_startHTTPD"
 }
 
 func_startCLAMD(){
+	func_debug "Start func_startCLAMD"
 	service clamd start
 	chkconfig clamd --add
 	chkconfig clamd on --level 2345
+	func_debugEnd "end func_startCLAMD"
 }
 
 func_startSPAM(){
+	func_debug "Start func_startSPAM"
 	service spamassassin start
 	chkconfig spamassassin --add
 	chkconfig spamassassin on --level 2345
+	func_debugEnd "end func_startSPAM"
 }
 
 func_startMAILSCAN(){
-	service mailscanner start
-	chkconfig mailscanner --add
-	chkconfig mailscanner on --level 2345
+	func_debug "Start func_startMAILSCAN"
+	service MailScanner start
+	chkconfig MailScanner --add
+	chkconfig MailScanner on --level 2345
+	func_debugEnd "end func_startMAILSCAN"
 }
 
 func_startMAILGRAPH(){
+	func_debug "Start func_startMAILGRAPH"
 	service mailgraph start
 	chkconfig mailgraph --add
 	chkconfig mailgraph on --level 2345
+	func_debugEnd "end func_startMAILGRAPH"
 }
 
 func_startSQLGREY(){
+	func_debug "Start func_startSQLGREY"
 	service sqlgrey start
 	chkconfig sqlgrey --add
 	chkconfig sqlgrey on --level 2345
+	func_debugEnd "end func_startSQLGREY"
 }
 
 #sets the root password for mysql
 func_mysqlRootPW(){
+	func_debug "Start func_mysqlRootPW"
 	#mysql must be started first to allow for changing db passwords
-	mysqlRootPW=$(whiptail --title "MySQL root Password" --passwordbox "Please create a password for the MySQL root account:" 10 75 3>&1 1>&2 2>&3)
+	mysqlRootPW=$(whiptail --title "Create EMDA MySQL Root Password" --passwordbox "Please create a password for the MySQL root account:" 10 75 3>&1 1>&2 2>&3)
 	mysqlRootPW=$(func_checkPW $mysqlRootPW)
 	mysqladmin -u root password $mysqlRootPW
+	func_debugEnd "Set mysql root password: $mysqlRootPW, end of func_mysqlRootPW"
 }
 
 #sets the mailwatch db connect password
 func_mailwatchDBSetup(){
+	func_debug "Start func_mailwatchDBSetup"
 	#mysql must be started first to allow for changing db passwords
-	mailwatchDBPW=$(whiptail --title "MailWatch Database Password" --passwordbox "Please create a password for the MailWatch and SQLGrey Databases.\n\n NOTE: It is advised to make a different password then the one used for the root account." 10 75 3>&1 1>&2 2>&3)
+	mailwatchDBPW=$(whiptail --title "Create EMDA Database Password" --passwordbox "Please create a password for the EMDA databases:" 10 75 3>&1 1>&2 2>&3)
 	mailwatchDBPW=$(func_checkPW $mailwatchDBPW)
-	sed -i "/^GRANT ALL ON emdadb.* TO emdadb@localhost IDENTIFIED BY '<password>';/ c\GRANT ALL ON emdadb.* TO emdadb@localhost IDENTIFIED BY \'$mailwatchDBPW\';" /root/mailwatch_user.sql
-	sed -i "/^define('DB_PASS', '');/ c\define('DB_PASS', \'$mailwatchDBPW\');" /var/www/html/conf.php
-	sed -i "/^  my(\$db_pass) = '';/ c\  my(\$db_pass) = \'$mailwatchDBPW\';" /usr/lib/MailScanner/MailScanner/CustomFunctions/SQLBlackWhiteList.pm
-	sed -i "/^my(\$db_pass) = '';/ c\my(\$db_pass) = \'$mailwatchDBPW\';" /usr/lib/MailScanner/MailScanner/CustomFunctions/MailWatch.pm
+	sed -i 's/<webdbPassword>/'"$mailwatchDBPW"'/' /root/mailwatch_user.sql
+	sed -i 's/<webdbPassword>/'"$mailwatchDBPW"'/' /var/www/html/conf.php
+	sed -i 's/<webdbPassword>/'"$mailwatchDBPW"'/' /usr/lib/MailScanner/MailScanner/CustomFunctions/SQLBlackWhiteList.pm
+	sed -i 's/<webdbPassword>/'"$mailwatchDBPW"'/' /usr/lib/MailScanner/MailScanner/CustomFunctions/MailWatch.pm
+	func_debugEnd "end of func_mailwatchDBSetup"
 }
 
 #sets the mailwatch password for emdadmin
 func_mailwatchUserPW(){
+	func_debug "Start func_mailwatchUserPW"
 	#mysql must be started first before this
-	mailwatchPW=$(whiptail --title "MailWatch EMDAdmin Password" --passwordbox "Please create a password for the MailWatch web portal account: emdadmin.\n\n NOTE: This is the password you will use to log into the web portal, and the account name is: emdadmin. Please remember it." 15 75 3>&1 1>&2 2>&3)
+	mailwatchPW=$(whiptail --title "Create EMDA Web Interface Password" --passwordbox "Please create a password to log into the web interface:\n\n NOTE: The account name for the web interface is: emdadmin" 15 75 3>&1 1>&2 2>&3)
 	mailwatchPW=$(func_checkPW $mailwatchPW)
-	sed -i "/^INSERT INTO users SET username = 'emdadmin', password = md5('<password>'), fullname = 'EMDAdmin', type ='A'/ c\INSERT INTO users SET username = 'emdadmin', password = md5(\'$mailwatchPW\'), fullname = 'EMDAdmin', type ='A';" /root/mailwatch_user.sql
-}
-
-#create the mailwatch db and user
-func_createdb(){
-	mysql -u root -p$mysqlRootPW < /root/mailwatch_create.sql
-	mysql -u root -p$mysqlRootPW emdadb < /root/mailwatch_user.sql
+	sed -i 's/<webPassword>/'"$mailwatchPW"'/' /root/mailwatch_user.sql
+	func_debugEnd "end func_mailwatchUserPW"
 }
 
 #check for existing configuration
 func_checkPriorSetup(){
+	func_debug "Start func_checkPriorSetup"
 	#this is a file that is not created by default after installation of EMDA
 	if [ -f /etc/postfix/transport.db ]
 	then
@@ -151,227 +227,466 @@ func_checkPriorSetup(){
 			fi
 		fi
 	fi
+	func_debugEnd "end func_checkPriorSetup"
 }
 
 
 #hostname input
 func_hostname(){
-	emdaHostname=$(whiptail --title "Hostname" --inputbox "Please enter the Hostname for this device: [$emdaHostname]" 10 75 3>&1 1>&2 2>&3)
+	func_debug "Start func_hostname"
+	whiptail --title "EMDA Hostname" --yesno "Currently the hostname for EMDA is set to: $emdaHostname\n\n Do you wish to change it" 10 75
+	if [ $? = 0 ]
+	then
+		emdaHostname=$(whiptail --title "Change EMDA Hostname" --inputbox "Please enter the Hostname for this installation of EMDA:\n [$emdaHostname]" 10 75 3>&1 1>&2 2>&3)
+		#add commands to change hostname
+	fi
+	func_debugEnd "End of func_hostname"
 }
 
 #add email domains
 func_addEmailDomains(){
-	primaryEmailDomain=$(whiptail --title "Primary Email Domain Name" --inputbox "Please enter the domain name for your primary email recipients:\n\n [ex: email.com]" 10 75 3>&1 1>&2 2>&3)
-	primaryEmailServer=$(whiptail --title "Primary Mail Hostname/IP" --inputbox "Please enter the Hostname or IP Address for the server receiving email for $primaryEmailDomain:" 10 75 3>&1 1>&2 2>&3)
-	whiptail --title "Additional Domains" --yesno "Is there an additional email domain name you would like to add?" 10 75
+	func_debug "Start func_addEmailDomains"
+	primaryEmailDomain=$(whiptail --title "$orgShortName Primary Email Domain Name" --inputbox "Please enter the receiving Email Domain name for $orgLongName:\n [ex: $orgShortName.mail.com]" 10 75 3>&1 1>&2 2>&3)
+	primaryEmailServer=$(whiptail --title "Primary Email Server" --inputbox "Please enter the Hostname or IP Address for the server receiving email for $primaryEmailDomain:\n [ex: 192.168.0.5]" 10 75 3>&1 1>&2 2>&3)
+	func_sysAdminEmail
+	whiptail --title "Add Additional Email Domains?" --yesno "Is there an additional email domain name you would like to add for $orgLongName?\n [ex: $orgShortName.mail2.net]" 10 75
 	if [ $? = 0 ]
 	then
-		secondaryEmailDomain=$(whiptail --title "Secondary Mail Domain" --inputbox "Please enter the domain name of your secondary email recipients:\n\n [ex: domaintwo.com]" 10 75 3>&1 1>&2 2>&3)
-		secondaryEmailServer=$(whiptail --title "Secondary Mail Hostname/IP" --inputbox "Please enter the Hostname or IP Address for the server receiving email for $secondaryEmailDomain:" 10 75 3>&1 1>&2 2>&3)
+		secondaryEmailDomain=$(whiptail --title "$orgShortName Secondary Email Domain" --inputbox "Please enter the secondary receiving Email Domain name for $orgLongName:\n [ex: $orgShortName.mail2.net]" 10 75 3>&1 1>&2 2>&3)
+		secondaryEmailServer=$(whiptail --title "Secondary Email Server" --inputbox "Please enter the Hostname or IP Address for the server receiving email for $secondaryEmailDomain:\n [ex: 192.168.0.6]" 10 75 3>&1 1>&2 2>&3)
 	fi
+	func_debugEnd "End of func_addEmailDomains"
 }
 
 #System adminsitrator email
 func_sysAdminEmail(){
-	sysAdminEmail=$(whiptail --title "System Administrator Email" --inputbox "Please enter the email for the Systems Adminsitrator for $primaryEmailDomain:" 10 75 3>&1 1>&2 2>&3)
+	func_debug "Start func_sysAdminEmail"
+	sysAdminEmail=$(whiptail --title "Administrator's Email Address" --inputbox "Please enter the email address for the Adminsitrator of $primaryEmailDomain:" 10 75 3>&1 1>&2 2>&3)
 	rootEmail=$sysAdminEmail
-	rootEmail=$(whiptail --title "Root Mail Delivery Address" --inputbox "What email address should email to \"root\" go to?: [$sysAdminEmail]" 10 75 3>&1 1>&2 2>&3)
+	rootEmail=$(whiptail --title "System Account's Email Address" --inputbox "Please enter the email address of where emails to the system account [root] are sent to:\n [ex: $sysAdminEmail]" 10 75 3>&1 1>&2 2>&3)
+	func_debugEnd "Root email: $rootEmail, end of func_sysAdminEmail"
 }
 
 func_orgNames(){
-	orgLongName=$(whiptail --title "Name of Organization" --inputbox "What is the official FULL name of your company or organization?\n\n [ex: My Local Company, Inc.]" 10 75 3>&1 1>&2 2>&3)
-	orgShortName=$(whiptail --title "Abbreviated Name of Organization" --inputbox "What is the abbreviated (short) name of your company or organization: $orgLongName?\n\n [ex: MLC]\n\nNOTE: This abbreviated name must not contain spaces." 15 75 3>&1 1>&2 2>&3)
+	func_debug "Start func_orgNames"
+	orgLongName=$(whiptail --title "Organization's Full Name" --inputbox "Please enter the full name for your Organization:\n [ex: Enterprise Mail Delivery, Inc.]" 10 75 3>&1 1>&2 2>&3)
+	orgShortName=$(whiptail --title "Organization's Short Name" --inputbox "Please enter the abbreviated name for: $orgLongName\n [ex: EMD]\n\nNOTE: This abbreviated name must not contain spaces." 15 75 3>&1 1>&2 2>&3)
+	func_debugEnd "Org Short Name: $orgShortName, end of func_orgNames"
 }
 
 #website for MailScanner
 func_webSite(){
-	webSite="www.$primaryEmailDomain"
-	webSite=$(whiptail --title "Web Address" --inputbox "Please enter the website address for the email domain of $primaryEmailDomain: [$webSite]"  10 75 3>&1 1>&2 2>&3)
+	func_debug "Start func_webSite"
+	webSite="www.$orgShortName.com"
+	webSite=$(whiptail --title "$orgShortName's Web Site Address" --inputbox "Please enter the Web Site Address for $orgLongName:\n [ex: $webSite]"  10 75 3>&1 1>&2 2>&3)
+	func_debugEnd "Website: $webSite, end of func_webSite"
+}
+
+func_createPasswords(){
+	func_debug "Start func_createPasswords"
+	whiptail --title "Create EMDA Passwords" --msgbox "We will now create and apply all passwords required by EMDA.\n\n Please press [enter] to continue..." 20 75;
+	watermarkSecret=$(whiptail --title "Create Postfix TLS Password" --passwordbox "Please create a password for Postfix TLS and Watermarking:" 10 75 3>&1 1>&2 2>&3)
+	watermarkSecret=$(func_checkPW $watermarkSecret)
+	func_mysqlRootPW
+	func_mailwatchDBSetup
+	func_mailwatchUserPW
+	func_debugEnd "Finished creating passwords. end of func_createPasswords"
+}
+
+#create the mailwatch db and user
+func_createdb(){
+	func_debug "Start func_createdb"
+	mysql -u root -p$mysqlRootPW < /root/mailwatch_create.sql
+	mysql -u root -p$mysqlRootPW emdadb < /root/mailwatch_user.sql
+	func_debugEnd "end of func_createdb"
 }
 
 #Generate TLS keys for postfix
 func_genKeyTLS(){
-	countryCode=$(whiptail --title "Two Letter Country Code" --inputbox "Please enter the two letter country code where your organization resides in:\n\n [ex: us]"  10 75 3>&1 1>&2 2>&3)
-	stateName=$(whiptail --title "Name of State or Province" --inputbox "Please enter the name of the state/province where your organization resides in:\n\n [ex: New York]"  10 75 3>&1 1>&2 2>&3)
-	watermarkSecret=$(whiptail --title "TLS/Watermark Password" --passwordbox "Please create a password for the TLS certificate and postfix watermark secret:" 10 75 3>&1 1>&2 2>&3)
+	func_debug "Start func_genKeyTLS"
+	whiptail --title "Create EMDA SSL/TLS Certificates" --msgbox "We will now create the SSL and TLS Certificates required by EMDA.\n\n Please press [enter] to continue..." 20 75;
+	countryCode=$(whiptail --title "Country Code for $orgShortName" --inputbox "Please enter the two letter country code for $orgLongName:\n [ex: us]"  10 75 3>&1 1>&2 2>&3)
+	stateName=$(whiptail --title "State or Province for $orgShortName" --inputbox "Please enter the state name or province for $orgLongName:\n [ex: New York]"  10 75 3>&1 1>&2 2>&3)
+	cityName=$(whiptail --title "City for $orgShortName" --inputbox "Please enter the city name for $orgLongName:\n [ex: Albany]"  10 75 3>&1 1>&2 2>&3)
 
-	if [ ! -d /etc/postfix/ssl ]
+	if [ ! -d /etc/httpd/conf/ssl ]
 	then
-		mkdir /etc/postfix/ssl
-		cd /etc/postfix/ssl
-		openssl req -new -x509 -nodes -out smtpd.pem -keyout smtpd.pem -days 3650 -subj "/O=$orgLongName/OU=$orgShortName/CN=$countryCode" -passout pass:$watermarkSecret
+		mkdir /etc/httpd/conf/ssl
+		func_debugMid "Make ssl directory"
+		cd /etc/httpd/conf/ssl
+		openssl req -new -x509 -nodes -out httpd.pem -keyout httpd.pem -days 3650 -subj "/C=$countryCode/ST=$stateName/L=$cityName/O=$orgLongName/OU=$orgShortName/CN=$emdaHostname/emailAddress=$sysAdminEmail" -passout pass:$watermarkSecret
+		func_debugMid "Create httpd ssl cert"
 	else
-		cd /etc/postfix/ssl
-		openssl req -new -x509 -nodes -out smtpd.pem -keyout smtpd.pem -days 3650 -subj "/O=$orgLongName/OU=$orgShortName/CN=$countryCode" -passout pass:$watermarkSecret
+		cd /etc/httpd/conf/ssl
+		openssl req -new -x509 -nodes -out httpd.pem -keyout httpd.pem -days 3650 -subj "/C=$countryCode/ST=$stateName/L=$cityName/O=$orgLongName/OU=$orgShortName/CN=$emdaHostname/emailAddress=$sysAdminEmail" -passout pass:$watermarkSecret
+		func_debugMid "Create httpd ssl cert"
 	fi
+
+	if [ ! -d /etc/postfix/tls ]
+	then
+		mkdir /etc/postfix/tls
+		func_debugMid "Make tls directory"
+		cd /etc/postfix/tls
+		openssl req -new -x509 -nodes -out smtpd.pem -keyout smtpd.pem -days 3650 -subj "/C=$countryCode/ST=$stateName/L=$cityName/O=$orgLongName/OU=$orgShortName/CN=$primaryEmailDomain/emailAddress=$sysAdminEmail" -passout pass:$watermarkSecret
+		func_debugMid "Create postfix tls cert"
+	else
+		cd /etc/postfix/tls
+		openssl req -new -x509 -nodes -out smtpd.pem -keyout smtpd.pem -days 3650 -subj "/C=$countryCode/ST=$stateName/L=$cityName/O=$orgLongName/OU=$orgShortName/CN=$primaryEmailDomain/emailAddress=$sysAdminEmail" -passout pass:$watermarkSecret
+		func_debugMid "Create postfix tls cert"
+	fi
+	func_debugEnd "End of func_genKeyTLS"
 }
 
 #questions on how the user wants emda to be configured
 func_mailscannerSetup(){
-	signClean=$(whiptail --title "Sign Clean Emails?" --yesno "Do you want clean [non-spam] emails to have a signature placed at the bottom of the email?\n\n NOTE: The user can click a link in the signature for EMDA to learn it as spam." 15 75 --yes-button "Yes" --no-button "No" 3>&1 1>&2 2>&3)
+	func_debug "Start func_mailscannerSetup"
+	whiptail --title "Configure EMDA Preferences" --msgbox "We will now personalize EMDA to your preferences.\n\n Please press [enter] to continue..." 20 75;
+
+	signClean=$(whiptail --title "Sign Clean Emails?" --yesno "Do you want received emails to have a notification placed at the bottom of the email?\n\n NOTE: The recipient can click on the included link for EMDA to learn that message as spam." 20 75 --yes-button "Yes" --no-button "No" 3>&1 1>&2 2>&3)
 	if [ $? = 0 ]
 	then
 		sed -i "/^Sign Clean Messages = no/ c\Sign Clean Messages = yes" /etc/MailScanner/MailScanner.conf
+		func_debugMid "Modify signed clean messages mailscanner.conf"
 	fi
 
+	sendLowSpam=$(whiptail --title "Delivery of Low Scoring Spam?" --yesno "Do you want recipients to receive a notification that a low scoring spam message is being held for them?\n\n NOTE: The recipient can click on the included link in the notification for EMDA to release the message to them." 20 75 --yes-button "Yes" --no-button "No" 3>&1 1>&2 2>&3)
+	if [ $? = 0 ]
+	then
+		sed -i "/^Spam Actions = store/ c\Spam Actions = store notify" /etc/MailScanner/MailScanner.conf
+		func_debugMid "Modify spam actions mailscanner.conf"
+	fi
+
+	oldExchange=$(whiptail --title "Do you run Exchange 2000 Server or older?" --yesno "Does the primary email server: $primaryEmailServer, run Exchange 2000, Exchange 5.5, or any Email Server where it's release version predates the year 2000?\n\n NOTE: Unless you have NOT updated your email server in the last ten years, it would be safe to answer NO." 20 75 --yes-button "Yes" --no-button "No" 3>&1 1>&2 2>&3)
+	if [ $? = 0 ]
+	then
+		echo "smtpd_recipient_restrictions = permit_mynetworks, reject_invalid_hostname, reject_unauth_destination, reject_non_fqdn_hostname, reject_non_fqdn_sender, reject_unknown_sender_domain, reject_non_fqdn_recipient, reject_unknown_recipient_domain, check_recipient_access hash:/etc/postfix/recipient_access, check_policy_service inet:127.0.0.1:2501" >> /etc/postfix/main.cf
+		func_debugMid "Modify recipient restrictions main.cf"
+	else
+		keepUnknownEmail=$(whiptail --title "Store Emails for Unknown Recipients?" --yesno "Do you want to store all emails, even emails to unknown/false recipients?\n\n NOTE: If no, the web interface will not show or store emails to unknown/false recipients. However, the log file will still log these delivery attempts for troubleshooting or auditing purposes." 20 75 --yes-button "Yes" --no-button "No" 3>&1 1>&2 2>&3)
+		if [ $? = 0 ]
+		then
+			echo "smtpd_recipient_restrictions = permit_mynetworks, reject_invalid_hostname, reject_unauth_destination, reject_non_fqdn_hostname, reject_non_fqdn_sender, reject_unknown_sender_domain, reject_non_fqdn_recipient, reject_unknown_recipient_domain, check_recipient_access hash:/etc/postfix/recipient_access, check_policy_service inet:127.0.0.1:2501" >> /etc/postfix/main.cf
+			func_debugMid "Modify recipient restrictions main.cf"
+		else
+			echo "smtpd_recipient_restrictions = permit_mynetworks, reject_invalid_hostname, reject_unauth_destination, reject_non_fqdn_hostname, reject_non_fqdn_sender, reject_unknown_sender_domain, reject_unknown_recipient_domain, reject_unverified_recipient, reject_non_fqdn_recipient, reject_unknown_recipient_domain, check_recipient_access hash:/etc/postfix/recipient_access, check_policy_service inet:127.0.0.1:2501" >> /etc/postfix/main.cf
+			func_debugMid "Modify recipient restrictions main.cf"
+		fi
+	fi
+	func_debugEnd "end of func_mailscannerSetup"
 }
 
 #configure transport map
 func_confTransport(){
+	func_debug "Start func_confTransport"
 	sed -i "/$emdaHostname/d" /etc/postfix/transport
+	func_debugMid "Remove old hostname postfix transport"
 	echo "$emdaHostname smtp:[$primaryEmailServer]" >> /etc/postfix/transport
+	func_debugMid "Modify hostname/relay transport"
 	sed -i "/^$primaryEmailDomain/d" /etc/postfix/transport
+	func_debugMid "Remove old email domain postfix transport"
 	echo "$primaryEmailDomain smtp:[$primaryEmailServer]" >> /etc/postfix/transport
+	func_debugMid "Create email domain postfix transport"
 	if [ $secondaryEmailDomain ] && [ $secondaryEmailServer ]
 		then
 			sed -i "/$secondaryEmailDomain/d" /etc/postfix/transport
+			func_debugMid "Remove old secondary email domain postfix transport"
 			echo "$secondaryEmailDomain smtp:[$secondaryEmailServer]" >> /etc/postfix/transport
+			func_debugMid "Create secondary email postfix transport"
 	fi
 	if [ -f /etc/postfix/transport.db ]
 	then
 		rm -f /etc/postfix/transport.db
+		func_debugMid "Remove old transport.db"
 	fi
 	if [ -f /etc/postfix/virtual.db ]
 	then
 		rm -f /etc/postfix/virtual.db
+		func_debugMid "Remove old virtual.db"
 	fi
 	if [ -f /etc/postfix/helo_access.db ]
 	then
 		rm -f /etc/postfix/helo_access.db
+		func_debugMid "Remove old helo_access.db"
 	fi
 	touch /etc/postfix/virtual
+	func_debugMid "Create postfix virtual"
 	touch /etc/postfix/helo_access
+	func_debugMid "Create postfix helo_access"
 	touch /etc/postfix/sender_access
+	func_debugMid "Create postfix sender_access"
 	touch /etc/postfix/recipient_access
+	func_debugMid "Create postfix recipient_access"
 	postmap /etc/postfix/transport
 	postmap /etc/postfix/virtual
 	postmap /etc/postfix/helo_access
 	postmap /etc/postfix/sender_access
 	postmap /etc/postfix/recipient_access
+	func_debugMid "Postmap all postfix files"
 	postfix reload
+	func_debugEnd "Reload postfix, end func_confTrasport"
 }
 
 #configuring root's email
 func_rootEmail(){
+	func_debug "Start func_rootEmail"
 	sed -i '/root:/d' /etc/aliases
+	func_debugMid "Modify root aliases"
 	echo "root: $1" >> /etc/aliases
+	func_debugMid "Create root aliases"
 	rm -f /etc/aliases.db
+	func_debugMid "Remove old aliases.db"
 	newaliases
+	func_debugEnd "Create new aliases.db, end of func_rootEmail"
 }
 
 func_confSQLGrey(){
-	sed -i "/^GRANT ALL ON emdasqlgreydb.* TO emdasqlgreydb@localhost IDENTIFIED BY '<password>';/ c\GRANT ALL ON emdasqlgreydb.* TO emdasqlgreydb@localhost IDENTIFIED BY \'$mailwatchDBPW\';" /root/sqlgrey_user.sql
+	func_debug "Start func_confSQLGrey"
+	sed -i 's/<sqlgreyPassword>/'"$mailwatchDBPW"'/' /root/sqlgrey_user.sql
+	func_debugMid "Modify password for db user sqlgrey_user.sql"
 	mysql -u root -p$mysqlRootPW < /root/sqlgrey_create.sql
+	func_debugMid "Import sqlgrey_create.sql"
 	mysql -u root -p$mysqlRootPW emdasqlgreydb < /root/sqlgrey_user.sql
-	sed -i "/^\$db_pass = \"\";/ c\$db_pass = \"$mailwatchDBPW\";" /var/www/html/grey_config.inc.php
-	sed -i "/^db_pass =/ c\db_pass = $mailwatchDBPW" /etc/sqlgrey/sqlgrey.conf
+	func_debugMid "Import sqlgrey_user.sql"
+	sed -i 's/<sqlgreyPassword>/'"$mailwatchDBPW"'/' /var/www/html/grey_config.inc.php
+	func_debugMid "Modify grey_config.inc.php"
+	sed -i 's/<sqlgreyPassword>/'"$mailwatchDBPW"'/' /etc/sqlgrey/sqlgrey.conf
+	func_debugMid "Modify sqlgrey.conf"
 	update_sqlgrey_config
+	func_debugEnd "Update sqlgrey, func_confSQLGrey"
 }
 
 #configure MailScanner
 func_confMailScanner(){
+	func_debug "Start func_confMailScanner"
+	#recommended 5 children per cpu depending on memory
+	numCPU="`cat /proc/cpuinfo | egrep 'processor|model name|cache size|core|sibling|physical' | grep -c processor`"
+	func_debugMid "Number of Cores: $numCPU"
+	#normally printed in kB
+	numMem="`cat /proc/meminfo | grep MemTotal | awk '{print $2}'`"
+	func_debugMid "Total Memory: $numMem"
+	let eachCpuMem=$numMem/$numCPU
+	func_debugMid "Each CPU Memory: $eachCpuMem"
+
+	if [ $eachCpuMem -lt 500000 ]
+	then
+		maxMailScannerChild=1
+		sed -i "/^Max Children =/ c\Max Children = $maxMailScannerChild" /etc/MailScanner/MailScanner.conf
+		func_debugMid "Set child to 1: $maxMailScannerChild"
+	elif [ $eachCpuMem -gt 500000 ] && [ $eachCpuMem -lt 750000 ]
+	then
+		maxMailScannerChild=2
+		sed -i "/^Max Children =/ c\Max Children = $maxMailScannerChild" /etc/MailScanner/MailScanner.conf
+		func_debugMid "Set child to 2: $maxMailScannerChild"
+	elif [ $eachCpuMem -gt 750000 ] && [ $eachCpuMem -lt 1000000 ]
+	then
+		maxMailScannerChild=3
+		sed -i "/^Max Children =/ c\Max Children = $maxMailScannerChild" /etc/MailScanner/MailScanner.conf
+		func_debugMid "Set child to 3: $maxMailScannerChild"
+	elif [ $eachCpuMem -gt 1000000 ] && [ $eachCpuMem -lt 2000000 ]
+	then
+		maxMailScannerChild=4
+		sed -i "/^Max Children =/ c\Max Children = $maxMailScannerChild" /etc/MailScanner/MailScanner.conf
+		func_debugMid "Set child to 4: $maxMailScannerChild"
+	elif [ $eachCpuMem -gt 2000000 ]
+	then
+		maxMailScannerChild=5
+		sed -i "/^Max Children =/ c\Max Children = $maxMailScannerChild" /etc/MailScanner/MailScanner.conf
+		func_debugMid "Set child to 5: $maxMailScannerChild"
+	fi
+
+	if [ ! -d /var/spool/MailScanner/incoming ]
+	then
+		mkdir /var/spool/MailScanner/incoming
+		func_debugMid "Create MailScanner incoming directory"
+	fi
+	echo "none /var/spool/MailScanner/incoming tmpfs defaults 0 0" >> /etc/fstab
+	func_debugMid "Add tmpfs to fstab"
+	mount /var/spool/MailScanner/incoming
+	func_debugMid "Mount MS incoming folder"
+		
 	sed -i "/^%org-name% =/ c\%org-name% = $orgShortName" /etc/MailScanner/MailScanner.conf
+	func_debugMid "Modify Org Short Name MailScanner.conf"
 	sed -i "/^%org-long-name% =/ c\%org-long-name% = $orgLongName" /etc/MailScanner/MailScanner.conf
+	func_debugMid "Modify Org Long Name MailScanner.conf"
 	sed -i "/^%web-site% =/ c\%web-site% = $webSite" /etc/MailScanner/MailScanner.conf
-	#recommended 5 children per cpu
-	sed -i "/^Max Children =/ c\Max Children = $maxMailScannerChild" /etc/MailScanner/MailScanner.conf
+	func_debugMid "Modify Web Site MailScanner.conf"
 	sed -i "/^Watermark Secret =/ c\Watermark Secret = $watermarkSecret" /etc/MailScanner/MailScanner.conf
+	func_debugMid "Modify Watermark Secret MailScanner.conf"
 	sed -i "/^Unscanned Header Value =/ c\Unscanned Header Value = Please contact $orgLongName for details" /etc/MailScanner/MailScanner.conf
+	func_debugMid "Modify header value MailScanner.conf"
 	sed -i "/^Information Header Value = Please contact  for more information/ c\Information Header Value = Please contact $sysAdminEmail for more information" /etc/MailScanner/MailScanner.conf
+	func_debugMid "Modify header value MailScanner.conf"
 	sed -i "/^envelope_sender_header X-MailScanner-EMDA-From/ c\envelope_sender_header X-$orgShortName-MailScanner-EMDA-From" /etc/MailScanner/spam.assassin.prefs.conf
+	func_debugMid "Modify sender header spam.assassin.prefs.conf"
 	sed -i "/^define('QUARANTINE_FROM_ADDR', 'Quarantine@EMDA');/ c\define('QUARANTINE_FROM_ADDR', \'$orgShortName-EMDA-Quarantine@$primaryEmailDomain\');" /var/www/html/conf.php
+	func_debugEnd "Modify mailwatch conf.php, end func_confMailScanner"
 }
 
 func_installReqs(){
+	func_debug "Start func_installReqs"
 	clear
-	whiptail --title "Installing Required Applications" --msgbox "EMDA will need to compile and install a few required applications. This process may take several minutes or longer depending on the speed of this system. When the installation of these applications are completed, the EMDA Wizard will continue automatically.\n\n Press OK to continue, and please wait until the installation is finished." 20 75
+	whiptail --title "Installing Required Applications" --msgbox "EMDA will need to compile and install a few required applications. This process may take several minutes or longer depending on the speed of this system. When the installation of these applications are completed, the EMDA Wizard will continue automatically.\n\n Please press [enter] to continue, and please be patient while we finish configuring EMDA for you..." 20 75
 	clear
 	#cd /root/src/perl
 	#sh Configure -des -Dprefix=/usr/; make; make install; make clean; make distclean
 	cd /root/src/MailScanner
 	./install.sh
+	func_debugMid "Install MailScanner"
+	ldconfig
+	func_debugMid "MailScanner ldconfig"
+
 	cd /root/src/ocrad
-	./configure --prefix=/usr/; make; make install; make clean; make distclean
+	./configure --prefix=/usr/
+	func_debugMid "Configure OCRad"
+	make
+	func_debugMid "Make OCRad"
+	make install
+	func_debugMid "Make Install OCRad"
+	make clean
+	func_debugMid "Make Clean OCRad"
+	make distclean
+	func_debugMid "Make DistClean OCRad"
+	ldconfig
+	func_debugMid "OCRad ldconfig"
+
 	cd /root/src/leptonica
-	./configure --prefix=/usr/; make all; make install; make clean; make distclean
+	./configure --prefix=/usr/
+	func_debugMid "Configure Leptonica"
+	make all
+	func_debugMid "Make All Leptonica"
+	make install
+	func_debugMid "Make Install Leptonica"
+	make clean
+	func_debugMid "Make Clean Leptonica"
+	make distclean
+	func_debugMid "Make DistClean Leptonica"
+	ldconfig
+	func_debugMid "Leptonica ldconfig"
+
 	cd /root/src/tesseract
-	./configure --prefix=/usr/; make; make install; make clean
-	sudo ldconfig
-	clear
+	./configure --prefix=/usr/
+	func_debugMid "Configure Tesseract"
+	make
+	func_debugMid "Make Tesseract"
+	make install
+	func_debugMid "Make Install Tesseract"
+	make clean
+	func_debugMid "Make Clean Tesseract"
+	ldconfig
+	func_debugEnd "Tesseract ldconfig, end of func_installReqs"
 }
 
 #clears emda first boot from booting on next boot
 func_removeFirstBoot(){
+	func_debug "Start func_removeFirstBoot"
 	sed -i "/^instance tty1/ c\instance \$TTY" /etc/init/tty.conf
+	func_debugMid "Modify instance tty.conf"
 	sed -i "/^exec \/sbin\/mingetty --autologin root tty1/ c\exec /sbin/mingetty \$TTY" /etc/init/tty.conf
+	func_debugMid "Modify mingetty tty.conf"
 	sed -i "/\/usr\/bin\/emda -setup/d" /etc/bashrc
+	func_debugEnd "Remove emda -setup bashrc, end of func_remoreFirstBoot"
 }
 
 func_fixPerl(){
+	func_debug "Start func_fixPerl"
 	sed -i "/^#\!\/usr\/bin\/perl -I\/usr\/lib\/MailScanner/ c\#\!\/usr\/bin\/perl -UI\/usr\/lib\/MailScanner" /usr/sbin/MailScanner
+	func_debugEnd "Modify Perl start options MailScanner, end func_fixPerl"
 }
 
 func_fixPyzor(){
+	func_debug "Start func_fixPyzor"
 	pyzor --homedir /etc/mail/spamassassin/pyzor discover
+	func_debugEnd "Discover pyzor, end func_fixPyzor"
 }
 
 func_fixRazor(){
-		razor-admin -create
-		razor-admin -register
-		razor-report -register
-		rm -fr /root/.razor/razor-agent.conf
-		mv /root/.razor/* /etc/mail/spamassassin/razor/
-		echo "razorhome = /etc/mail/spamassassin/razor/" >> /etc/mail/spamassassin/razor/razor-agent.conf
-		echo "identity = /etc/mail/spamassassin/razor/identity" >> /etc/mail/spamassassin/razor/razor-agent.conf
-		echo "listfile_catalogue = /etc/mail/spamassassin/razor/servers.catalogue.lst" >> /etc/mail/spamassassin/razor/razor-agent.conf
-		echo "listfile_discovery = /etc/mail/spamassassin/razor/servers.discovery.lst" >> /etc/mail/spamassassin/razor/razor-agent.conf
-		echo "listfile_nomination = /etc/mail/spamassassin/razor/servers.nomination.lst" >> /etc/mail/spamassassin/razor/razor-agent.conf
-		echo "logfile = /var/log/razor-agent.log" >> /etc/mail/spamassassin/razor/razor-agent.conf
-		echo "debuglevel = 0" >> /etc/mail/spamassassin/razor/razor-agent.conf
-		echo "ignorelist = 0" >> /etc/mail/spamassassin/razor/razor-agent.conf
-		echo "logic_method = 4" >> /etc/mail/spamassassin/razor/razor-agent.conf
-		echo "min_cf = ac" >> /etc/mail/spamassassin/razor/razor-agent.conf
-		echo "razordiscovery = discovery.razor.cloudmark.com" >> /etc/mail/spamassassin/razor/razor-agent.conf
-		echo "rediscovery_wait = 172800" >> /etc/mail/spamassassin/razor/razor-agent.conf
-		echo "report_headers = 1" >> /etc/mail/spamassassin/razor/razor-agent.conf
-		echo "turn_off_discovery = 0" >> /etc/mail/spamassassin/razor/razor-agent.conf
-		echo "use_engines = 4,8" >> /etc/mail/spamassassin/razor/razor-agent.conf
-		echo "whitelist = /etc/mail/spamassassin/razor/razor-whitelist" >> /etc/mail/spamassassin/razor/razor-agent.conf
-		touch /etc/mail/spamassassin/razor/razor-whitelist
-		chown root:apache -R /etc/mail/spamassassin/razor
-		chmod 770 -R /etc/mail/spamassassin/razor
+	func_debug "Start func_fixRazor"
+	razor-admin -create
+	func_debugMid "razor-admin -create"
+	razor-admin -register
+	func_debugMid "razor-admin -register"
+	razor-report -register
+	func_debugMid "razor-report -register"
+	rm -fr /root/.razor/razor-agent.conf
+	func_debugMid "Remove razor-agent.conf"
+	mv /root/.razor/* /etc/mail/spamassassin/razor/
+	func_debugMid "Move razor folder"
+	echo "razorhome = /etc/mail/spamassassin/razor/" >> /etc/mail/spamassassin/razor/razor-agent.conf
+	echo "identity = /etc/mail/spamassassin/razor/identity" >> /etc/mail/spamassassin/razor/razor-agent.conf
+	echo "listfile_catalogue = /etc/mail/spamassassin/razor/servers.catalogue.lst" >> /etc/mail/spamassassin/razor/razor-agent.conf
+	echo "listfile_discovery = /etc/mail/spamassassin/razor/servers.discovery.lst" >> /etc/mail/spamassassin/razor/razor-agent.conf
+	echo "listfile_nomination = /etc/mail/spamassassin/razor/servers.nomination.lst" >> /etc/mail/spamassassin/razor/razor-agent.conf
+	echo "logfile = /var/log/razor-agent.log" >> /etc/mail/spamassassin/razor/razor-agent.conf
+	echo "debuglevel = 0" >> /etc/mail/spamassassin/razor/razor-agent.conf
+	echo "ignorelist = 0" >> /etc/mail/spamassassin/razor/razor-agent.conf
+	echo "logic_method = 4" >> /etc/mail/spamassassin/razor/razor-agent.conf
+	echo "min_cf = ac" >> /etc/mail/spamassassin/razor/razor-agent.conf
+	echo "razordiscovery = discovery.razor.cloudmark.com" >> /etc/mail/spamassassin/razor/razor-agent.conf
+	echo "rediscovery_wait = 172800" >> /etc/mail/spamassassin/razor/razor-agent.conf
+	echo "report_headers = 1" >> /etc/mail/spamassassin/razor/razor-agent.conf
+	echo "turn_off_discovery = 0" >> /etc/mail/spamassassin/razor/razor-agent.conf
+	echo "use_engines = 4,8" >> /etc/mail/spamassassin/razor/razor-agent.conf
+	echo "whitelist = /etc/mail/spamassassin/razor/razor-whitelist" >> /etc/mail/spamassassin/razor/razor-agent.conf
+	touch /etc/mail/spamassassin/razor/razor-whitelist
+	func_debugMid "Create razor-whitelist file"
+	chown root:apache -R /etc/mail/spamassassin/razor
+	func_debugMid "Change razor owner"
+	chmod 770 -R /etc/mail/spamassassin/razor
+	func_debugEnd "Change razor permissions, end func_fixRazor"
 }
 
 func_fixSA(){
-
+	func_debug "Start func_fixSA"
 	if [ ! -d /var/www/.spamassassin ]
 	then
 		mkdir /var/www/.spamassassin
+		func_debugMid "Create .spamassassin directory"
 		chown apache:apache /var/www/.spamassassin
+		func_debugMid "Change owner on .spamassassin"
 	fi
 	#during installation at some point changes perms back to :root. needs to be apache for sa-learn
 	if [ -d /etc/MailScanner/bayes ]
 	then
 		chown root:apache -R /etc/MailScanner/bayes
+		func_debugMid "Change bayes owner"
 	fi
+	func_debugEnd "end "
 }
 
 func_setSELinux(){
+	func_debug "Start func_setSELinux()"
 	#updating clam
 	checkmodule -M -m -o /root/src/selinux/freshclamtmp.mod /root/src/selinux/freshclamtmp.te
+	func_debugMid "SELinux checkmodule freshclam"
 	semodule_package -o /root/src/selinux/freshclamtmp.pp -m /root/src/selinux/freshclamtmp.mod
+	func_debugMid "SELinux semodule freshclam"
 	semodule -i /root/src/selinux/freshclamtmp.pp
+	func_debugMid "SELinux install module freshclam"
 	
 	#allowing mailwatch to properly access postfix/mailscanner areas
 	checkmodule -M -m -o /root/src/selinux/mailwatch.mod /root/src/selinux/mailwatch.te
+	func_debugMid "SELinux checkmodule mailwatch"
 	semodule_package -o /root/src/selinux/mailwatch.pp -m /root/src/selinux/mailwatch.mod
+	func_debugMid "SELinux semodule mailwatch"
 	semodule -i /root/src/selinux/mailwatch.pp
+	func_debugEnd "SELinux install semodule mailwatch, end func_setSELinux"
+}
+
+func_freshClam(){
+	updates=$(whiptail --title "Would you like to update EMDA now?" --yesno "Would you like to update EMDA now?" 20 75 --yes-button "Yes. Update Now" --no-button "No. Update Later" 3>&1 1>&2 2>&3)
+	if [ $? = 0 ]
+	then
+		clear
+		freshclam
+	fi
+
 }
 
 func_showHelp(){
+	func_debug "Start func_showHelp"
 	echo " "
 	echo "Usage: /usr/bin/emda [-option]"
-	echo "   or: emda [-setup]"
+	echo "   or: emda [-help]"
 	echo " "
 	echo " -setup		:configures EMDA for first time users and initial installs"
 	echo " -import	:imports an ESVA 2.0.6.1 into this EMDA"
@@ -389,6 +704,7 @@ func_showHelp(){
 	echo "	-help"
 	echo " "
 	exit 0
+	func_debugEnd "end "
 }
 
 main(){
@@ -396,23 +712,19 @@ main(){
 		'-setup')
 			func_welcome
 			func_checkPriorSetup
-			func_hostname
-			func_addEmailDomains
-			#func_checkInput
-			func_sysAdminEmail $rootEmail
 			func_orgNames
 			func_webSite
-			func_mailscannerSetup
+			func_addEmailDomains
+			func_hostname
 			func_startMYSQL
-			func_mysqlRootPW
-			func_mailwatchDBSetup
-			func_mailwatchUserPW
+			func_createPasswords
 			func_createdb
+			func_genKeyTLS
 			func_confTransport
 			func_rootEmail $rootEmail
-			func_genKeyTLS
 			func_confMailScanner
 			func_confSQLGrey
+			func_mailscannerSetup
 			func_installReqs
 			#func_startPOSTFIX #not required, part of MailScanner
 			func_fixPerl
@@ -427,10 +739,12 @@ main(){
 			func_startMAILGRAPH
 			func_setSELinux
 			func_removeFirstBoot
-			whiptail --title "EMDA Wizard Finished" --msgbox "This concludes the setup of EMDA. Press OK to reboot." 20 75
+			func_freshClam
+			whiptail --title "Setup of EMDA Complete" --msgbox "EMDA has been successfully installed and configured. After reboot you can login to EMDA via web browser at:\n https://$emdaHostname\n Username: emdadmin\n\n Please press [enter] to reboot..." 20 75
 			clear
 			echo "Rebooting in three seconds..."
 			sleep 3
+			func_debug "Rebooting after this debug..."
 			shutdown -r now
 			exit 0
 		;;
