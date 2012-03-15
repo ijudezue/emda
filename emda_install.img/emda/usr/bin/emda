@@ -21,7 +21,7 @@
 emdaVer="`cat /etc/emdaVersion`"
 emdaHostname="`hostname`"
 backupDate="`date +%Y%m%d-%s`"
-#Enable debugging by adding -debug as the second argument to this script. [ex. /usr/bin/debug -help -debug]
+#Enable debugging by adding -debug as the second argument to this script. [ex. /usr/bin/emda -help -debug]
 if [ "$2" = "-debug" ]
 then
 	debug="1"
