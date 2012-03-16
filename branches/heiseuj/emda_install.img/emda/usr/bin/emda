@@ -239,6 +239,11 @@ func_hostname(){
 	then
 		emdaHostname=$(whiptail --title "Change EMDA Hostname" --inputbox "Please enter the Hostname for this installation of EMDA:\n [$emdaHostname]" 10 75 3>&1 1>&2 2>&3)
 		#add commands to change hostname
+		sed -i '/^HOSTNAME=localhost.localdomain/ c\HOSTNAME='"$emdaHostname" /etc/sysconfig/network
+		func_debugMid "Changing hostname"
+	else
+		sed -i '/^HOSTNAME=localhost.localdomain/ c\HOSTNAME='"$emdaHostname" /etc/sysconfig/network
+		func_debugMid "Changing hostname"
 	fi
 	func_debugEnd "End of func_hostname"
 }
@@ -750,7 +755,6 @@ main(){
 			clear
 			echo "Rebooting in three seconds..."
 			sleep 3
-			func_debug "Rebooting after this debug..."
 			shutdown -r now
 			exit 0
 		;;
