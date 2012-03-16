@@ -690,7 +690,7 @@ smtpd_sasl_auth_enable = no
 
 smtp_use_tls = yes
 smtpd_use_tls = yes
-smtp_tls_CAfile = /etc/postfix/ssl/smtpd.pem
+smtp_tls_CAfile = /etc/postfix/tls/smtpd.pem
 smtp_tls_session_cache_database = btree:/var/spool/postfix/smtp_tls_session_cache
 smtp_tls_note_starttls_offer = yes
 smtpd_tls_key_file = /etc/postfix/ssl/smtpd.pem
