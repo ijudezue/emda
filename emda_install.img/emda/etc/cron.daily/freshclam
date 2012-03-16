@@ -2,10 +2,8 @@
 
 #MalwarePatrol DB download and conversion to .db
 #Regular List Basic: http://malwarepatrol.com.br/cgi/submit?action=list_clamav
-#Regular List Extended: http://malwarepatrol.com.br/cgi/submit?action=list_clamav_ext
 #Aggresive List Basic: http://malwarepatrol.com.br/cgi/submit-agressive?action=list_clamav&type=agressive
-#Aggresive List Extended: http://malwarepatrol.com.br/cgi/submit-agressive?action=list_clamav_ext&type=agressive
-wget -O - http://malwarepatrol.com.br/cgi/submit?action=list_clamav_ext > /var/lib/clamav/mbl.db
+wget -O - http://malwarepatrol.com.br/cgi/submit?action=list_clamav > /var/lib/clamav/mbl.db
 
 #SaneSecurity DB downloads via rsync
 rsync rsync://rsync.sanesecurity.net/sanesecurity/junk.ndb /var/lib/spamav/
@@ -22,4 +20,18 @@ rsync rsync://rsync.sanesecurity.net/sanesecurity/winnow_malware_links.ndb /var/
 rsync rsync://rsync.sanesecurity.net/sanesecurity/winnow_extended_malware.hdb /var/lib/spamav/
 rsync rsync://rsync.sanesecurity.net/sanesecurity/winnow.attachments.hdb /var/lib/spamav/
 
-freshclam
+### A simple update script for the clamav virus database.
+### This could as well be replaced by a SysV script.
+
+### fix log file if needed
+LOG_FILE="/var/log/clamav/freshclam.log"
+if [ ! -f "$LOG_FILE" ]; then
+    touch "$LOG_FILE"
+    chmod 644 "$LOG_FILE"
+    chown clam.clam "$LOG_FILE"
+fi
+
+/usr/bin/freshclam \
+    --quiet \
+    --datadir="/var/lib/clamav" \
+    --log="$LOG_FILE"
