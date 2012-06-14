@@ -60,7 +60,7 @@ srcPath="$workspacePath/src"
 func_checkDeps(){
 	if [ ! "`rpm -qa | grep epel-release`" ]
 	then
-    su -c 'rpm -Uvh http://download.fedoraproject.org/pub/epel/6/i386/epel-release-6-5.noarch.rpm'
+    su -c 'rpm -Uvh http://download.fedoraproject.org/pub/epel/6/i386/epel-release-6-7.noarch.rpm'
 		if [ ! "`rpm -qa | grep epel-release`" ]
 		then
 			clear
